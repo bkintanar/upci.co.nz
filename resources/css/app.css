@@ -1,6 +1,4 @@
 @import 'tailwindcss';
-@import '../../vendor/wireui/wireui/ts/global.css';
-@source '../../vendor/wireui/wireui';
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
