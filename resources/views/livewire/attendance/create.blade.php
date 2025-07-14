@@ -29,10 +29,17 @@ new #[Layout('components.layouts.app')] class extends Component {
     public $total_attendance = 0;
 
     public $entry_mode = 'detailed'; // 'detailed' or 'total'
+    public $calculated_total = 0;
 
     public function mount()
     {
         $this->date = now()->format('Y-m-d');
+        $this->updateCalculatedTotal();
+    }
+
+    public function updatedTotalAttendance()
+    {
+        $this->updateCalculatedTotal();
     }
 
     public function updatedEntryMode()
@@ -45,6 +52,32 @@ new #[Layout('components.layouts.app')] class extends Component {
         } else {
             $this->total_attendance = 0;
         }
+        $this->updateCalculatedTotal();
+    }
+
+    public function updatedMens()
+    {
+        $this->updateCalculatedTotal();
+    }
+
+    public function updatedLadies()
+    {
+        $this->updateCalculatedTotal();
+    }
+
+    public function updatedChildren()
+    {
+        $this->updateCalculatedTotal();
+    }
+
+    public function updatedVisitors()
+    {
+        $this->updateCalculatedTotal();
+    }
+
+    public function updateCalculatedTotal()
+    {
+        $this->calculated_total = $this->entry_mode === 'detailed' ? $this->mens + $this->ladies + $this->children + $this->visitors : $this->total_attendance;
     }
 
     public function save()
@@ -90,13 +123,6 @@ new #[Layout('components.layouts.app')] class extends Component {
 
         return redirect()->route('attendance.index');
     }
-
-    public function getTotal()
-    {
-        return $this->entry_mode === 'detailed'
-            ? $this->mens + $this->ladies + $this->children + $this->visitors
-            : $this->total_attendance;
-    }
 }; ?>
 
 <div class="space-y-6">
@@ -113,146 +139,112 @@ new #[Layout('components.layouts.app')] class extends Component {
     <form wire:submit="save" class="space-y-6">
         <div class="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Date -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                        Date *
-                    </label>
-                    <input
-                        type="date"
+                                                                <!-- Date -->
+                <div class="md:col-span-2" wire:key="date-field">
+                    <flux:input
                         wire:model="date"
-                        class="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                        label="Date"
+                        type="date"
                         required
-                    >
+                    />
                 </div>
 
                 <!-- Event -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                        Event
-                    </label>
-                    <input
-                        type="text"
+                <div class="md:col-span-2" wire:key="event-field">
+                    <flux:input
                         wire:model="event"
+                        label="Event"
                         placeholder="Optional event name (e.g., Sunday Service, Prayer Meeting)"
-                        class="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                    >
+                    />
                 </div>
 
                 <!-- Entry Mode Toggle -->
-                <div class="md:col-span-2">
+                <div class="md:col-span-2" wire:key="entry-mode-field">
                     <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
                         Entry Mode
                     </label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center">
-                            <input
-                                type="radio"
-                                wire:model.live="entry_mode"
-                                value="detailed"
-                                class="mr-2"
-                            >
-                            <span class="text-sm text-zinc-700 dark:text-zinc-300">Detailed Count</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input
-                                type="radio"
-                                wire:model.live="entry_mode"
-                                value="total"
-                                class="mr-2"
-                            >
-                            <span class="text-sm text-zinc-700 dark:text-zinc-300">Total Only</span>
-                        </label>
-                    </div>
+                    <flux:radio.group wire:model.live="entry_mode" variant="segmented">
+                        <flux:radio value="detailed">Detailed Count</flux:radio>
+                        <flux:radio value="total">Total Only</flux:radio>
+                    </flux:radio.group>
                 </div>
 
-                @if($entry_mode === 'detailed')
-                    <!-- Mens -->
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                            Mens *
-                        </label>
-                        <input
-                            type="number"
-                            wire:model.live="mens"
-                            min="0"
-                            class="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            required
-                        >
-                    </div>
+                <!-- Always render all fields but hide/show with CSS -->
+                <!-- Mens -->
+                <div wire:key="mens-field" class="{{ $entry_mode === 'detailed' ? '' : 'hidden' }}">
+                    <flux:input
+                        wire:model.change="mens"
+                        label="Mens"
+                        type="number"
+                        min="0"
+                        :required="$entry_mode === 'detailed'"
+                    />
+                </div>
 
-                    <!-- Ladies -->
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                            Ladies *
-                        </label>
-                        <input
-                            type="number"
-                            wire:model.live="ladies"
-                            min="0"
-                            class="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            required
-                        >
-                    </div>
 
-                    <!-- Children -->
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                            Children *
-                        </label>
-                        <input
-                            type="number"
-                            wire:model.live="children"
-                            min="0"
-                            class="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            required
-                        >
-                    </div>
+                <!-- Ladies -->
+                <div wire:key="ladies-field" class="{{ $entry_mode === 'detailed' ? '' : 'hidden' }}">
+                    <flux:input
+                        wire:model.change="ladies"
+                        label="Ladies"
+                        type="number"
+                        min="0"
+                        :required="$entry_mode === 'detailed'"
+                    />
+                </div>
 
-                    <!-- Visitors -->
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                            Visitors *
-                        </label>
-                        <input
-                            type="number"
-                            wire:model.live="visitors"
-                            min="0"
-                            class="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            required
-                        >
-                    </div>
-                @else
-                    <!-- Total Attendance -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                            Total Attendance *
-                        </label>
-                        <input
-                            type="number"
-                            wire:model.live="total_attendance"
-                            min="0"
-                            placeholder="Enter total number of attendees"
-                            class="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                            required
-                        >
-                    </div>
-                @endif
+                <!-- Children -->
+                <div wire:key="children-field" class="{{ $entry_mode === 'detailed' ? '' : 'hidden' }}">
+                    <flux:input
+                        wire:model.change="children"
+                        label="Children"
+                        type="number"
+                        min="0"
+                        :required="$entry_mode === 'detailed'"
+                    />
+                </div>
+
+                <!-- Visitors -->
+                <div wire:key="visitors-field" class="{{ $entry_mode === 'detailed' ? '' : 'hidden' }}">
+                    <flux:input
+                        wire:model.change="visitors"
+                        label="Visitors"
+                        type="number"
+                        :required="$entry_mode === 'detailed'"
+                    />
+                </div>
+
+                <!-- Total Attendance -->
+                <div wire:key="total-field" class="md:col-span-2 {{ $entry_mode === 'total' ? '' : 'hidden' }}">
+                    <flux:input
+                        wire:model.change="total_attendance"
+                        label="Total Attendance"
+                        type="number"
+                        min="0"
+                        :required="$entry_mode === 'total'"
+                        placeholder="Enter total number of attendees"
+                    />
+                </div>
             </div>
 
             <!-- Total Preview -->
             <div class="mt-6 bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <div class="flex justify-between items-center">
-                    <span class="font-medium text-gray-700 dark:text-gray-300">
+                                <div class="flex justify-between items-center gap-4">
+                    <span class="font-medium text-gray-700 dark:text-gray-300 flex-shrink-0">
                         @if($entry_mode === 'detailed')
                             Calculated Total:
                         @else
                             Total Attendance:
                         @endif
                     </span>
-                    <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        {{ $this->getTotal() }}
-                    </span>
+                    <div class="flex-shrink-0">
+                        <flux:input
+                            wire:model="calculated_total"
+                            class="text-4xl font-bold text-blue-600 dark:text-blue-400 text-center border-0 bg-transparent focus:ring-0 focus:border-0 p-0 w-auto min-w-20"
+                            disabled
+                            readonly
+                        />
+                    </div>
                 </div>
                 @if($entry_mode === 'detailed')
                     <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
