@@ -21,6 +21,6 @@
                 </div>
             </div>
         </div>
-        @fluxScripts
+        @wireUiScripts
     </body>
 </html>

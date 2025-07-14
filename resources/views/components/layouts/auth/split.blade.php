@@ -19,9 +19,9 @@
                 @endphp
 
                 <div class="relative z-20 mt-auto">
-                    <blockquote class="space-y-2">
-                        <flux:heading size="lg">&ldquo;{{ trim($message) }}&rdquo;</flux:heading>
-                        <footer><flux:heading>{{ trim($author) }}</flux:heading></footer>
+                    <blockquote class="relative z-10 text-center space-y-4">
+                        <h3 class="text-lg font-semibold text-white">&ldquo;{{ trim($message) }}&rdquo;</h3>
+                        <footer><h4 class="text-base font-medium text-white">{{ trim($author) }}</h4></footer>
                     </blockquote>
                 </div>
             </div>
@@ -38,6 +38,6 @@
                 </div>
             </div>
         </div>
-        @fluxScripts
+        @wireUiScripts
     </body>
 </html>

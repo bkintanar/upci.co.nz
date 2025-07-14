@@ -24,35 +24,42 @@ new class extends Component {
 
 <section class="mt-10 space-y-6">
     <div class="relative mb-5">
-        <flux:heading>{{ __('Delete account') }}</flux:heading>
-        <flux:subheading>{{ __('Delete your account and all of its resources') }}</flux:subheading>
-    </div>
+        <div class="space-y-2">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('Delete account') }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('Delete your account and all of its resources') }}</p>
+        </div>
 
-    <flux:modal.trigger name="confirm-user-deletion">
-        <flux:button variant="danger" x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')">
+        <x-button
+            variant="danger"
+            x-data=""
+            x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
+        >
             {{ __('Delete account') }}
-        </flux:button>
-    </flux:modal.trigger>
+        </x-button>
 
-    <flux:modal name="confirm-user-deletion" :show="$errors->isNotEmpty()" focusable class="max-w-lg">
-        <form wire:submit="deleteUser" class="space-y-6">
-            <div>
-                <flux:heading size="lg">{{ __('Are you sure you want to delete your account?') }}</flux:heading>
+        <x-modal name="confirm-user-deletion" :show="$errors->isNotEmpty()" focusable>
+            <form wire:submit="deleteUser" class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                    {{ __('Are you sure you want to delete your account?') }}
+                </h2>
 
-                <flux:subheading>
+                <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-                </flux:subheading>
-            </div>
+                </p>
 
-            <flux:input wire:model="password" :label="__('Password')" type="password" />
+                <div class="mt-6">
+                    <x-input wire:model="password" label="{{ __('Password') }}" type="password" />
+                </div>
 
-            <div class="flex justify-end space-x-2 rtl:space-x-reverse">
-                <flux:modal.close>
-                    <flux:button variant="filled">{{ __('Cancel') }}</flux:button>
-                </flux:modal.close>
+                <div class="mt-6 flex justify-end">
+                    <x-secondary-button x-on:click="$dispatch('close')">
+                        {{ __('Cancel') }}
+                    </x-secondary-button>
 
-                <flux:button variant="danger" type="submit">{{ __('Delete account') }}</flux:button>
-            </div>
-        </form>
-    </flux:modal>
+                    <x-button variant="danger" type="submit" class="ml-3">
+                        {{ __('Delete account') }}
+                    </x-button>
+                </div>
+            </form>
+        </x-modal>
 </section>

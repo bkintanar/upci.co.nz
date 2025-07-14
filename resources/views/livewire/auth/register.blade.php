@@ -43,57 +43,61 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <form wire:submit="register" class="flex flex-col gap-6">
         <!-- Name -->
-        <flux:input
-            wire:model="name"
-            :label="__('Name')"
+        <x-input
+            wire:model="form.name"
+            label="{{ __('Name') }}"
+            id="name"
             type="text"
+            name="name"
             required
             autofocus
             autocomplete="name"
-            :placeholder="__('Full name')"
         />
 
         <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email address')"
+        <x-input
+            wire:model="form.email"
+            label="{{ __('Email') }}"
+            id="email"
             type="email"
+            name="email"
             required
-            autocomplete="email"
-            placeholder="email@example.com"
+            autocomplete="username"
         />
 
         <!-- Password -->
-        <flux:input
-            wire:model="password"
-            :label="__('Password')"
+        <x-input
+            wire:model="form.password"
+            label="{{ __('Password') }}"
+            id="password"
             type="password"
+            name="password"
             required
             autocomplete="new-password"
-            :placeholder="__('Password')"
-            viewable
         />
 
         <!-- Confirm Password -->
-        <flux:input
-            wire:model="password_confirmation"
-            :label="__('Confirm password')"
+        <x-input
+            wire:model="form.password_confirmation"
+            label="{{ __('Confirm Password') }}"
+            id="password_confirmation"
             type="password"
+            name="password_confirmation"
             required
             autocomplete="new-password"
-            :placeholder="__('Confirm password')"
-            viewable
         />
 
         <div class="flex items-center justify-end">
-            <flux:button type="submit" variant="primary" class="w-full">
-                {{ __('Create account') }}
-            </flux:button>
+            <x-button type="submit" variant="primary" class="w-full">
+                {{ __('Register') }}
+            </x-button>
         </div>
     </form>
 
     <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
         {{ __('Already have an account?') }}
-        <flux:link :href="route('login')" wire:navigate>{{ __('Log in') }}</flux:link>
+        <a href="{{ route('login') }}" wire:navigate class="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+            {{ __('Log in') }}
+        </a>
     </div>
 </div>
