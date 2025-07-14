@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\Attendances\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Table;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 
 class AttendancesTable
 {
@@ -20,20 +20,18 @@ class AttendancesTable
                     ->sortable(),
                 TextColumn::make('event')
                     ->searchable(),
-                TextColumn::make('mens')
+                TextColumn::make('total')
+                    ->label('Total Attendance')
+                    ->getStateUsing(fn ($record) => $record->mens + $record->ladies + $record->youth + $record->children + $record->visitors)
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('ladies')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('children')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('visitors')
-                    ->numeric()
-                    ->sortable(),
+                    ->sortable(query: function ($query, $direction) {
+                        return $query->orderByRaw('(mens + ladies + youth + children + visitors) '.$direction);
+                    })
+                    ->badge()
+                    ->color('success'),
                 TextColumn::make('user.name')
-                    ->numeric()
+                    ->label('Recorded by')
+                    ->searchable()
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

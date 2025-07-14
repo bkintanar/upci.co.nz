@@ -1,22 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/admin');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::redirect('dashboard', '/admin')->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', 'settings/profile');
-
-    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
-    Volt::route('settings/password', 'settings.password')->name('settings.password');
-    Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
+    // Settings routes - redirect to Filament admin panel
+    Route::redirect('settings', '/admin')->name('settings');
+    Route::redirect('settings/profile', '/admin')->name('settings.profile');
+    Route::redirect('settings/password', '/admin')->name('settings.password');
+    Route::redirect('settings/appearance', '/admin')->name('settings.appearance');
 
     // Attendance routes - redirect to Filament admin panel
     Route::redirect('attendance', 'admin/attendances')->name('attendance.index');

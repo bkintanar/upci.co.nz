@@ -2,19 +2,18 @@
 
 namespace App\Filament\Resources\Attendances\Pages;
 
-use App\Filament\Resources\Attendances\AttendanceResource;
+use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Pages\CreateRecord;
-use Filament\Schemas\Schema;
+use App\Filament\Resources\Attendances\AttendanceResource;
 
 class CreateAttendance extends CreateRecord
 {
     protected static string $resource = AttendanceResource::class;
 
-    public function content(Schema $schema): Schema
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
-        return $schema
-            ->components([
-                $this->getFormContentComponent(),
-            ]);
+        $data['user_id'] = Auth::id();
+
+        return $data;
     }
 }

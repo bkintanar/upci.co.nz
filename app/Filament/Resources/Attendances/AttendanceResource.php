@@ -2,19 +2,19 @@
 
 namespace App\Filament\Resources\Attendances;
 
-use App\Filament\Resources\Attendances\Pages\CreateAttendance;
-use App\Filament\Resources\Attendances\Pages\EditAttendance;
-use App\Filament\Resources\Attendances\Pages\ListAttendances;
-use App\Filament\Resources\Attendances\Pages\ViewAttendance;
-use App\Filament\Resources\Attendances\Schemas\AttendanceForm;
-use App\Filament\Resources\Attendances\Schemas\AttendanceInfolist;
-use App\Filament\Resources\Attendances\Tables\AttendancesTable;
-use App\Models\Attendance;
 use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
+use App\Models\Attendance;
 use Filament\Tables\Table;
+use Filament\Schemas\Schema;
+use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
+use App\Filament\Resources\Attendances\Pages\EditAttendance;
+use App\Filament\Resources\Attendances\Pages\ViewAttendance;
+use App\Filament\Resources\Attendances\Pages\ListAttendances;
+use App\Filament\Resources\Attendances\Pages\CreateAttendance;
+use App\Filament\Resources\Attendances\Schemas\AttendanceForm;
+use App\Filament\Resources\Attendances\Tables\AttendancesTable;
+use App\Filament\Resources\Attendances\Schemas\AttendanceInfolist;
 
 class AttendanceResource extends Resource
 {

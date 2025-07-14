@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('event')->nullable();
             $table->integer('mens')->default(0);
             $table->integer('ladies')->default(0);
+            $table->integer('youth')->default(0);
             $table->integer('children')->default(0);
             $table->integer('visitors')->default(0);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');

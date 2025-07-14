@@ -1,34 +1,24 @@
 <?php
 
-use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
+use App\Http\Controllers\Auth\VerifyEmailController;
 
+// All auth routes are handled by Filament admin panel
 Route::middleware('guest')->group(function () {
-    Volt::route('login', 'auth.login')
-        ->name('login');
-
-    Volt::route('register', 'auth.register')
-        ->name('register');
-
-    Volt::route('forgot-password', 'auth.forgot-password')
-        ->name('password.request');
-
-    Volt::route('reset-password/{token}', 'auth.reset-password')
-        ->name('password.reset');
-
+    Route::redirect('login', '/admin/login')->name('login');
+    Route::redirect('register', '/admin/register')->name('register');
+    Route::redirect('forgot-password', '/admin/password/reset')->name('password.request');
+    Route::redirect('reset-password/{token}', '/admin/password/reset')->name('password.reset');
 });
 
 Route::middleware('auth')->group(function () {
-    Volt::route('verify-email', 'auth.verify-email')
-        ->name('verification.notice');
+    Route::redirect('verify-email', '/admin')->name('verification.notice');
 
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
 
-    Volt::route('confirm-password', 'auth.confirm-password')
-        ->name('password.confirm');
+    Route::redirect('confirm-password', '/admin')->name('password.confirm');
 });
 
 Route::post('logout', App\Livewire\Actions\Logout::class)

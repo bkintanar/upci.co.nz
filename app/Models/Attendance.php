@@ -17,6 +17,7 @@ class Attendance extends Model
         'event',
         'mens',
         'ladies',
+        'youth',
         'children',
         'visitors',
         'user_id',
@@ -33,6 +34,7 @@ class Attendance extends Model
             'date' => 'date',
             'mens' => 'integer',
             'ladies' => 'integer',
+            'youth' => 'integer',
             'children' => 'integer',
             'visitors' => 'integer',
         ];
@@ -51,6 +53,6 @@ class Attendance extends Model
      */
     public function getTotalAttribute(): int
     {
-        return $this->mens + $this->ladies + $this->children + $this->visitors;
+        return $this->mens + $this->ladies + $this->youth + $this->children + $this->visitors;
     }
 }

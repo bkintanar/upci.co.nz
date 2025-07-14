@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Attendances\Pages;
 
-use App\Filament\Resources\Attendances\AttendanceResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\Attendances\AttendanceResource;
 
 class ViewAttendance extends ViewRecord
 {
