@@ -1,23 +1,31 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ChurchController;
 
+// API routes (must come before catch-all route)
+Route::prefix('api')->group(function () {
+    // RESTful church routes
+    Route::apiResource('churches', ChurchController::class);
+
+    // Additional church-related endpoints
+    Route::get('/churches-regions', [ChurchController::class, 'regions']);
+    Route::get('/churches-service-days', [ChurchController::class, 'serviceDays']);
+});
+
+// Frontend routes
 Route::get('/', function () {
-    return redirect('/admin');
+    return view('app');
 })->name('home');
 
-Route::redirect('dashboard', '/admin')->name('dashboard');
+// Catch-all route for Vue.js SPA (must be last)
+Route::get('/{any}', function () {
+    return view('app');
+})->where('any', '^(?!api).*');
 
-Route::middleware(['auth'])->group(function () {
-    // Settings routes - redirect to Filament admin panel
-    Route::redirect('settings', '/admin')->name('settings');
-    Route::redirect('settings/profile', '/admin')->name('settings.profile');
-    Route::redirect('settings/password', '/admin')->name('settings.password');
-    Route::redirect('settings/appearance', '/admin')->name('settings.appearance');
-
-    // Attendance routes - redirect to Filament admin panel
-    Route::redirect('attendance', 'admin/attendances')->name('attendance.index');
-    Route::redirect('attendance/create', 'admin/attendances/create')->name('attendance.create');
+// Admin routes (protected)
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    // Admin routes will be handled by Filament
 });
 
 require __DIR__.'/auth.php';
