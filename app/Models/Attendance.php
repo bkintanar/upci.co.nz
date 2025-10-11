@@ -21,6 +21,7 @@ class Attendance extends Model
         'children',
         'visitors',
         'user_id',
+        'church_id',
     ];
 
     /**
@@ -46,6 +47,14 @@ class Attendance extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the church this attendance record belongs to.
+     */
+    public function church(): BelongsTo
+    {
+        return $this->belongsTo(Church::class);
     }
 
     /**
