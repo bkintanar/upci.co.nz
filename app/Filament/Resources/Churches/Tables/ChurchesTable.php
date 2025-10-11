@@ -21,6 +21,13 @@ class ChurchesTable
                     ->sortable()
                     ->weight('bold'),
 
+                TextColumn::make('pastors.name')
+                    ->label('Pastor(s)')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('No pastor assigned')
+                    ->toggleable(),
+
                 TextColumn::make('city')
                     ->label('City')
                     ->searchable()

@@ -42,6 +42,160 @@ class ChurchInfolist
                             ->openUrlInNewTab()
                             ->visible(fn ($record) => ! empty($record->website))
                             ->columnSpanFull(),
+
+                        TextEntry::make('service_times')
+                            ->label('Service Times')
+                            ->getStateUsing(function ($record) {
+                                if (!$record->service_times || empty($record->service_times)) {
+                                    return 'No service times set';
+                                }
+
+                                return collect($record->service_times)->map(function ($service) {
+                                    $serviceType = $service['service_type'] ?? 'Service';
+                                    $time = $service['time'] ?? '';
+                                    $days = $service['days'] ?? [];
+
+                                    if (empty($days)) {
+                                        return $serviceType . ' at ' . $time;
+                                    }
+
+                                    $dayLabels = [
+                                        'monday' => 'Monday',
+                                        'tuesday' => 'Tuesday',
+                                        'wednesday' => 'Wednesday',
+                                        'thursday' => 'Thursday',
+                                        'friday' => 'Friday',
+                                        'saturday' => 'Saturday',
+                                        'sunday' => 'Sunday',
+                                    ];
+
+                                    $formattedDays = collect($days)->map(function ($day) use ($dayLabels) {
+                                        return $dayLabels[$day] ?? ucfirst($day);
+                                    })->join(', ');
+
+                                    return $serviceType . ' (' . $formattedDays . ') at ' . $time;
+                                })->join(' • ');
+                            })
+                            ->visible(fn ($record) => ! empty($record->service_times))
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->columnSpanFull(),
+
+                // Church Board Section
+                Section::make('Church Board')
+                    ->description('Church leadership and board members')
+                    ->schema([
+                        TextEntry::make('leadership_count')
+                            ->label('Total Leadership')
+                            ->getStateUsing(fn ($record) => $record->leadership()->count())
+                            ->badge()
+                            ->color('purple'),
+
+                        TextEntry::make('pastors_list')
+                            ->label('Pastors')
+                            ->getStateUsing(function ($record) {
+                                $pastors = $record->pastors()->get();
+
+                                if ($pastors->isEmpty()) {
+                                    return 'No pastors assigned';
+                                }
+
+                                return $pastors->map(function ($pastor) {
+                                    $roleEnum = $pastor->role;
+                                    $roleName = $roleEnum ? $roleEnum->getLabel() : 'Member';
+
+                                    return $pastor->name . ' (' . $roleName . ')';
+                                })->join(', ');
+                            })
+                            ->badge()
+                            ->color('red')
+                            ->visible(fn ($record) => $record->pastors()->count() > 0),
+
+                        TextEntry::make('elders_list')
+                            ->label('Elders')
+                            ->getStateUsing(function ($record) {
+                                $elders = $record->users()->where('role', \App\Enums\UserRole::ELDER)->get();
+
+                                if ($elders->isEmpty()) {
+                                    return 'No elders assigned';
+                                }
+
+                                return $elders->map(function ($elder) {
+                                    return $elder->name;
+                                })->join(', ');
+                            })
+                            ->badge()
+                            ->color('yellow')
+                            ->visible(fn ($record) => $record->users()->where('role', \App\Enums\UserRole::ELDER)->count() > 0),
+
+                        TextEntry::make('deacons_list')
+                            ->label('Deacons')
+                            ->getStateUsing(function ($record) {
+                                $deacons = $record->users()->where('role', \App\Enums\UserRole::DEACON)->get();
+
+                                if ($deacons->isEmpty()) {
+                                    return 'No deacons assigned';
+                                }
+
+                                return $deacons->map(function ($deacon) {
+                                    return $deacon->name;
+                                })->join(', ');
+                            })
+                            ->badge()
+                            ->color('green')
+                            ->visible(fn ($record) => $record->users()->where('role', \App\Enums\UserRole::DEACON)->count() > 0),
+
+                        TextEntry::make('other_leadership')
+                            ->label('Other Leadership')
+                            ->getStateUsing(function ($record) {
+                                $otherRoles = $record->users()->whereIn('role', [
+                                    \App\Enums\UserRole::USHER,
+                                    \App\Enums\UserRole::ADMINISTRATOR
+                                ])->get();
+
+                                if ($otherRoles->isEmpty()) {
+                                    return 'No other leadership assigned';
+                                }
+
+                                return $otherRoles->map(function ($user) {
+                                    $roleEnum = $user->role;
+                                    $roleName = $roleEnum ? $roleEnum->getLabel() : 'Member';
+
+                                    return $user->name . ' (' . $roleName . ')';
+                                })->join(', ');
+                            })
+                            ->badge()
+                            ->color('blue')
+                            ->visible(fn ($record) => $record->users()->whereIn('role', [
+                                \App\Enums\UserRole::USHER,
+                                \App\Enums\UserRole::ADMINISTRATOR
+                            ])->count() > 0),
+
+                        TextEntry::make('pastor_contact')
+                            ->label('Primary Contact')
+                            ->getStateUsing(function ($record) {
+                                $seniorPastor = $record->pastors()
+                                    ->where('role', \App\Enums\UserRole::SENIOR_PASTOR)
+                                    ->first();
+
+                                if (!$seniorPastor) {
+                                    $seniorPastor = $record->pastors()->first();
+                                }
+
+                                if (!$seniorPastor) {
+                                    return 'No pastor contact available';
+                                }
+
+                                $contact = $seniorPastor->name;
+                                if ($seniorPastor->email) {
+                                    $contact .= ' • ' . $seniorPastor->email;
+                                }
+
+                                return $contact;
+                            })
+                            ->visible(fn ($record) => $record->pastors()->count() > 0)
+                            ->columnSpanFull(),
                     ])
                     ->collapsible()
                     ->columnSpanFull(),
