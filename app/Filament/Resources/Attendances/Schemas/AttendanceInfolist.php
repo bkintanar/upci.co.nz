@@ -17,11 +17,18 @@ class AttendanceInfolist
                 Section::make('Event Details')
                     ->description('Basic information about the event')
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(3)
                             ->schema([
+                                TextEntry::make('church.name')
+                                    ->label('Church')
+                                    ->placeholder('No church assigned')
+                                    ->visible(fn ($record) => $record->church_id),
+
                                 TextEntry::make('date')
                                     ->date(),
+
                                 TextEntry::make('event')
+                                    ->placeholder('No event specified')
                                     ->visible(fn ($record) => ! empty($record->event)),
                             ]),
                     ])
@@ -67,9 +74,22 @@ class AttendanceInfolist
                             ->schema([
                                 TextEntry::make('user.name')
                                     ->label('Recorded by'),
+
+                                TextEntry::make('user.role')
+                                    ->label('Role')
+                                    ->formatStateUsing(fn ($state) => $state?->getLabel() ?? 'Member')
+                                    ->badge()
+                                    ->color(fn ($state) => $state?->getColor() ?? 'gray'),
+
+                                TextEntry::make('user.church.name')
+                                    ->label('User\'s Church')
+                                    ->placeholder('No church assigned')
+                                    ->visible(fn ($record) => $record->user?->church_id),
+
                                 TextEntry::make('created_at')
                                     ->dateTime()
                                     ->label('Created'),
+
                                 TextEntry::make('updated_at')
                                     ->dateTime()
                                     ->label('Updated'),

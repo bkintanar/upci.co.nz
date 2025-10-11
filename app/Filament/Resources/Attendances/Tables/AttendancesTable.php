@@ -18,8 +18,18 @@ class AttendancesTable
                 TextColumn::make('date')
                     ->date()
                     ->sortable(),
+
+                TextColumn::make('church.name')
+                    ->label('Church')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('No church')
+                    ->toggleable(),
+
                 TextColumn::make('event')
-                    ->searchable(),
+                    ->searchable()
+                    ->placeholder('No event specified'),
+
                 TextColumn::make('total')
                     ->label('Total Attendance')
                     ->getStateUsing(fn ($record) => $record->mens + $record->ladies + $record->youth + $record->children + $record->visitors)
@@ -29,14 +39,48 @@ class AttendancesTable
                     })
                     ->badge()
                     ->color('success'),
+
+                TextColumn::make('breakdown')
+                    ->label('Breakdown')
+                    ->getStateUsing(function ($record) {
+                        $parts = [];
+                        if ($record->mens > 0) {
+                            $parts[] = "M:{$record->mens}";
+                        }
+                        if ($record->ladies > 0) {
+                            $parts[] = "L:{$record->ladies}";
+                        }
+                        if ($record->youth > 0) {
+                            $parts[] = "Y:{$record->youth}";
+                        }
+                        if ($record->children > 0) {
+                            $parts[] = "C:{$record->children}";
+                        }
+                        if ($record->visitors > 0) {
+                            $parts[] = "V:{$record->visitors}";
+                        }
+
+                        return implode(' • ', $parts);
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('user.name')
                     ->label('Recorded by')
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('user.role')
+                    ->label('Role')
+                    ->formatStateUsing(fn ($state) => $state?->getLabel() ?? 'Member')
+                    ->badge()
+                    ->color(fn ($state) => $state?->getColor() ?? 'gray')
+                    ->toggleable(),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()

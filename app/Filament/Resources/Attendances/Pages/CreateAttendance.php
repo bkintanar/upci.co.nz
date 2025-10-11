@@ -13,6 +13,7 @@ class CreateAttendance extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = Auth::id();
+        $data['church_id'] = Auth::user()->church_id;
 
         return $data;
     }
