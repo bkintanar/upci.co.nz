@@ -69,9 +69,9 @@
             <!-- Text Block -->
             <section v-else-if="block.type === 'text'" :class="getTextBlockClasses(index)">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="text-center" :class="hasStats(block.data.content) ? 'mb-0' : 'mb-16'">
+                    <div class="text-center">
                         <h2 v-if="block.data.heading" class="text-4xl md:text-5xl font-bold text-slate-900 mb-6">{{ block.data.heading }}</h2>
-                        <div class="prose prose-xl max-w-4xl mx-auto text-slate-600 leading-relaxed cms-text-content" :class="{ 'stats-content': hasStats(block.data.content) }" v-html="renderMarkdown(block.data.content)"></div>
+                        <div class="max-w-4xl mx-auto text-xl text-slate-600 leading-relaxed cms-text-content" :class="{ 'stats-content': hasStats(block.data.content) }" :data-has-stats="hasStats(block.data.content)" v-html="renderMarkdown(block.data.content)"></div>
                     </div>
                 </div>
             </section>
@@ -87,11 +87,11 @@
             </section>
 
             <!-- Two Column Layout -->
-            <section v-else-if="block.type === 'two_column'" class="py-12 bg-white">
+            <section v-else-if="block.type === 'two_column'" class="py-16 bg-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="prose prose-lg" v-html="renderMarkdown(block.data.left_content)"></div>
-                        <div class="prose prose-lg" v-html="renderMarkdown(block.data.right_content)"></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12">
+                        <div class="two-column-content" v-html="renderMarkdown(block.data.left_content)"></div>
+                        <div class="bg-gray-100 p-8 rounded-lg two-column-content" v-html="renderMarkdown(block.data.right_content)"></div>
                     </div>
                 </div>
             </section>
@@ -108,15 +108,24 @@
             </section>
 
             <!-- Card Grid -->
-            <section v-else-if="block.type === 'cards'" class="py-16 bg-gray-50">
+            <section v-else-if="block.type === 'cards'"
+                     :class="block.data.heading ? 'py-20 bg-white' : 'py-12 bg-white'">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 v-if="block.data.heading" class="text-3xl font-bold text-gray-900 text-center mb-12">{{ block.data.heading }}</h2>
-                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <div v-for="(card, cardIndex) in block.data.items" :key="cardIndex" class="bg-white rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow">
-                            <img v-if="card.data.icon" :src="getImageUrl(card.data.icon)" :alt="card.data.title" class="w-16 h-16 mb-4 object-contain" />
-                            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ card.data.title }}</h3>
-                            <p class="text-gray-600 mb-4">{{ card.data.description }}</p>
-                            <a v-if="card.data.link_url" :href="card.data.link_url" class="text-blue-600 hover:text-blue-800 font-semibold">
+                    <div :class="block.data.items.length >= 4 ? 'grid grid-cols-1 md:grid-cols-2 gap-8' : 'grid grid-cols-1 md:grid-cols-3 gap-8'">
+                        <div v-for="(card, cardIndex) in block.data.items" :key="cardIndex"
+                             :class="getMinistryCardClasses(card)">
+                            <div v-if="card.data.icon_svg && card.data.icon_svg.includes('<svg')"
+                                 :class="getCardIconContainerClass(card, cardIndex)"
+                                 v-html="card.data.icon_svg">
+                            </div>
+                            <img v-else-if="card.data.icon" :src="getImageUrl(card.data.icon)" :alt="card.data.title"
+                                 :class="card.data.icon_svg === 'blue-ministry' || card.data.icon_svg === 'green-ministry' ? 'w-full h-auto mx-auto mb-4 rounded-lg object-cover' : 'w-24 h-24 mx-auto mb-4 rounded-full object-cover'" />
+                            <div :class="getMinistryCardContentClasses(card)">
+                                <h3 :class="getMinistryCardTitleClasses(card)">{{ card.data.title }}</h3>
+                                <p :class="getMinistryCardDescClasses(card)">{{ card.data.description }}</p>
+                            </div>
+                            <a v-if="card.data.link_url" :href="card.data.link_url" class="text-blue-600 hover:text-blue-800 font-semibold block text-center">
                                 {{ card.data.link_text || 'Learn More' }} →
                             </a>
                         </div>
@@ -169,8 +178,14 @@ export default defineComponent({
             }
         }
 
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        })
+
         const renderMarkdown = (content) => {
-            return marked(content || '')
+            if (!content) return ''
+            return marked.parse(content)
         }
 
         const getImageUrl = (path) => {
@@ -181,13 +196,14 @@ export default defineComponent({
 
         const getHeroClasses = (style) => {
             const styles = {
+                'gradient-slate': 'bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900',
                 'gradient-blue': 'bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800',
                 'gradient-indigo': 'bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800',
                 'gradient-purple': 'bg-gradient-to-br from-purple-600 via-purple-700 to-pink-800',
                 'solid-blue': 'bg-blue-600',
                 'solid-indigo': 'bg-indigo-600',
             }
-            return styles[style] || styles['gradient-blue']
+            return styles[style] || styles['gradient-slate']
         }
 
         const getCtaClasses = (style) => {
@@ -214,16 +230,99 @@ export default defineComponent({
             return content && content.includes('- **')
         }
 
+        const getCardIconClass = (index, iconSvg) => {
+            // Use green for checkmark icons
+            if (iconSvg && iconSvg.includes('16.707 5.293')) {
+                return 'bg-green-100'
+            }
+            // Default color rotation for other icons
+            const colors = [
+                'bg-blue-600',
+                'bg-emerald-600',
+                'bg-slate-600',
+            ]
+            return colors[index % colors.length]
+        }
+
+        const getCardIconContainerClass = (card, index) => {
+            // Checkmark icons (small green circle)
+            if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
+                return 'bg-green-100 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1'
+            }
+            // Ministry cards (no icon container)
+            if (card.data.icon_svg === 'blue-ministry' || card.data.icon_svg === 'green-ministry') {
+                return ''
+            }
+            // District leadership and other cards with icons (large blue circle for leadership icons)
+            if (card.data.icon_svg && card.data.icon_svg.includes('stroke="currentColor"')) {
+                return 'w-24 h-24 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center'
+            }
+            // Default card icons (colored rounded squares with hover effect)
+            return [getCardIconClass(index, card.data.icon_svg), 'w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300'].join(' ')
+        }
+
+        const getMinistryCardClasses = (card) => {
+            if (card.data.icon_svg === 'blue-ministry') {
+                return 'bg-blue-50 p-6 rounded-lg'
+            } else if (card.data.icon_svg === 'green-ministry') {
+                return 'bg-green-50 p-6 rounded-lg'
+            } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
+                return 'flex items-start space-x-3 bg-white p-6 rounded-lg'
+            }
+            return 'group bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-slate-100'
+        }
+
+        const getMinistryCardContentClasses = (card) => {
+            if (card.data.icon_svg === 'blue-ministry' || card.data.icon_svg === 'green-ministry') {
+                return ''
+            } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
+                return ''
+            }
+            return 'text-center'
+        }
+
+        const getMinistryCardTitleClasses = (card) => {
+            if (card.data.icon_svg === 'blue-ministry') {
+                return 'text-lg font-semibold text-blue-900 mb-3'
+            } else if (card.data.icon_svg === 'green-ministry') {
+                return 'text-lg font-semibold text-green-900 mb-3'
+            } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
+                return 'font-semibold text-gray-900 mb-1'
+            }
+            return 'text-xl font-bold text-slate-900 mb-4'
+        }
+
+        const getMinistryCardDescClasses = (card) => {
+            if (card.data.icon_svg === 'blue-ministry') {
+                return 'text-blue-800 text-sm'
+            } else if (card.data.icon_svg === 'green-ministry') {
+                return 'text-green-800 text-sm'
+            } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
+                return 'text-gray-600 text-sm'
+            }
+            return 'text-slate-600 leading-relaxed mb-4'
+        }
+
+        const getSlug = () => {
+            // If slug param exists (from /cms/:slug), use it
+            if (route.params.slug) {
+                return route.params.slug
+            }
+            // Otherwise, derive from path (remove leading slash)
+            return route.path.substring(1)
+        }
+
         onMounted(() => {
-            const slug = route.params.slug
+            const slug = getSlug()
             if (slug) {
                 fetchPage(slug)
             }
         })
 
-        watch(() => route.params.slug, (newSlug) => {
-            if (newSlug) {
-                fetchPage(newSlug)
+        watch(() => route.path, () => {
+            const slug = getSlug()
+            if (slug) {
+                fetchPage(slug)
             }
         })
 
@@ -237,28 +336,31 @@ export default defineComponent({
             getCtaClasses,
             getTextBlockClasses,
             hasStats,
+            getCardIconClass,
+            getCardIconContainerClass,
+            getMinistryCardClasses,
+            getMinistryCardContentClasses,
+            getMinistryCardTitleClasses,
+            getMinistryCardDescClasses,
         }
     }
 })
 </script>
 
 <style scoped>
-.prose {
+.cms-text-content {
     color: #475569;
-}
-
-.cms-text-content.prose {
     text-align: center;
 }
 
-.cms-text-content.prose p {
+.cms-text-content p {
     font-size: 1.25rem;
     line-height: 1.75;
     margin-bottom: 1rem;
 }
 
 /* First paragraph in Our Mission should be larger */
-.cms-text-content.prose > p:first-child {
+.cms-text-content > p:first-child {
     font-size: 1.25rem;
     line-height: 1.75;
     color: #64748b;
@@ -271,14 +373,14 @@ export default defineComponent({
     margin-bottom: 3rem;
 }
 
-.prose h1 {
+.cms-text-content h1 {
     font-size: 2.25rem;
     font-weight: 800;
     margin-bottom: 1rem;
     color: #0f172a;
 }
 
-.prose h2 {
+.cms-text-content h2 {
     font-size: 1.875rem;
     font-weight: 700;
     margin-top: 2rem;
@@ -286,7 +388,7 @@ export default defineComponent({
     color: #0f172a;
 }
 
-.prose h3 {
+.cms-text-content h3 {
     font-size: 1.5rem;
     font-weight: 600;
     margin-top: 2rem;
@@ -294,68 +396,68 @@ export default defineComponent({
     color: #0f172a;
 }
 
-.prose p {
+.cms-text-content p {
     margin-bottom: 1rem;
     line-height: 1.75;
 }
 
-.prose ul, .prose ol {
+.cms-text-content ul, .cms-text-content ol {
     margin-bottom: 1rem;
     padding-left: 0;
     list-style: none;
     text-align: center;
 }
 
-.prose li {
+.cms-text-content li {
     margin-bottom: 1.5rem;
     font-size: 1.125rem;
     line-height: 1.5;
 }
 
-.prose strong {
-    font-weight: 700;
-    font-size: 3rem;
-    line-height: 1;
-    display: block;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.cms-text-content strong {
+    font-weight: 700 !important;
+    font-size: 3rem !important;
+    line-height: 1 !important;
+    display: block !important;
+    margin-bottom: 0.5rem !important;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
 }
 
 /* Alternate colors for stats */
-.stats-content .prose li:nth-child(2) strong {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.cms-text-content.stats-content li:nth-child(2) strong {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
 }
 
-.stats-content .prose li:nth-child(3) strong {
-    background: linear-gradient(135deg, #475569 0%, #334155 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.cms-text-content.stats-content li:nth-child(3) strong {
+    background: linear-gradient(135deg, #475569 0%, #334155 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
 }
 
-.stats-content .prose li:nth-child(4) strong {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.cms-text-content.stats-content li:nth-child(4) strong {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
 }
 
-.prose a {
+.cms-text-content a {
     color: #2563eb;
     text-decoration: underline;
 }
 
-.prose a:hover {
+.cms-text-content a:hover {
     color: #1d4ed8;
 }
 
-.prose blockquote {
+.cms-text-content blockquote {
     border-left: 4px solid #e5e7eb;
     padding-left: 1rem;
     margin: 1.5rem 0;
@@ -363,7 +465,7 @@ export default defineComponent({
     color: #64748b;
 }
 
-.prose hr {
+.cms-text-content hr {
     border: 0;
     height: 0;
     margin: 2rem 0;
@@ -371,26 +473,26 @@ export default defineComponent({
 }
 
 /* Grid layout for stats when using lists */
-.cms-text-content.prose ul {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 3rem;
-    margin-top: 3rem;
+.cms-text-content ul {
+    display: grid !important;
+    grid-template-columns: repeat(1, 1fr) !important;
+    gap: 3rem !important;
+    margin-top: 3rem !important;
 }
 
 @media (min-width: 768px) {
-    .cms-text-content.stats-content.prose ul {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 2rem;
+    .cms-text-content.stats-content ul {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 2rem !important;
     }
 }
 
-.cms-text-content.prose li {
-    padding: 0;
+.cms-text-content li {
+    padding: 0 !important;
 }
 
-.cms-text-content.stats-content.prose li {
-    text-align: center;
+.cms-text-content.stats-content li {
+    text-align: center !important;
 }
 
 .embed-container {
@@ -400,5 +502,69 @@ export default defineComponent({
 
 .embed-container iframe {
     max-width: 100%;
+}
+
+/* Two column layout styling */
+.two-column-content :deep(h2) {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 1rem !important;
+    margin-top: 0 !important;
+}
+
+.two-column-content :deep(h3) {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    margin-bottom: 1rem !important;
+    margin-top: 0 !important;
+}
+
+.two-column-content :deep(p) {
+    color: #64748b !important;
+    margin-bottom: 1rem !important;
+    line-height: 1.75 !important;
+    font-size: 1rem !important;
+}
+
+.two-column-content :deep(ul) {
+    list-style: none !important;
+    padding-left: 0 !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0 !important;
+}
+
+.two-column-content :deep(li) {
+    color: #64748b !important;
+    margin-bottom: 0.5rem !important;
+    position: relative;
+    padding-left: 1.5rem !important;
+    font-size: 1rem !important;
+}
+
+.two-column-content :deep(li::before) {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #64748b;
+    font-weight: bold;
+}
+
+.two-column-content :deep(blockquote) {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #64748b;
+}
+
+.two-column-content :deep(blockquote p) {
+    margin-bottom: 0.5rem !important;
+}
+
+.two-column-content :deep(em) {
+    font-size: 0.875rem;
+    color: #94a3b8;
 }
 </style>
