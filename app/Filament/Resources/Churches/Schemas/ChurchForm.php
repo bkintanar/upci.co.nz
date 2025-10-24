@@ -11,6 +11,10 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\ViewField;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Upci\FilamentAddressFinder\Forms\Components\AddressFinder;
 use App\Models\User;
 use App\Enums\UserRole;
 
@@ -200,30 +204,76 @@ class ChurchForm
                 Section::make('Address')
                     ->description('Church location information')
                     ->schema([
-                        TextInput::make('address')
+                        AddressFinder::make('address')
+                            ->label('Full Address')
+                            ->columnSpanFull()
+                            ->onAddressSelected(function ($address, Set $set) {
+                                $set('address', $address['label']); // Set the main address field
+                                $set('street', $address['street'] ?? '');
+                                $set('suburb', $address['suburb'] ?? '');
+                                $set('city', $address['city']);
+                                $set('region', $address['region']);
+                                $set('zip', $address['postcode']);
+                                $set('country', 'New Zealand');
+                                $set('latitude', $address['latitude']);
+                                $set('longitude', $address['longitude']);
+                            })
+                            ->helperText('Start typing to search for New Zealand addresses'),
+
+                        TextInput::make('street')
                             ->label('Street Address')
                             ->maxLength(255)
+                            ->readOnly()
+                            ->helperText('Auto-populated by address search')
                             ->columnSpanFull(),
 
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('city')
                                     ->label('City')
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->readOnly()
+                                    ->helperText('Auto-populated by address search'),
 
-                                TextInput::make('state')
-                                    ->label('State/Province')
-                                    ->maxLength(255),
+                                TextInput::make('region')
+                                    ->label('Region')
+                                    ->maxLength(255)
+                                    ->readOnly()
+                                    ->helperText('Auto-populated by address search'),
+                            ]),
+
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('suburb')
+                                    ->label('Suburb')
+                                    ->maxLength(255)
+                                    ->readOnly()
+                                    ->helperText('Auto-populated by address search'),
 
                                 TextInput::make('zip')
                                     ->label('ZIP/Postal Code')
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->readOnly()
+                                    ->helperText('Auto-populated by address search'),
                             ]),
 
                         TextInput::make('country')
                             ->label('Country')
                             ->maxLength(255)
+                            ->default('New Zealand')
+                            ->readOnly()
                             ->columnSpanFull(),
+
+                        // Hidden fields for coordinates (auto-populated by address search)
+                        TextInput::make('latitude')
+                            ->label('Latitude')
+                            ->numeric()
+                            ->hidden(),
+
+                        TextInput::make('longitude')
+                            ->label('Longitude')
+                            ->numeric()
+                            ->hidden(),
                     ])
                     ->collapsible()
                     ->columnSpanFull(),

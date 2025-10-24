@@ -11,6 +11,7 @@ Route::prefix('api')->group(function () {
     // Additional church-related endpoints
     Route::get('/churches-regions', [ChurchController::class, 'regions']);
     Route::get('/churches-service-days', [ChurchController::class, 'serviceDays']);
+    Route::post('/address-search', [ChurchController::class, 'addressSearch']);
 });
 
 // Frontend routes

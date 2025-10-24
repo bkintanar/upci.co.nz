@@ -207,6 +207,25 @@ class ChurchController extends Controller
     }
 
     /**
+     * Search addresses using NZ Post API.
+     */
+    public function addressSearch(Request $request): JsonResponse
+    {
+        $request->validate([
+            'search' => 'required|string|min:2|max:255'
+        ]);
+
+        $search = $request->input('search');
+        $results = \Upci\FilamentAddressFinder\Forms\Components\AddressFinder::searchAddresses($search);
+
+        return response()->json([
+            'success' => true,
+            'results' => $results
+        ]);
+    }
+
+
+    /**
      * Format church data for API response.
      */
     private function formatChurchForApi(Church $church): array

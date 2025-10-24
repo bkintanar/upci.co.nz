@@ -245,94 +245,72 @@
             </div>
         </section>
 
-        <!-- UX-Optimized Modal -->
+        <!-- Order Summary Style Modal -->
         <div v-if="selectedChurch" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <!-- Backdrop with subtle blur -->
-            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="selectedChurch = null"></div>
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" @click="selectedChurch = null"></div>
 
             <!-- Modal container -->
             <div class="fixed inset-0 z-10 overflow-y-auto">
                 <div class="flex min-h-full items-center justify-center p-4">
-                    <div class="relative w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all animate-in zoom-in-95 duration-300">
-                        <!-- Modern Clean Header -->
-                        <div class="px-8 py-8 border-b border-gray-100">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-start space-x-5">
-                                    <div class="flex-shrink-0">
-                                        <div class="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center">
-                                            <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3a.75.75 0 01.75-.75h3a.75.75 0 01.75.75v3M3 12h18M3 6.75h18M3 17.25h18" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <h2 class="text-3xl font-bold text-gray-900 mb-3" id="modal-title">
-                                            {{ selectedChurch.name }}
-                                        </h2>
-                                        <div class="flex items-center space-x-4">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-gray-600 bg-gray-100">
-                                                {{ formatDistance(selectedChurch.distance) }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="relative w-full max-w-4xl transform overflow-hidden rounded-lg bg-white shadow-xl transition-all flex">
+                        <!-- Left side - Church Details -->
+                        <div class="w-full md:w-1/2 flex-shrink-0">
+                            <!-- Header -->
+                            <div class="px-6 py-6">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-lg font-bold text-gray-900" id="modal-title">
+                                    {{ selectedChurch.name }}
+                                </h2>
                                 <button type="button" @click="selectedChurch = null"
-                                        class="rounded-xl p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors">
-                                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        class="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
-                                    <span class="sr-only">Close modal</span>
                                 </button>
                             </div>
+                            <div class="text-sm text-gray-500 mt-1">{{ formatDistance(selectedChurch.distance) }}</div>
                         </div>
-                        <!-- Modern Content Section -->
-                        <div class="px-8 py-8">
-                            <div class="space-y-8">
-                                <!-- Address -->
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Address</h3>
-                                    <div class="space-y-1">
-                                        <p class="text-gray-900 text-lg">{{ selectedChurch.address }}</p>
-                                        <p class="text-gray-600">{{ selectedChurch.city }}, {{ selectedChurch.region }}</p>
-                                    </div>
-                                </div>
 
-                                <!-- Contact -->
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Contact</h3>
-                                    <div class="space-y-2">
-                                        <a :href="`tel:${selectedChurch.phone}`"
-                                           class="block text-gray-900 text-lg hover:text-gray-600 transition-colors">
-                                            {{ selectedChurch.phone }}
-                                        </a>
-                                        <a :href="`mailto:${selectedChurch.email}`"
-                                           class="block text-gray-600 hover:text-gray-900 transition-colors">
-                                            {{ selectedChurch.email }}
-                                        </a>
+                        <!-- Content -->
+                        <div class="px-6 pb-6">
+
+                            <!-- Details List -->
+                            <div class="space-y-3 mb-6">
+                                <!-- Address -->
+                                <div class="flex justify-between items-start py-2 border-b border-gray-100">
+                                    <div class="flex-1">
+                                        <div class="text-sm font-medium text-gray-900">{{ selectedChurch.full_address }}</div>
+                                        <div class="text-sm text-gray-500">{{ selectedChurch.city }}, {{ selectedChurch.region }}</div>
                                     </div>
                                 </div>
 
                                 <!-- Pastor -->
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Pastor</h3>
-                                    <p class="text-gray-900 text-lg">{{ selectedChurch.pastor }}</p>
+                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-900">Pastor</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ selectedChurch.pastor }}</span>
                                 </div>
 
-                                <!-- Service Times -->
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Service Times</h3>
-                                    <div class="space-y-3">
+                                <!-- Phone -->
+                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-900">Phone</span>
+                                    <a :href="`tel:${selectedChurch.phone}`" class="text-sm font-medium text-gray-900 hover:text-gray-600">
+                                        {{ selectedChurch.phone }}
+                                    </a>
+                                </div>
+
+                                <!-- Services -->
+                                <div class="py-2">
+                                    <div class="text-sm text-gray-900 mb-2">Service Times</div>
+                                    <div class="space-y-2">
                                         <div v-for="service in selectedChurch.services" :key="`${service.service_type}-${service.time}`"
-                                             class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                                            <div class="flex-1">
-                                                <h4 class="text-gray-900 font-medium">{{ service.service_type }}</h4>
-                                            </div>
-                                            <div class="flex items-center space-x-3">
-                                                <span class="text-gray-600 font-medium">{{ service.time }}</span>
-                                                <div class="flex space-x-2">
-                                                    <span v-for="day in service.days_array" :key="day"
-                                                          class="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 rounded">
-                                                        {{ formatDayName(day).substring(0, 3) }}
+                                             class="flex justify-between items-center text-sm">
+                                            <span class="text-gray-600">{{ service.service_type }}</span>
+                                            <div class="text-right">
+                                                <div class="font-medium text-gray-900">{{ service.time }}</div>
+                                                <div class="text-xs text-gray-500">
+                                                    <span v-for="(day, index) in service.days_array" :key="day">
+                                                        {{ formatDayName(day).substring(0, 3) }}<span v-if="index < service.days_array.length - 1">, </span>
                                                     </span>
                                                 </div>
                                             </div>
@@ -340,21 +318,25 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Modern Footer -->
-                        <div class="px-8 py-6 border-t border-gray-100">
-                            <div class="flex flex-col sm:flex-row gap-3">
+                            <!-- Action Button -->
+                            <div class="flex flex-col gap-3">
                                 <a :href="`tel:${selectedChurch.phone}`"
-                                   class="flex-1 inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl text-base font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                                   class="w-full inline-flex items-center justify-center px-4 py-3 bg-purple-600 text-white text-sm font-semibold rounded-lg hover:bg-purple-700 transition-colors">
                                     Call Church
                                 </a>
                                 <a :href="`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(selectedChurch.address + ', ' + selectedChurch.city + ', New Zealand')}`"
                                    target="_blank"
-                                   class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gray-900 text-white rounded-xl text-base font-medium hover:bg-gray-800 transition-colors">
+                                   class="w-full inline-flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors">
                                     Get Directions
                                 </a>
                             </div>
+                        </div>
+                        </div>
+
+                        <!-- Right side - Map -->
+                        <div class="w-full md:w-1/2 flex-shrink-0">
+                            <div ref="modalMapContainer" class="w-full h-full min-h-[500px]"></div>
                         </div>
                     </div>
                 </div>
@@ -376,8 +358,9 @@
     </div>
 </template>
 
-        <script>
-        import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+<script>
+// ChurchLocator.vue - Updated: 2025-10-12 00:45:00
+import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
         import L from 'leaflet'
         import 'leaflet/dist/leaflet.css'
 
@@ -397,12 +380,14 @@
                 const selectedServiceDays = ref([])
                 const selectedChurch = ref(null)
                 const mapContainer = ref(null)
+                const modalMapContainer = ref(null)
                 const churches = ref([])
                 const regions = ref([])
                 const serviceDays = ref([])
                 const loading = ref(false)
                 const userLocation = ref(null)
                 let map = null
+                let modalMap = null
                 let markers = []
 
                 // Calculate distance between two coordinates using Haversine formula
@@ -486,7 +471,7 @@
                             })
                         }
 
-                        const response = await fetch(`/api/churches?${params}`)
+                        const response = await fetch(`/api/churches?${params}&_t=${Date.now()}&_cb=${Math.random()}`)
                         const data = await response.json()
 
                         if (data.success) {
@@ -498,6 +483,13 @@
                                 services: church.service_times || [],
                                 distance: 0 // Will be calculated after user location is obtained
                             }))
+
+                            // Debug: Log coordinates for Auckland UPCI
+                            const aucklandChurch = churches.value.find(c => c.name === 'Auckland UPCI')
+                            if (aucklandChurch) {
+                                console.log('Auckland UPCI coordinates:', aucklandChurch.lat, aucklandChurch.lng)
+                                console.log('Auckland UPCI address:', aucklandChurch.address)
+                            }
                             // Calculate distances if user location is available
                             if (userLocation.value) {
                                 calculateDistances()
@@ -513,7 +505,7 @@
                 // Fetch regions from API
                 const fetchRegions = async () => {
                     try {
-                        const response = await fetch('/api/churches-regions')
+                        const response = await fetch(`/api/churches-regions?_t=${Date.now()}`)
                         const data = await response.json()
 
                         if (data.success) {
@@ -533,7 +525,7 @@
                 // Fetch service days from API
                 const fetchServiceDays = async () => {
                     try {
-                        const response = await fetch('/api/churches-service-days')
+                        const response = await fetch(`/api/churches-service-days?_t=${Date.now()}`)
                         const data = await response.json()
 
                         if (data.success) {
@@ -564,6 +556,55 @@
                         // Zoom to a level that shows the area around the church without the popup covering everything
                         map.setView([church.lat, church.lng], 12)
                     }
+                    // Initialize modal map after the modal is shown
+                    nextTick(() => {
+                        initializeModalMap(church)
+                    })
+                }
+
+                const initializeModalMap = (church) => {
+                    if (!modalMapContainer.value || !church) return
+
+                    // Clean up existing modal map
+                    if (modalMap) {
+                        modalMap.remove()
+                        modalMap = null
+                    }
+
+                    // Wait a bit for the DOM to be ready
+                    setTimeout(() => {
+                        if (!modalMapContainer.value) return
+
+                        // Initialize modal map centered on the selected church
+                        modalMap = L.map(modalMapContainer.value, {
+                            center: [church.lat, church.lng],
+                            zoom: 15,
+                            zoomControl: true,
+                            attributionControl: false
+                        })
+
+                        // Add CartoDB Positron tiles (clean, modern style)
+                        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                            subdomains: 'abcd',
+                            maxZoom: 20
+                        }).addTo(modalMap)
+
+                        // Add marker for the selected church
+                        L.marker([church.lat, church.lng])
+                            .addTo(modalMap)
+                            .bindPopup(`
+                                <div class="p-2 max-w-xs">
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">${church.name}</h3>
+                                    <p class="text-xs text-slate-600 mb-1">${church.address}</p>
+                                    <p class="text-xs text-slate-500">${church.city}, ${church.region}</p>
+                                </div>
+                            `, {
+                                maxWidth: 200,
+                                className: 'custom-popup'
+                            })
+                            .openPopup()
+                    }, 100)
                 }
 
                 // Watch for filter changes and refetch data
@@ -586,10 +627,11 @@
                     attributionControl: true
                 })
 
-                // Add OpenStreetMap tiles
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                    maxZoom: 19
+                // Add CartoDB Positron tiles (clean, modern style)
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 20
                 }).addTo(map)
 
                 // Add church markers
@@ -604,6 +646,15 @@
 
             // Add markers for filtered churches
             filteredChurches.value.forEach(church => {
+                // Debug: Log marker coordinates for Auckland UPCI
+                if (church.name === 'Auckland UPCI') {
+                    console.log('Creating marker for Auckland UPCI at:', church.lat, church.lng)
+                    console.log('Raw latitude from API:', church.latitude)
+                    console.log('Raw longitude from API:', church.longitude)
+                    console.log('Parsed lat:', parseFloat(church.latitude))
+                    console.log('Parsed lng:', parseFloat(church.longitude))
+                }
+
                 const marker = L.marker([church.lat, church.lng])
                     .addTo(map)
                     .bindPopup(`
@@ -660,6 +711,10 @@
                 map.remove()
                 map = null
             }
+            if (modalMap) {
+                modalMap.remove()
+                modalMap = null
+            }
             markers = []
         })
 
@@ -691,6 +746,7 @@
             selectedServiceDays,
             selectedChurch,
             mapContainer,
+            modalMapContainer,
             churches,
             filteredChurches,
             regions,
