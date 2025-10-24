@@ -12,7 +12,7 @@ const routes = [
     {
         path: '/about/upci',
         name: 'AboutUPCI',
-        component: () => import('../views/about/AboutUPCI.vue')
+        component: () => import('../views/CmsPage.vue')
     },
     {
         path: '/about/oneness-pentecostalism',
