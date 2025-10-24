@@ -209,12 +209,19 @@ class ChurchInfolist
                             ->visible(fn ($record) => ! empty($record->address))
                             ->columnSpanFull(),
 
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
                                 TextEntry::make('city')
                                     ->label('City')
                                     ->visible(fn ($record) => ! empty($record->city)),
 
+                                TextEntry::make('region')
+                                    ->label('Region')
+                                    ->visible(fn ($record) => ! empty($record->region)),
+                            ]),
+
+                        Grid::make(2)
+                            ->schema([
                                 TextEntry::make('state')
                                     ->label('State/Province')
                                     ->visible(fn ($record) => ! empty($record->state)),
@@ -230,7 +237,7 @@ class ChurchInfolist
                             ->columnSpanFull(),
                     ])
                     ->collapsible()
-                    ->visible(fn ($record) => ! empty($record->address) || ! empty($record->city) || ! empty($record->state) || ! empty($record->zip) || ! empty($record->country))
+                    ->visible(fn ($record) => ! empty($record->address) || ! empty($record->city) || ! empty($record->region) || ! empty($record->state) || ! empty($record->zip) || ! empty($record->country))
                     ->columnSpanFull(),
 
                 // Social Media Section

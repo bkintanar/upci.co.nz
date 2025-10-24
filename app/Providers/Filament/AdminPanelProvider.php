@@ -21,6 +21,11 @@ use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
 class AdminPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        // No custom assets needed - using SearchableInput plugin
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel

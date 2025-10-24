@@ -15,8 +15,9 @@ class Church extends Model
     protected $fillable = [
         'name',
         'address',
+        'street',
+        'suburb',
         'city',
-        'state',
         'region',
         'zip',
         'country',
@@ -119,7 +120,7 @@ class Church extends Model
      */
     public function scopeByRegion($query, $region)
     {
-        return $query->where('region', $region);
+        return $query->whereRaw('LOWER(region) = ?', [strtolower($region)]);
     }
 
     /**
@@ -136,9 +137,9 @@ class Church extends Model
     public function getFullAddressAttribute(): string
     {
         $parts = array_filter([
-            $this->address,
+            $this->street,
+            $this->suburb,
             $this->city,
-            $this->state,
             $this->zip,
             $this->country
         ]);
