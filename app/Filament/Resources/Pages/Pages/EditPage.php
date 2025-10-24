@@ -17,7 +17,7 @@ class EditPage extends EditRecord
             Action::make('view')
                 ->label('View Page')
                 ->icon('heroicon-o-eye')
-                ->url(fn () => "/cms/{$this->record->slug}", shouldOpenInNewTab: true)
+                ->url(fn () => "/{$this->record->slug}", shouldOpenInNewTab: true)
                 ->visible(fn () => $this->record->is_published)
                 ->color('gray'),
             DeleteAction::make(),

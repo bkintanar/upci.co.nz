@@ -19,12 +19,4 @@ class Page extends Model
         'content' => 'array',
         'is_published' => 'boolean',
     ];
-
-    /**
-     * Get the route key for the model.
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
 }

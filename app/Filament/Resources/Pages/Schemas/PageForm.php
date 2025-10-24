@@ -41,7 +41,7 @@ class PageForm
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignorable: fn ($record) => $record)
-                                    ->helperText('Used in the URL (e.g., /cms/[slug])'),
+                                    ->helperText('Used in the URL (e.g., /cms/[slug]). Can include slashes for nested URLs like "about/upci"'),
                             ]),
                         Textarea::make('meta_description')
                             ->label('Meta Description')
@@ -95,13 +95,14 @@ class PageForm
                                         Select::make('style')
                                             ->label('Style')
                                             ->options([
+                                                'gradient-slate' => 'Gradient Slate (Dark)',
                                                 'gradient-blue' => 'Gradient Blue',
                                                 'gradient-indigo' => 'Gradient Indigo',
                                                 'gradient-purple' => 'Gradient Purple',
                                                 'solid-blue' => 'Solid Blue',
                                                 'solid-indigo' => 'Solid Indigo',
                                             ])
-                                            ->default('gradient-blue'),
+                                            ->default('gradient-slate'),
                                         TextInput::make('button1_text')
                                             ->label('Primary Button Text')
                                             ->maxLength(50)
@@ -109,7 +110,6 @@ class PageForm
                                         TextInput::make('button1_url')
                                             ->label('Primary Button URL')
                                             ->maxLength(255)
-                                            ->url()
                                             ->placeholder('/about/upci'),
                                         TextInput::make('button2_text')
                                             ->label('Secondary Button Text')
@@ -118,7 +118,6 @@ class PageForm
                                         TextInput::make('button2_url')
                                             ->label('Secondary Button URL')
                                             ->maxLength(255)
-                                            ->url()
                                             ->placeholder('/get-involved'),
                                     ])
                                     ->columns(2),
@@ -210,7 +209,6 @@ class PageForm
                                         TextInput::make('button_url')
                                             ->label('Button URL')
                                             ->required()
-                                            ->url()
                                             ->maxLength(255),
                                         Select::make('style')
                                             ->label('Background Style')
@@ -252,7 +250,6 @@ class PageForm
                                                             ->maxLength(500),
                                                         TextInput::make('link_url')
                                                             ->label('Link URL (Optional)')
-                                                            ->url()
                                                             ->maxLength(255),
                                                         TextInput::make('link_text')
                                                             ->label('Link Text')

@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\Pages\Tables;
 
+use Filament\Tables\Table;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\Action;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
 
 class PagesTable
 {
@@ -29,7 +29,7 @@ class PagesTable
                     ->copyMessageDuration(1500)
                     ->badge()
                     ->color('gray')
-                    ->url(fn ($record) => "/cms/{$record->slug}", shouldOpenInNewTab: true),
+                    ->url(fn ($record) => "/{$record->slug}", shouldOpenInNewTab: true),
                 IconColumn::make('is_published')
                     ->label('Published')
                     ->boolean()
@@ -56,7 +56,7 @@ class PagesTable
                 Action::make('view')
                     ->label('View Page')
                     ->icon('heroicon-o-eye')
-                    ->url(fn ($record) => "/cms/{$record->slug}", shouldOpenInNewTab: true)
+                    ->url(fn ($record) => "/{$record->slug}", shouldOpenInNewTab: true)
                     ->visible(fn ($record) => $record->is_published),
                 EditAction::make(),
             ])

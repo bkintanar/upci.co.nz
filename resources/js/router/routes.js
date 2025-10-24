@@ -17,17 +17,17 @@ const routes = [
     {
         path: '/about/oneness-pentecostalism',
         name: 'OnenessPentecostalism',
-        component: () => import('../views/about/OnenessPentecostalism.vue')
+        component: () => import('../views/CmsPage.vue')
     },
     {
         path: '/about/beliefs',
         name: 'OurBeliefs',
-        component: () => import('../views/about/OurBeliefs.vue')
+        component: () => import('../views/CmsPage.vue')
     },
     {
         path: '/about/leadership',
         name: 'Leadership',
-        component: () => import('../views/about/Leadership.vue')
+        component: () => import('../views/CmsPage.vue')
     },
     {
         path: '/about/general-superintendent',
@@ -45,7 +45,7 @@ const routes = [
         component: () => import('../views/ChurchLocator.vue')
     },
     {
-        path: '/cms/:slug',
+        path: '/cms/:slug(.*)',
         name: 'CmsPage',
         component: () => import('../views/CmsPage.vue')
     }

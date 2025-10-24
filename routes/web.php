@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\ChurchController;
+use App\Http\Controllers\Api\MenuItemController;
 
 // API routes (must come before catch-all route)
 Route::prefix('api')->group(function () {
@@ -16,7 +17,11 @@ Route::prefix('api')->group(function () {
 
     // CMS page routes
     Route::get('/pages', [PageController::class, 'index']);
-    Route::get('/pages/{slug}', [PageController::class, 'show']);
+    Route::get('/pages/{slug}', [PageController::class, 'show'])->where('slug', '.*');
+
+    // Menu routes
+    Route::get('/menu/header', [MenuItemController::class, 'header']);
+    Route::get('/menu/footer', [MenuItemController::class, 'footer']);
 });
 
 // Frontend routes
@@ -24,10 +29,10 @@ Route::get('/', function () {
     return view('app');
 })->name('home');
 
-// CMS pages route - accessible at /cms/*
+// CMS pages route - accessible at /cms/* (supports nested paths)
 Route::get('/cms/{slug}', function () {
     return view('app');
-})->name('cms.page');
+})->where('slug', '.*')->name('cms.page');
 
 // Catch-all route for Vue.js SPA (must be last)
 Route::get('/{any}', function () {
