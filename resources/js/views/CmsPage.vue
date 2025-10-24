@@ -308,6 +308,10 @@ export default defineComponent({
             if (route.params.slug) {
                 return route.params.slug
             }
+            // Handle root path
+            if (route.path === '/') {
+                return 'home'
+            }
             // Otherwise, derive from path (remove leading slash)
             return route.path.substring(1)
         }
