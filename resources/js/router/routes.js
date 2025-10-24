@@ -43,6 +43,11 @@ const routes = [
         path: '/find-church',
         name: 'ChurchLocator',
         component: () => import('../views/ChurchLocator.vue')
+    },
+    {
+        path: '/cms/:slug',
+        name: 'CmsPage',
+        component: () => import('../views/CmsPage.vue')
     }
 ]
 
