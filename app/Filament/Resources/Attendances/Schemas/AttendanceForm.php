@@ -140,6 +140,31 @@ class AttendanceForm
                                     ->extraInputAttributes(['class' => 'text-center text-lg font-semibold'])
                                     ->helperText('New faces today')
                                     ->columnSpan(2),
+
+                                // Baptism Row
+                                TextInput::make('baptism_hg')
+                                    ->label('Baptism (HG)')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->step(1)
+                                    ->inputMode('numeric')
+                                    ->live()
+                                    ->prefixIcon('heroicon-o-document-text')
+                                    ->extraInputAttributes(['class' => 'text-center text-lg font-semibold'])
+                                    ->helperText('Holy Ghost baptisms'),
+
+                                TextInput::make('baptism_water')
+                                    ->label('Baptism (Water)')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->step(1)
+                                    ->inputMode('numeric')
+                                    ->live()
+                                    ->prefixIcon('heroicon-o-document-text')
+                                    ->extraInputAttributes(['class' => 'text-center text-lg font-semibold'])
+                                    ->helperText('Water baptisms'),
                             ]),
 
                         // Clean Total Display

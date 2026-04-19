@@ -37,7 +37,7 @@
                         <li><router-link to="/about/upci" class="text-slate-300 hover:text-white transition-colors">About UPCI</router-link></li>
                         <li><router-link to="/about/beliefs" class="text-slate-300 hover:text-white transition-colors">Our Beliefs</router-link></li>
                         <li><router-link to="/about/leadership" class="text-slate-300 hover:text-white transition-colors">Leadership</router-link></li>
-                        <li><router-link to="/get-involved" class="text-slate-300 hover:text-white transition-colors">Get Involved</router-link></li>
+                        <li><router-link to="/departments" class="text-slate-300 hover:text-white transition-colors">Departments</router-link></li>
                         <li><router-link to="/find-church" class="text-slate-300 hover:text-white transition-colors">Find a Church</router-link></li>
                     </ul>
                 </div>

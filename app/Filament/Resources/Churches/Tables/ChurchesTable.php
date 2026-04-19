@@ -28,6 +28,29 @@ class ChurchesTable
                     ->placeholder('No pastor assigned')
                     ->toggleable(),
 
+                TextColumn::make('organizational_region')
+                    ->label('Region')
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('—')
+                    ->toggleable(),
+
+                TextColumn::make('church_status')
+                    ->label('Status')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('—')
+                    ->toggleable(),
+
+                TextColumn::make('potential_home_group')
+                    ->label('Home Group')
+                    ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
+                    ->badge()
+                    ->color(fn ($state) => $state ? 'warning' : 'gray')
+                    ->toggleable(),
+
                 TextColumn::make('city')
                     ->label('City')
                     ->searchable()

@@ -36,8 +36,27 @@ const routes = [
     },
     {
         path: '/get-involved',
-        name: 'GetInvolved',
+        redirect: '/departments'
+    },
+    {
+        path: '/departments',
+        name: 'Departments',
         component: () => import('../views/GetInvolved.vue')
+    },
+    {
+        path: '/departments/:slug',
+        name: 'Department',
+        component: () => import('../views/Department.vue')
+    },
+    {
+        path: '/apostolic-bible-college/principals-corner',
+        name: 'PrincipalsCorner',
+        component: () => import('../views/CmsPage.vue')
+    },
+    {
+        path: '/apostolic-bible-college/enrollment',
+        name: 'Enrollment',
+        component: () => import('../views/CmsPage.vue')
     },
     {
         path: '/find-church',
@@ -45,8 +64,29 @@ const routes = [
         component: () => import('../views/ChurchLocator.vue')
     },
     {
+        path: '/events',
+        name: 'Events',
+        component: () => import('../views/Events.vue')
+    },
+    {
+        path: '/calendar',
+        name: 'Calendar',
+        component: () => import('../views/Calendar.vue')
+    },
+    {
+        path: '/ags-updates',
+        name: 'AgsUpdates',
+        component: () => import('../views/AgsUpdates.vue')
+    },
+    {
         path: '/cms/:slug(.*)',
         name: 'CmsPage',
+        component: () => import('../views/CmsPage.vue')
+    },
+    // Catch-all: treat any other path as a CMS page slug (e.g. /abc -> page "abc")
+    {
+        path: '/:slug(.*)',
+        name: 'CmsPageBySlug',
         component: () => import('../views/CmsPage.vue')
     }
 ]

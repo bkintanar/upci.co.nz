@@ -16,9 +16,19 @@ class ChurchController extends Controller
     {
         $query = Church::active()->withCoordinates();
 
-        // Filter by region
+        // Filter by address region (NZ geographic)
         if ($request->has('region') && $request->region) {
             $query->byRegion($request->region);
+        }
+
+        // Filter by organizational region (North/Central/South)
+        if ($request->has('organizational_region') && $request->organizational_region) {
+            $query->where('organizational_region', $request->organizational_region);
+        }
+
+        // Filter by church status
+        if ($request->has('church_status') && $request->church_status) {
+            $query->where('church_status', $request->church_status);
         }
 
         // Filter by service day
@@ -51,6 +61,8 @@ class ChurchController extends Controller
             'count' => $churches->count(),
             'filters' => [
                 'region' => $request->region,
+                'organizational_region' => $request->organizational_region,
+                'church_status' => $request->church_status,
                 'service_day' => $request->service_day,
                 'search' => $request->search,
             ]
@@ -86,6 +98,9 @@ class ChurchController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'region' => 'nullable|string|max:255',
+            'organizational_region' => 'nullable|string|in:North Region,Central Region,South Region',
+            'church_status' => 'nullable|string|in:Established Church,Daughter Works,Preaching Point',
+            'potential_home_group' => 'nullable|boolean',
             'zip' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -124,6 +139,9 @@ class ChurchController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'region' => 'nullable|string|max:255',
+            'organizational_region' => 'nullable|string|in:North Region,Central Region,South Region',
+            'church_status' => 'nullable|string|in:Established Church,Daughter Works,Preaching Point',
+            'potential_home_group' => 'nullable|boolean',
             'zip' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -165,7 +183,7 @@ class ChurchController extends Controller
     }
 
     /**
-     * Get all unique regions from churches.
+     * Get all unique regions from churches (address/NZ geographic).
      */
     public function regions(): JsonResponse
     {
@@ -173,6 +191,25 @@ class ChurchController extends Controller
             ->whereNotNull('region')
             ->distinct()
             ->pluck('region')
+            ->filter()
+            ->sort()
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $regions
+        ]);
+    }
+
+    /**
+     * Get all unique organizational regions (North/Central/South).
+     */
+    public function organizationalRegions(): JsonResponse
+    {
+        $regions = Church::active()
+            ->whereNotNull('organizational_region')
+            ->distinct()
+            ->pluck('organizational_region')
             ->filter()
             ->sort()
             ->values();
@@ -237,6 +274,9 @@ class ChurchController extends Controller
             'city' => $church->city,
             'state' => $church->state,
             'region' => $church->region,
+            'organizational_region' => $church->organizational_region,
+            'church_status' => $church->church_status,
+            'potential_home_group' => $church->potential_home_group,
             'zip' => $church->zip,
             'country' => $church->country,
             'latitude' => $church->latitude,

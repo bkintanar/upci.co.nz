@@ -59,10 +59,28 @@ class AttendancesTable
                         if ($record->visitors > 0) {
                             $parts[] = "V:{$record->visitors}";
                         }
+                        if (($record->baptism_hg ?? 0) > 0) {
+                            $parts[] = "HG:{$record->baptism_hg}";
+                        }
+                        if (($record->baptism_water ?? 0) > 0) {
+                            $parts[] = "H2O:{$record->baptism_water}";
+                        }
 
                         return implode(' • ', $parts);
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('baptism_hg')
+                    ->label('Baptism HG')
+                    ->numeric()
+                    ->placeholder('—')
+                    ->toggleable(),
+
+                TextColumn::make('baptism_water')
+                    ->label('Baptism Water')
+                    ->numeric()
+                    ->placeholder('—')
+                    ->toggleable(),
 
                 TextColumn::make('user.name')
                     ->label('Recorded by')

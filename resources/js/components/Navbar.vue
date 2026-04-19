@@ -14,7 +14,16 @@
                     <template v-for="item in menuItems" :key="item.id">
                         <!-- Menu item with dropdown -->
                         <div v-if="item.children && item.children.length > 0" class="relative group">
-                            <button class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center transition-colors duration-200">
+                            <router-link
+                                v-if="item.url && item.url !== '#' && !item.url.startsWith('http')"
+                                :to="item.url"
+                                class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center transition-colors duration-200">
+                                {{ item.label }}
+                                <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </router-link>
+                            <button v-else class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center transition-colors duration-200">
                                 {{ item.label }}
                                 <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -77,7 +86,14 @@
                 <template v-for="item in menuItems" :key="item.id">
                     <!-- Parent with children -->
                     <div v-if="item.children && item.children.length > 0" class="space-y-1">
-                        <div class="text-sm font-semibold text-slate-300 px-3 py-2">{{ item.label }}</div>
+                        <router-link
+                            v-if="item.url && item.url !== '#' && !item.url.startsWith('http')"
+                            :to="item.url"
+                            @click="mobileMenuOpen = false"
+                            class="block px-3 py-2 text-sm font-semibold text-white hover:bg-slate-600 rounded-lg transition-colors">
+                            {{ item.label }}
+                        </router-link>
+                        <div v-else class="text-sm font-semibold text-slate-300 px-3 py-2">{{ item.label }}</div>
                         <template v-for="child in item.children" :key="child.id">
                             <a
                                 v-if="child.url && (child.url.startsWith('http') || child.url === '#')"

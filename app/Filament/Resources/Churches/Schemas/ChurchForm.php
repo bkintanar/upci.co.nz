@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Churches\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
@@ -176,6 +177,34 @@ class ChurchForm
                             ->addActionLabel('Add Service')
                             ->collapsible()
                             ->columnSpanFull(),
+
+                        Grid::make(2)
+                            ->schema([
+                                Select::make('organizational_region')
+                                    ->label('Region')
+                                    ->options([
+                                        'North Region' => 'North Region',
+                                        'Central Region' => 'Central Region',
+                                        'South Region' => 'South Region',
+                                    ])
+                                    ->placeholder('Select region')
+                                    ->searchable(),
+
+                                Select::make('church_status')
+                                    ->label('Ministry Status')
+                                    ->options([
+                                        'Established Church' => 'Established Church',
+                                        'Daughter Works' => 'Daughter Works',
+                                        'Preaching Point' => 'Preaching Point',
+                                    ])
+                                    ->placeholder('Select status')
+                                    ->searchable(),
+                            ]),
+
+                        Toggle::make('potential_home_group')
+                            ->label('Potential Home Group')
+                            ->default(false)
+                            ->helperText('Mark if this location has potential for a home group'),
 
                         Grid::make(2)
                             ->schema([

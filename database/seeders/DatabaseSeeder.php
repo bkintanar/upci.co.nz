@@ -19,5 +19,9 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'admin@upci.co.nz',
         ]);
+
+        $this->call([
+            ApostolicBibleCollegePageSeeder::class,
+        ]);
     }
 }

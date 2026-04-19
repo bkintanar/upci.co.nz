@@ -61,6 +61,14 @@ class AttendanceInfolist
                                     ->label('Visitors')
                                     ->numeric()
                                     ->visible(fn ($record) => $record->visitors),
+                                TextEntry::make('baptism_hg')
+                                    ->label('Baptism (HG)')
+                                    ->numeric()
+                                    ->visible(fn ($record) => $record->baptism_hg !== null && $record->baptism_hg > 0),
+                                TextEntry::make('baptism_water')
+                                    ->label('Baptism (Water)')
+                                    ->numeric()
+                                    ->visible(fn ($record) => $record->baptism_water !== null && $record->baptism_water > 0),
                             ]),
                     ])
                     ->collapsible()

@@ -55,6 +55,12 @@ class UserInfolist
                                     ->formatStateUsing(fn ($state) => $state?->getLabel() ?? 'Member')
                                     ->badge()
                                     ->color(fn ($state) => $state?->getColor() ?? 'gray'),
+
+                                TextEntry::make('assigned_region')
+                                    ->label('Assigned Region')
+                                    ->badge()
+                                    ->color('info')
+                                    ->visible(fn ($record) => ! empty($record->assigned_region)),
                             ]),
                     ])
                     ->collapsible()

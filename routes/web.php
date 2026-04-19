@@ -2,8 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PageController;
+use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\ChurchController;
+use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\MenuItemController;
+use App\Http\Controllers\Api\AGSUpdateController;
+use App\Http\Controllers\Api\DepartmentController;
 
 // API routes (must come before catch-all route)
 Route::prefix('api')->group(function () {
@@ -12,6 +16,7 @@ Route::prefix('api')->group(function () {
 
     // Additional church-related endpoints
     Route::get('/churches-regions', [ChurchController::class, 'regions']);
+    Route::get('/churches-organizational-regions', [ChurchController::class, 'organizationalRegions']);
     Route::get('/churches-service-days', [ChurchController::class, 'serviceDays']);
     Route::post('/address-search', [ChurchController::class, 'addressSearch']);
 
@@ -22,6 +27,20 @@ Route::prefix('api')->group(function () {
     // Menu routes
     Route::get('/menu/header', [MenuItemController::class, 'header']);
     Route::get('/menu/footer', [MenuItemController::class, 'footer']);
+
+    // Public events (published only)
+    Route::get('/events', [EventController::class, 'index']);
+    Route::get('/events/{id}', [EventController::class, 'show']);
+
+    // Assistant General Superintendent updates (published only)
+    Route::get('/ags-updates', [AGSUpdateController::class, 'index']);
+
+    // Gallery (public)
+    Route::get('/gallery', [GalleryController::class, 'index']);
+
+    // Departments (public, published only)
+    Route::get('/departments', [DepartmentController::class, 'index']);
+    Route::get('/departments/{slug}', [DepartmentController::class, 'show']);
 });
 
 // Frontend routes

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pages;
 
+use App\Enums\UserRole;
 use UnitEnum;
 use BackedEnum;
 use App\Models\Page;
@@ -26,6 +27,19 @@ class PageResource extends Resource
     protected static UnitEnum|string|null $navigationGroup = 'Content';
 
     protected static ?int $navigationSort = 1;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return true;
+        }
+        if (UserRole::isPastor($user) || UserRole::isRegionalPresbyter($user)) {
+            return false;
+        }
+
+        return true;
+    }
 
     public static function form(Schema $schema): Schema
     {

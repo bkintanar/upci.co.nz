@@ -19,6 +19,9 @@ class Church extends Model
         'suburb',
         'city',
         'region',
+        'organizational_region',
+        'church_status',
+        'potential_home_group',
         'zip',
         'country',
         'latitude',
@@ -50,6 +53,7 @@ class Church extends Model
             'longitude' => 'decimal:8',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'potential_home_group' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

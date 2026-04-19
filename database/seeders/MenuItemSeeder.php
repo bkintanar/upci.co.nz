@@ -78,10 +78,10 @@ class MenuItemSeeder extends Seeder
             'parent_id' => $aboutParent->id,
         ]);
 
-        // Create top-level menu items
-        MenuItem::create([
-            'label' => 'Get Involved',
-            'url' => '/get-involved',
+        // Apostolic Bible College parent with sub-items (links to landing page)
+        $abcParent = MenuItem::create([
+            'label' => 'Apostolic Bible College',
+            'url' => '/apostolic-bible-college',
             'location' => 'header',
             'sort_order' => 2,
             'is_active' => true,
@@ -89,18 +89,51 @@ class MenuItemSeeder extends Seeder
         ]);
 
         MenuItem::create([
-            'label' => 'Find a Church',
-            'url' => '/find-church',
+            'label' => 'About',
+            'description' => 'About ABC – follow us on social media',
+            'url' => 'https://www.facebook.com',
+            'location' => 'header',
+            'sort_order' => 1,
+            'is_active' => true,
+            'open_in_new_tab' => true,
+            'parent_id' => $abcParent->id,
+        ]);
+
+        MenuItem::create([
+            'label' => "Principal's Corner",
+            'description' => 'Message from the Principal',
+            'url' => '/apostolic-bible-college/principals-corner',
+            'location' => 'header',
+            'sort_order' => 2,
+            'is_active' => true,
+            'open_in_new_tab' => false,
+            'parent_id' => $abcParent->id,
+        ]);
+
+        MenuItem::create([
+            'label' => 'Enrollment Registration',
+            'description' => 'Enroll at Apostolic Bible College',
+            'url' => '/apostolic-bible-college/enrollment',
+            'location' => 'header',
+            'sort_order' => 3,
+            'is_active' => true,
+            'open_in_new_tab' => false,
+            'parent_id' => $abcParent->id,
+        ]);
+
+        // Departments (formerly Get Involved)
+        MenuItem::create([
+            'label' => 'Departments',
+            'url' => '/departments',
             'location' => 'header',
             'sort_order' => 3,
             'is_active' => true,
             'open_in_new_tab' => false,
         ]);
 
-        // Create the "Join Us" button (special styling in frontend)
         MenuItem::create([
-            'label' => 'Join Us',
-            'url' => '/get-involved',
+            'label' => 'Find a Church',
+            'url' => '/find-church',
             'location' => 'header',
             'sort_order' => 4,
             'is_active' => true,

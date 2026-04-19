@@ -43,6 +43,28 @@ class ChurchInfolist
                             ->visible(fn ($record) => ! empty($record->website))
                             ->columnSpanFull(),
 
+                        Grid::make(3)
+                            ->schema([
+                                TextEntry::make('organizational_region')
+                                    ->label('Region')
+                                    ->badge()
+                                    ->color('info')
+                                    ->visible(fn ($record) => ! empty($record->organizational_region)),
+
+                                TextEntry::make('church_status')
+                                    ->label('Ministry Status')
+                                    ->badge()
+                                    ->color('success')
+                                    ->visible(fn ($record) => ! empty($record->church_status)),
+
+                                TextEntry::make('potential_home_group')
+                                    ->label('Potential Home Group')
+                                    ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
+                                    ->badge()
+                                    ->color(fn ($state) => $state ? 'warning' : 'gray'),
+                            ])
+                            ->visible(fn ($record) => ! empty($record->organizational_region) || ! empty($record->church_status) || $record->potential_home_group),
+
                         TextEntry::make('service_times')
                             ->label('Service Times')
                             ->getStateUsing(function ($record) {

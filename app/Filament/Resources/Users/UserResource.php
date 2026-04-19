@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources\Users;
 
+use App\Enums\UserRole;
 use BackedEnum;
 use App\Models\User;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
@@ -22,6 +24,28 @@ class UserResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
     protected static ?int $navigationSort = 2;
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+        if (! $user) {
+            return $query;
+        }
+        if (UserRole::hasFullAccess($user)) {
+            return $query;
+        }
+        if (UserRole::isPastor($user)) {
+            return $query->where('church_id', $user->church_id ?? -1);
+        }
+        if (UserRole::isRegionalPresbyter($user)) {
+            return $query->whereHas('church', function (Builder $q) use ($user) {
+                $q->where('organizational_region', $user->assigned_region);
+            });
+        }
+
+        return $query;
+    }
 
     public static function form(Schema $schema): Schema
     {

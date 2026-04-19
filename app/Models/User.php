@@ -27,6 +27,7 @@ class User extends Authenticatable
         'password',
         'church_id',
         'role',
+        'assigned_region',
     ];
 
     /**

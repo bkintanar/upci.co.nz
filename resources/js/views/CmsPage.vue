@@ -9,8 +9,9 @@
     <div v-else-if="error" class="min-h-screen flex items-center justify-center">
         <div class="text-center">
             <div class="text-6xl mb-4">😞</div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Page Not Found</h1>
-            <p class="text-gray-600 mb-6">{{ error }}</p>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Page not found</h1>
+            <p v-if="error !== 'Page not found'" class="text-gray-600 mb-6">{{ error }}</p>
+            <p v-else class="text-gray-600 mb-6">The page you're looking for doesn't exist or has been moved.</p>
             <router-link to="/" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
                 Go to Home
             </router-link>
@@ -109,12 +110,12 @@
 
             <!-- Card Grid -->
             <section v-else-if="block.type === 'cards'"
-                     :class="block.data.heading ? 'py-20 bg-white' : 'py-12 bg-white'">
+                     :class="['py-16 lg:py-20', getCardsSectionClasses(page.content, index)]">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 v-if="block.data.heading" class="text-3xl font-bold text-gray-900 text-center mb-12">{{ block.data.heading }}</h2>
-                    <div :class="block.data.items.length >= 4 ? 'grid grid-cols-1 md:grid-cols-2 gap-8' : 'grid grid-cols-1 md:grid-cols-3 gap-8'">
+                    <h2 v-if="block.data.heading" class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-10 lg:mb-12">{{ block.data.heading }}</h2>
+                    <div :class="getCardsGridClasses(block.data.items, block.data.heading)">
                         <div v-for="(card, cardIndex) in block.data.items" :key="cardIndex"
-                             :class="getMinistryCardClasses(card)">
+                             :class="[getMinistryCardClasses(card), isRegistrationBlock(block) ? 'cms-registration-card' : '']">
                             <div v-if="card.data.icon_svg && card.data.icon_svg.includes('<svg')"
                                  :class="getCardIconContainerClass(card, cardIndex)"
                                  v-html="card.data.icon_svg">
@@ -125,7 +126,7 @@
                                 <h3 :class="getMinistryCardTitleClasses(card)">{{ card.data.title }}</h3>
                                 <p :class="getMinistryCardDescClasses(card)">{{ card.data.description }}</p>
                             </div>
-                            <a v-if="card.data.link_url" :href="card.data.link_url" class="text-blue-600 hover:text-blue-800 font-semibold block text-center">
+                            <a v-if="card.data.link_url" :href="card.data.link_url" :target="card.data.link_url.startsWith('http') ? '_blank' : '_self'" :rel="card.data.link_url.startsWith('http') ? 'noopener noreferrer' : null" :class="isRegistrationBlock(block) ? 'cms-registration-card-link' : ''" class="text-blue-600 hover:text-blue-800 font-semibold block text-center">
                                 {{ card.data.link_text || 'Learn More' }} →
                             </a>
                         </div>
@@ -303,6 +304,24 @@ export default defineComponent({
             return 'text-slate-600 leading-relaxed mb-4'
         }
 
+        const getCardsSectionClasses = (content, index) => {
+            const blockIndex = content.findIndex(b => b.type === 'cards')
+            const cardsBlockIndex = content.slice(0, index).filter(b => b.type === 'cards').length
+            return cardsBlockIndex % 2 === 0 ? 'bg-slate-50' : 'bg-white'
+        }
+
+        const getCardsGridClasses = (items, heading) => {
+            const count = items.length
+            if (count >= 5) return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8'
+            if (count >= 4) return 'grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8'
+            return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8'
+        }
+
+        const isRegistrationBlock = (block) => {
+            if (block.type !== 'cards' || !block.data.items || block.data.items.length < 3) return false
+            return block.data.items.every(item => item.data && item.data.link_url && item.data.link_url.startsWith('http'))
+        }
+
         const getSlug = () => {
             // If slug param exists (from /cms/:slug), use it
             if (route.params.slug) {
@@ -346,6 +365,9 @@ export default defineComponent({
             getMinistryCardContentClasses,
             getMinistryCardTitleClasses,
             getMinistryCardDescClasses,
+            getCardsSectionClasses,
+            getCardsGridClasses,
+            isRegistrationBlock,
         }
     }
 })
@@ -570,5 +592,46 @@ export default defineComponent({
 .two-column-content :deep(em) {
     font-size: 0.875rem;
     color: #94a3b8;
+}
+
+/* Registration / form-link cards: bigger, button-like, open external in new tab */
+.cms-registration-card {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cms-registration-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.cms-registration-card .cms-registration-card-link {
+    margin-top: auto;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    border: 2px solid currentColor;
+    transition: background 0.2s, color 0.2s;
+}
+
+.cms-registration-card.bg-blue-50 .cms-registration-card-link:hover {
+    background: #1e40af;
+    color: white;
+    border-color: #1e40af;
+}
+
+.cms-registration-card.bg-green-50 .cms-registration-card-link:hover {
+    background: #047857;
+    color: white;
+    border-color: #047857;
+}
+
+.cms-registration-card:not(.bg-blue-50):not(.bg-green-50) .cms-registration-card-link:hover {
+    background: #1e293b;
+    color: white;
+    border-color: #1e293b;
 }
 </style>

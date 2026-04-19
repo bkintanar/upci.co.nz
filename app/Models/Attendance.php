@@ -20,6 +20,8 @@ class Attendance extends Model
         'youth',
         'children',
         'visitors',
+        'baptism_hg',
+        'baptism_water',
         'user_id',
         'church_id',
     ];
@@ -38,6 +40,8 @@ class Attendance extends Model
             'youth' => 'integer',
             'children' => 'integer',
             'visitors' => 'integer',
+            'baptism_hg' => 'integer',
+            'baptism_water' => 'integer',
         ];
     }
 

@@ -66,7 +66,18 @@ class UserForm
                                     ->options(UserRole::getOptions())
                                     ->default(UserRole::MEMBER)
                                     ->required()
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->live(),
+
+                                Select::make('assigned_region')
+                                    ->label('Assigned Region')
+                                    ->options([
+                                        'North Region' => 'North Region',
+                                        'Central Region' => 'Central Region',
+                                        'South Region' => 'South Region',
+                                    ])
+                                    ->placeholder('Select region (for Regional Presbyter)')
+                                    ->visible(fn ($get) => $get('role') === UserRole::REGIONAL_PRESBYTER->value),
                             ]),
                     ])
                     ->collapsible()
