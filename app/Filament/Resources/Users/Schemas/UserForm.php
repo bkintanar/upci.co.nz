@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use App\Models\Church;
+use App\Enums\AccessLevel;
 use App\Enums\UserRole;
+use App\Models\Church;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
@@ -47,37 +48,42 @@ class UserForm
                     ->collapsible()
                     ->columnSpanFull(),
 
-                // Church Assignment Section
-                Section::make('Church Assignment')
-                    ->description('Assign user to a church and role')
+                // Access & Assignment Section
+                Section::make('Access & Assignment')
+                    ->description('Access level, church, and optional regional assignment')
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                Select::make('church_id')
-                                    ->label('Church')
-                                    ->relationship('church', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->nullable()
-                                    ->placeholder('Select a church (optional)'),
+                                Select::make('access_level')
+                                    ->label('Access Level')
+                                    ->options(AccessLevel::getOptions())
+                                    ->placeholder('Select access level')
+                                    ->helperText('Local: one church. Regional: one region. National: full access.')
+                                    ->live(),
 
                                 Select::make('role')
                                     ->label('Role')
                                     ->options(UserRole::getOptions())
                                     ->default(UserRole::MEMBER)
                                     ->required()
-                                    ->searchable()
-                                    ->live(),
+                                    ->searchable(),
 
-                                Select::make('assigned_region')
+                                Select::make('church_id')
+                                    ->label('Church')
+                                    ->relationship('church', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->nullable()
+                                    ->placeholder('Select a church')
+                                    ->requiredIf('access_level', AccessLevel::LOCAL->value),
+
+                                Select::make('region_id')
                                     ->label('Assigned Region')
-                                    ->options([
-                                        'North Region' => 'North Region',
-                                        'Central Region' => 'Central Region',
-                                        'South Region' => 'South Region',
-                                    ])
-                                    ->placeholder('Select region (for Regional Presbyter)')
-                                    ->visible(fn ($get) => $get('role') === UserRole::REGIONAL_PRESBYTER->value),
+                                    ->relationship('region', 'name')
+                                    ->preload()
+                                    ->placeholder('Select region')
+                                    ->visible(fn ($get) => $get('access_level') === AccessLevel::REGIONAL->value)
+                                    ->requiredIf('access_level', AccessLevel::REGIONAL->value),
                             ]),
                     ])
                     ->collapsible()

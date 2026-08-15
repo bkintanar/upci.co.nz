@@ -39,16 +39,17 @@ class UserInfolist
                     ->collapsible()
                     ->columnSpanFull(),
 
-                // Church Assignment Section
-                Section::make('Church Assignment')
-                    ->description('Church membership and role information')
+                // Access & Assignment Section
+                Section::make('Access & Assignment')
+                    ->description('Access level, church, and regional assignment')
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextEntry::make('church.name')
-                                    ->label('Church')
-                                    ->placeholder('No church assigned')
-                                    ->visible(fn ($record) => $record->church_id),
+                                TextEntry::make('access_level')
+                                    ->label('Access Level')
+                                    ->formatStateUsing(fn ($state) => $state?->getLabel() ?? 'Not set')
+                                    ->badge()
+                                    ->color(fn ($state) => $state?->getColor() ?? 'gray'),
 
                                 TextEntry::make('role')
                                     ->label('Role')
@@ -56,11 +57,16 @@ class UserInfolist
                                     ->badge()
                                     ->color(fn ($state) => $state?->getColor() ?? 'gray'),
 
-                                TextEntry::make('assigned_region')
+                                TextEntry::make('church.name')
+                                    ->label('Church')
+                                    ->placeholder('No church assigned')
+                                    ->visible(fn ($record) => $record->church_id),
+
+                                TextEntry::make('region.name')
                                     ->label('Assigned Region')
                                     ->badge()
                                     ->color('info')
-                                    ->visible(fn ($record) => ! empty($record->assigned_region)),
+                                    ->visible(fn ($record) => $record->region_id),
                             ]),
                     ])
                     ->collapsible()

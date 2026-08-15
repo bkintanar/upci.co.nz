@@ -10,20 +10,20 @@
                             </router-link>
                         </div>
 
-                <div v-if="!loading" class="hidden md:flex items-center space-x-8">
+                <div v-if="!loading" class="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
                     <template v-for="item in menuItems" :key="item.id">
                         <!-- Menu item with dropdown -->
                         <div v-if="item.children && item.children.length > 0" class="relative group">
                             <router-link
                                 v-if="item.url && item.url !== '#' && !item.url.startsWith('http')"
                                 :to="item.url"
-                                class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center transition-colors duration-200">
+                                class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
                                 {{ item.label }}
                                 <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </router-link>
-                            <button v-else class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center transition-colors duration-200">
+                            <button v-else class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
                                 {{ item.label }}
                                 <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -57,13 +57,13 @@
                             v-else-if="item.url && (item.url.startsWith('http') || item.url === '#')"
                             :href="item.url"
                             :target="item.open_in_new_tab ? '_blank' : '_self'"
-                            class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold transition-colors duration-200">
+                            class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
                             {{ item.label }}
                         </a>
                         <router-link
                             v-else-if="item.url"
                             :to="item.url"
-                            class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold transition-colors duration-200">
+                            class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
                             {{ item.label }}
                         </router-link>
                     </template>

@@ -3,15 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Panel;
 use App\Enums\UserRole;
+use App\Enums\AccessLevel;
 use Illuminate\Support\Str;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -27,7 +30,8 @@ class User extends Authenticatable
         'password',
         'church_id',
         'role',
-        'assigned_region',
+        'access_level',
+        'region_id',
     ];
 
     /**
@@ -51,6 +55,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'access_level' => AccessLevel::class,
         ];
     }
 
@@ -80,5 +85,51 @@ class User extends Authenticatable
     public function church(): BelongsTo
     {
         return $this->belongsTo(Church::class);
+    }
+
+    /**
+     * Get the region this user is assigned to (for regional access).
+     */
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    public function isLocal(): bool
+    {
+        return $this->access_level === AccessLevel::LOCAL;
+    }
+
+    public function isRegional(): bool
+    {
+        return $this->access_level === AccessLevel::REGIONAL;
+    }
+
+    public function isNational(): bool
+    {
+        return $this->access_level === AccessLevel::NATIONAL;
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return (bool) $this->access_level;
+    }
+
+    /**
+     * Whether the user is authorised to see/act on a given church,
+     * based only on access_level + scope columns (not role).
+     */
+    public function canAccessChurch(?Church $church): bool
+    {
+        if (! $church) {
+            return false;
+        }
+
+        return match (true) {
+            $this->isNational() => true,
+            $this->isRegional() => $church->region_id === $this->region_id,
+            $this->isLocal() => $church->id === $this->church_id,
+            default => false,
+        };
     }
 }

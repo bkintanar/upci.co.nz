@@ -90,6 +90,7 @@ class PageForm
                                         FileUpload::make('background_image')
                                             ->label('Background Image')
                                             ->image()
+                                            ->disk('public')
                                             ->directory('page-images')
                                             ->maxSize(5120),
                                         Select::make('style')
@@ -150,6 +151,7 @@ class PageForm
                                             ->label('Image')
                                             ->required()
                                             ->image()
+                                            ->disk('public')
                                             ->directory('page-images')
                                             ->maxSize(5120),
                                         TextInput::make('alt')
@@ -237,8 +239,9 @@ class PageForm
                                                         FileUpload::make('icon')
                                                             ->label('Icon/Image')
                                                             ->image()
+                                                            ->disk('public')
                                                             ->directory('page-images')
-                                                            ->maxSize(2048),
+                                                            ->maxSize(5120),
                                                         TextInput::make('title')
                                                             ->label('Title')
                                                             ->required()

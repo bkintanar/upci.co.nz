@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Church;
+use App\Models\Region;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -14,16 +15,17 @@ class ChurchController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Church::active()->withCoordinates();
+        $query = Church::active()->withCoordinates()->with('organizationalRegion');
 
         // Filter by address region (NZ geographic)
         if ($request->has('region') && $request->region) {
             $query->byRegion($request->region);
         }
 
-        // Filter by organizational region (North/Central/South)
-        if ($request->has('organizational_region') && $request->organizational_region) {
-            $query->where('organizational_region', $request->organizational_region);
+        // Filter by organizational region (North/Central/South) — accepts the region name
+        // for wire compatibility with the Vue frontend; internally resolves to region_id.
+        if ($request->filled('organizational_region')) {
+            $query->whereHas('organizationalRegion', fn ($r) => $r->where('name', $request->organizational_region));
         }
 
         // Filter by church status
@@ -98,7 +100,7 @@ class ChurchController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'region' => 'nullable|string|max:255',
-            'organizational_region' => 'nullable|string|in:North Region,Central Region,South Region',
+            'organizational_region' => 'nullable|string|exists:regions,name',
             'church_status' => 'nullable|string|in:Established Church,Daughter Works,Preaching Point',
             'potential_home_group' => 'nullable|boolean',
             'zip' => 'nullable|string|max:255',
@@ -118,6 +120,11 @@ class ChurchController extends Controller
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
         ]);
+
+        if (isset($validated['organizational_region'])) {
+            $validated['region_id'] = Region::where('name', $validated['organizational_region'])->value('id');
+            unset($validated['organizational_region']);
+        }
 
         $church = Church::create($validated);
 
@@ -139,7 +146,7 @@ class ChurchController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'region' => 'nullable|string|max:255',
-            'organizational_region' => 'nullable|string|in:North Region,Central Region,South Region',
+            'organizational_region' => 'nullable|string|exists:regions,name',
             'church_status' => 'nullable|string|in:Established Church,Daughter Works,Preaching Point',
             'potential_home_group' => 'nullable|boolean',
             'zip' => 'nullable|string|max:255',
@@ -159,6 +166,13 @@ class ChurchController extends Controller
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
         ]);
+
+        if (array_key_exists('organizational_region', $validated)) {
+            $validated['region_id'] = $validated['organizational_region']
+                ? Region::where('name', $validated['organizational_region'])->value('id')
+                : null;
+            unset($validated['organizational_region']);
+        }
 
         $church->update($validated);
 
@@ -206,17 +220,11 @@ class ChurchController extends Controller
      */
     public function organizationalRegions(): JsonResponse
     {
-        $regions = Church::active()
-            ->whereNotNull('organizational_region')
-            ->distinct()
-            ->pluck('organizational_region')
-            ->filter()
-            ->sort()
-            ->values();
+        $regions = Region::orderBy('sort_order')->pluck('name');
 
         return response()->json([
             'success' => true,
-            'data' => $regions
+            'data' => $regions,
         ]);
     }
 
@@ -274,7 +282,7 @@ class ChurchController extends Controller
             'city' => $church->city,
             'state' => $church->state,
             'region' => $church->region,
-            'organizational_region' => $church->organizational_region,
+            'organizational_region' => $church->organizationalRegion?->name,
             'church_status' => $church->church_status,
             'potential_home_group' => $church->potential_home_group,
             'zip' => $church->zip,

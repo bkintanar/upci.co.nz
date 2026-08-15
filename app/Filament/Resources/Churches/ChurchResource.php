@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\Churches;
 
-use App\Enums\UserRole;
+use App\Filament\Concerns\ScopesToAccessLevel;
 use BackedEnum;
 use App\Models\Church;
+use Closure;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -19,30 +20,22 @@ use App\Filament\Resources\Churches\Schemas\ChurchInfolist;
 
 class ChurchResource extends Resource
 {
+    use ScopesToAccessLevel;
+
     protected static ?string $model = Church::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home-modern';
 
     protected static ?int $navigationSort = 1;
 
-    public static function getEloquentQuery(): Builder
+    protected static function localScope(): Closure
     {
-        $query = parent::getEloquentQuery();
-        $user = auth()->user();
-        if (! $user) {
-            return $query;
-        }
-        if (UserRole::hasFullAccess($user)) {
-            return $query;
-        }
-        if (UserRole::isPastor($user)) {
-            return $query->where('id', $user->church_id ?? -1);
-        }
-        if (UserRole::isRegionalPresbyter($user)) {
-            return $query->where('organizational_region', $user->assigned_region);
-        }
+        return fn (Builder $q, int $churchId) => $q->where('id', $churchId);
+    }
 
-        return $query;
+    protected static function regionalScope(): Closure
+    {
+        return fn (Builder $q, int $regionId) => $q->where('region_id', $regionId);
     }
 
     public static function form(Schema $schema): Schema

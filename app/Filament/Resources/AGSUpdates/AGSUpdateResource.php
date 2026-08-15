@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\AGSUpdates;
 
-use App\Enums\UserRole;
 use App\Filament\Resources\AGSUpdates\Pages\CreateAGSUpdate;
 use App\Filament\Resources\AGSUpdates\Pages\EditAGSUpdate;
 use App\Filament\Resources\AGSUpdates\Pages\ListAGSUpdates;
@@ -24,15 +23,6 @@ class AGSUpdateResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $navigationLabel = 'AGS Updates';
-
-    public static function shouldRegisterNavigation(): bool
-    {
-        $user = auth()->user();
-        if (! $user) {
-            return false;
-        }
-        return UserRole::hasFullAccess($user);
-    }
 
     public static function form(Schema $schema): Schema
     {

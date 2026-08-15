@@ -28,7 +28,7 @@ class ChurchesTable
                     ->placeholder('No pastor assigned')
                     ->toggleable(),
 
-                TextColumn::make('organizational_region')
+                TextColumn::make('organizationalRegion.name')
                     ->label('Region')
                     ->searchable()
                     ->sortable()

@@ -45,11 +45,11 @@ class ChurchInfolist
 
                         Grid::make(3)
                             ->schema([
-                                TextEntry::make('organizational_region')
+                                TextEntry::make('organizationalRegion.name')
                                     ->label('Region')
                                     ->badge()
                                     ->color('info')
-                                    ->visible(fn ($record) => ! empty($record->organizational_region)),
+                                    ->visible(fn ($record) => $record->organizationalRegion !== null),
 
                                 TextEntry::make('church_status')
                                     ->label('Ministry Status')
@@ -63,7 +63,7 @@ class ChurchInfolist
                                     ->badge()
                                     ->color(fn ($state) => $state ? 'warning' : 'gray'),
                             ])
-                            ->visible(fn ($record) => ! empty($record->organizational_region) || ! empty($record->church_status) || $record->potential_home_group),
+                            ->visible(fn ($record) => $record->organizationalRegion !== null || ! empty($record->church_status) || $record->potential_home_group),
 
                         TextEntry::make('service_times')
                             ->label('Service Times')

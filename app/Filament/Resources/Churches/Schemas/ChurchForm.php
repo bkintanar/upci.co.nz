@@ -180,13 +180,10 @@ class ChurchForm
 
                         Grid::make(2)
                             ->schema([
-                                Select::make('organizational_region')
+                                Select::make('region_id')
                                     ->label('Region')
-                                    ->options([
-                                        'North Region' => 'North Region',
-                                        'Central Region' => 'Central Region',
-                                        'South Region' => 'South Region',
-                                    ])
+                                    ->relationship('organizationalRegion', 'name')
+                                    ->preload()
                                     ->placeholder('Select region')
                                     ->searchable(),
 

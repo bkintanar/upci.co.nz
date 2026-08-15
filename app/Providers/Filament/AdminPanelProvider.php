@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Pages\Dashboard;
+use Filament\Support\Enums\Width;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -33,11 +34,13 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->passwordReset()
             ->colors([
                 'primary' => Color::Blue,
             ])
             ->font('Inter')
             ->brandName('UPCI New Zealand')
+            ->maxContentWidth(Width::Full)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

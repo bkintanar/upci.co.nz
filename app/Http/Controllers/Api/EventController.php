@@ -41,7 +41,11 @@ class EventController extends Controller
             'end_date' => $event->end_date?->format('Y-m-d'),
             'location' => $event->location,
             'url' => $event->url,
-            'department' => $event->department?->slug,
+            'department' => $event->department ? [
+                'slug' => $event->department->slug,
+                'name' => $event->department->name,
+                'color_theme' => $event->department->color_theme,
+            ] : null,
         ]);
 
         return response()->json(['success' => true, 'data' => $events]);

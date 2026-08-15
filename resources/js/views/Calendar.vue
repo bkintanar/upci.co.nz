@@ -46,7 +46,8 @@
                             <div
                                 v-for="ev in cell.events"
                                 :key="ev.id"
-                                class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-800 truncate"
+                                class="text-xs px-2 py-1 rounded truncate"
+                                :class="statusClasses(ev).chip"
                                 :title="ev.name"
                             >
                                 {{ ev.name }}
@@ -62,10 +63,17 @@
                     <li
                         v-for="ev in eventsInMonth"
                         :key="ev.id"
-                        class="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-200"
+                        class="flex items-center gap-3 p-3 rounded-lg border"
+                        :class="statusClasses(ev).card"
                     >
-                        <span class="text-sm font-medium text-blue-600 shrink-0">{{ formatDate(ev.start_date) }}</span>
-                        <span class="font-medium text-slate-900">{{ ev.name }}</span>
+                        <span class="text-sm font-medium shrink-0" :class="statusClasses(ev).date">{{ formatDate(ev.start_date) }}</span>
+                        <span class="font-medium" :class="statusClasses(ev).title">{{ ev.name }}</span>
+                        <span
+                            v-if="statusClasses(ev).pillLabel"
+                            :class="statusClasses(ev).pill"
+                        >
+                            {{ statusClasses(ev).pillLabel }}
+                        </span>
                         <a v-if="ev.url" :href="ev.url" target="_blank" rel="noopener" class="ml-auto text-blue-600 text-sm hover:underline">Details</a>
                     </li>
                 </ul>
@@ -86,6 +94,7 @@
 
 <script>
 import { defineComponent, ref, computed, watch, onMounted } from 'vue'
+import { getEventStatus, eventStatusClasses } from '../utils/eventStatus'
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -178,6 +187,8 @@ export default defineComponent({
         watch(current, fetchEvents)
         onMounted(fetchEvents)
 
+        const statusClasses = (event) => eventStatusClasses(getEventStatus(event))
+
         return {
             monthLabel,
             dayNames,
@@ -185,7 +196,8 @@ export default defineComponent({
             eventsInMonth,
             formatDate,
             prevMonth,
-            nextMonth
+            nextMonth,
+            statusClasses
         }
     }
 })

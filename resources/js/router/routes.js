@@ -79,6 +79,11 @@ const routes = [
         component: () => import('../views/AgsUpdates.vue')
     },
     {
+        path: '/connect-with-us',
+        name: 'ConnectWithUs',
+        component: () => import('../views/ConnectWithUs.vue')
+    },
+    {
         path: '/cms/:slug(.*)',
         name: 'CmsPage',
         component: () => import('../views/CmsPage.vue')

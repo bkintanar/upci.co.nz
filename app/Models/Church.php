@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Church extends Model
@@ -19,7 +20,7 @@ class Church extends Model
         'suburb',
         'city',
         'region',
-        'organizational_region',
+        'region_id',
         'church_status',
         'potential_home_group',
         'zip',
@@ -59,12 +60,50 @@ class Church extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        // The AddressFinder field updates street/suburb/city/zip via JS input
+        // events but doesn't propagate the selection back to the `address`
+        // column, so it can drift stale (e.g. SSPF still showed "Nalanda
+        // Crescent" on the public locator after the address was changed).
+        // Rebuild it from the atomic fields whenever the AddressFinder has
+        // populated them (street is the authoritative signal). Records that
+        // only carry the legacy one-line `address` are left untouched.
+        static::saving(function (Church $church): void {
+            if (empty($church->street)) {
+                return;
+            }
+
+            $composed = implode(', ', array_filter([
+                $church->street,
+                $church->suburb,
+                $church->city,
+                $church->zip,
+            ]));
+
+            if ($composed !== '') {
+                $church->address = $composed;
+            }
+        });
+    }
+
     /**
      * Get the users that belong to this church.
      */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Get the organisational region this church belongs to.
+     *
+     * Named `organizationalRegion` (not `region`) to avoid collision with the
+     * existing `region` VARCHAR column (NZ geographic region).
+     */
+    public function organizationalRegion(): BelongsTo
+    {
+        return $this->belongsTo(Region::class, 'region_id');
     }
 
     /**

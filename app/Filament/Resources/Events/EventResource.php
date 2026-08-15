@@ -2,39 +2,27 @@
 
 namespace App\Filament\Resources\Events;
 
-use App\Enums\UserRole;
-use App\Filament\Resources\Events\Pages\CreateEvent;
-use App\Filament\Resources\Events\Pages\EditEvent;
-use App\Filament\Resources\Events\Pages\ListEvents;
-use App\Filament\Resources\Events\Pages\ViewEvent;
-use App\Filament\Resources\Events\Schemas\EventForm;
-use App\Filament\Resources\Events\Schemas\EventInfolist;
-use App\Filament\Resources\Events\Tables\EventsTable;
-use App\Models\Event;
 use BackedEnum;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
+use Filament\Panel;
+use App\Models\Event;
 use Filament\Tables\Table;
+use Filament\Schemas\Schema;
+use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
+use App\Http\Middleware\NationalOrRegionalOnly;
+use App\Filament\Resources\Events\Pages\EditEvent;
+use App\Filament\Resources\Events\Pages\ViewEvent;
+use App\Filament\Resources\Events\Pages\ListEvents;
+use App\Filament\Resources\Events\Pages\CreateEvent;
+use App\Filament\Resources\Events\Schemas\EventForm;
+use App\Filament\Resources\Events\Tables\EventsTable;
+use App\Filament\Resources\Events\Schemas\EventInfolist;
 
 class EventResource extends Resource
 {
     protected static ?string $model = Event::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    public static function shouldRegisterNavigation(): bool
-    {
-        $user = auth()->user();
-        if (! $user) {
-            return true;
-        }
-        if (UserRole::isPastor($user) || UserRole::isRegionalPresbyter($user)) {
-            return false;
-        }
-
-        return true;
-    }
 
     public static function form(Schema $schema): Schema
     {
@@ -66,5 +54,10 @@ class EventResource extends Resource
             'view' => ViewEvent::route('/{record}'),
             'edit' => EditEvent::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRouteMiddleware(Panel $panel): string|array
+    {
+        return [NationalOrRegionalOnly::class];
     }
 }

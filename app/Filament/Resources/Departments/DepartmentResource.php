@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Departments;
 
 use BackedEnum;
-use App\Enums\UserRole;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
@@ -26,19 +25,6 @@ class DepartmentResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $navigationLabel = 'Departments';
-
-    public static function shouldRegisterNavigation(): bool
-    {
-        $user = auth()->user();
-        if (! $user) {
-            return true;
-        }
-        if (UserRole::isPastor($user) || UserRole::isRegionalPresbyter($user)) {
-            return false;
-        }
-
-        return true;
-    }
 
     public static function form(Schema $schema): Schema
     {

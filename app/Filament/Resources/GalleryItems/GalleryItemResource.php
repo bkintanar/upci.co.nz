@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\GalleryItems;
 
-use App\Enums\UserRole;
 use App\Filament\Resources\GalleryItems\Pages\CreateGalleryItem;
 use App\Filament\Resources\GalleryItems\Pages\EditGalleryItem;
 use App\Filament\Resources\GalleryItems\Pages\ListGalleryItems;
@@ -24,15 +23,6 @@ class GalleryItemResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $navigationLabel = 'Gallery';
-
-    public static function shouldRegisterNavigation(): bool
-    {
-        $user = auth()->user();
-        if (! $user) {
-            return false;
-        }
-        return UserRole::hasFullAccess($user);
-    }
 
     public static function form(Schema $schema): Schema
     {

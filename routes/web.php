@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\ChurchController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\AGSUpdateController;
@@ -41,6 +42,9 @@ Route::prefix('api')->group(function () {
     // Departments (public, published only)
     Route::get('/departments', [DepartmentController::class, 'index']);
     Route::get('/departments/{slug}', [DepartmentController::class, 'show']);
+
+    // Contact form
+    Route::post('/contact', [ContactController::class, 'store']);
 });
 
 // Frontend routes
