@@ -128,3 +128,35 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ---------------------------------------------------------------------------
+   Embedded media inside authored content.
+
+   Facebook's embed code carries a fixed pixel width — the live pages ship
+   width="560" and width="500" — which overflows any viewport narrower than
+   that. On a 390px phone the Apostolic Bible College pages ran 218px past the
+   right edge and scrolled sideways.
+
+   Fixed here rather than in the content: the widths are inside CMS copy that
+   authors paste from Facebook, so a content-side fix would have to be repeated
+   every time someone adds an embed. The attribute stays as the intrinsic size;
+   CSS overrides it downward when there is not room.
+   --------------------------------------------------------------------------- */
+.cms-text-content iframe,
+.two-column-content iframe,
+.prose iframe,
+.embed-container iframe {
+  max-width: 100%;
+}
+
+/* An iframe with an intrinsic width attribute keeps its height when the width
+   is constrained, which distorts video embeds. Video plugins get their ratio
+   back; post embeds are height-driven and are left alone. */
+.cms-text-content iframe[src*="/plugins/video"],
+.two-column-content iframe[src*="/plugins/video"],
+.prose iframe[src*="/plugins/video"],
+.embed-container iframe[src*="/plugins/video"] {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+}
