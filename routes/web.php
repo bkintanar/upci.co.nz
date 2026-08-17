@@ -30,6 +30,7 @@ Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     Route::get('/regions', [RegionController::class, 'index']);
     Route::get('/regions/{slug}', [RegionController::class, 'show']);
 
+    Route::get('/church-statistics', [ChurchController::class, 'statistics']);
     Route::get('/churches-organizational-regions', [ChurchController::class, 'organizationalRegions']);
     Route::get('/churches-service-days', [ChurchController::class, 'serviceDays']);
     // Each call makes two sequential blocking file_get_contents to NZ Post

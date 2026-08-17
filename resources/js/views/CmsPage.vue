@@ -189,6 +189,7 @@
             <DepartmentListBlock v-else-if="block.type === 'department_list'" :data="block.data" />
             <RegionListBlock v-else-if="block.type === 'region_list'" :data="block.data" />
             <GalleryBlock v-else-if="block.type === 'gallery'" :data="block.data" />
+            <StatisticsBlock v-else-if="block.type === 'statistics'" :data="block.data" />
 
             <!-- Embed Code -->
             <section v-else-if="block.type === 'embed'" class="py-12 bg-white">
@@ -240,6 +241,7 @@ import EventsFeedBlock from '../components/blocks/EventsFeedBlock.vue';
 import DepartmentListBlock from '../components/blocks/DepartmentListBlock.vue';
 import RegionListBlock from '../components/blocks/RegionListBlock.vue';
 import GalleryBlock from '../components/blocks/GalleryBlock.vue';
+import StatisticsBlock from '../components/blocks/StatisticsBlock.vue';
 import { usePageMeta } from '../composables/usePageMeta';
 
 export default defineComponent({
@@ -255,6 +257,7 @@ export default defineComponent({
         DepartmentListBlock,
         RegionListBlock,
         GalleryBlock,
+        StatisticsBlock,
     },
     setup() {
         const { setPageMeta } = usePageMeta()

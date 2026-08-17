@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Church;
 use App\Models\Region;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -222,6 +223,48 @@ class ChurchController extends Controller
     /**
      * Get all unique organizational regions (North/Central/South).
      */
+    /**
+     * Counts derived from live records.
+     *
+     * The homepage previously stated these as authored text, and three of the
+     * four figures had drifted from the data: it claimed 10 established
+     * churches against 9, 3 daughter works against none, 2 preaching points
+     * against 1, and 12 potential home groups against none. "Daughter Works"
+     * was not even a status the data carries.
+     *
+     * Counting at request time means the numbers cannot be wrong. A category
+     * with no records is omitted rather than shown as zero — a statistic
+     * nobody has is not a statistic worth publishing.
+     */
+    public function statistics(): JsonResponse
+    {
+        $byStatus = Church::active()
+            ->whereNotNull('church_status')
+            ->selectRaw('church_status, count(*) as total')
+            ->groupBy('church_status')
+            ->orderByDesc('total')
+            ->get();
+
+        $stats = $byStatus->map(fn ($row) => [
+            'label' => Str::plural($row->church_status, $row->total),
+            'value' => $row->total,
+        ])->values()->all();
+
+        $homeGroups = Church::active()->where('potential_home_group', true)->count();
+
+        if ($homeGroups > 0) {
+            $stats[] = ['label' => Str::plural('Potential Home Group', $homeGroups), 'value' => $homeGroups];
+        }
+
+        $regions = Region::published()->whereHas('churches', fn ($q) => $q->where('is_active', true))->count();
+
+        if ($regions > 0) {
+            $stats[] = ['label' => Str::plural('Region', $regions), 'value' => $regions];
+        }
+
+        return response()->json(['success' => true, 'data' => $stats]);
+    }
+
     public function organizationalRegions(): JsonResponse
     {
         // slug is the wire format the filter accepts; name is for display

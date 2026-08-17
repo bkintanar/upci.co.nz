@@ -493,6 +493,18 @@ class PageForm
                                     ])
                                     ->icon('heroicon-o-map'),
 
+                                Builder\Block::make('statistics')
+                                    ->label('Statistics')
+                                    ->schema([
+                                        TextInput::make('heading')->label('Heading')->maxLength(255),
+                                        TextInput::make('lede')->label('Sub-heading')->maxLength(255),
+                                        TextInput::make('empty_message')
+                                            ->label('If there is nothing to show')
+                                            ->default('Figures are being compiled.')
+                                            ->maxLength(255),
+                                    ])
+                                    ->icon('heroicon-o-chart-bar'),
+
                                 Builder\Block::make('gallery')
                                     ->label('Gallery')
                                     ->schema([
