@@ -232,11 +232,33 @@
 
         <!-- Requirement 3: leadership detail opens in place rather than
              navigating away. -->
-        <Modal v-model="personOpen" :label="person ? person.title : 'Leadership detail'">
+        <!-- Wide panel: the detail view was NARROWER than the card that opens
+             it — a 192px portrait against the grid's 318px — so clicking for
+             more showed less. The sources are 1224x1804, so the resolution was
+             there and simply unused. -->
+        <!-- The panel widens only when there is a biography to put beside the
+             portrait. No leadership bios exist in the CMS yet, so a wide panel
+             otherwise reserves a large empty column next to the photograph —
+             the layout should follow the content, not the other way round. -->
+        <Modal
+            v-model="personOpen"
+            :panel-class="person && person.bio ? 'modal-panel--wide' : ''"
+            :label="person ? person.title : 'Leadership detail'"
+        >
             <div v-if="person" class="p-6 sm:p-8">
-                <div class="sm:flex sm:gap-8">
+                <div :class="person.bio ? 'sm:flex sm:gap-8' : ''">
+                    <!-- The portrait leads. No biography exists in the CMS for
+                         anyone yet, so the photograph IS the content here; a
+                         small image beside a near-empty column was the worst of
+                         both. Basis rather than a fixed width, so it scales with
+                         the panel instead of pinning to one breakpoint. -->
                     <img v-if="person.icon" :src="getImageUrl(person.icon)" :alt="person.title"
-                         class="w-full sm:w-48 shrink-0 aspect-[3/4] rounded-lg object-cover object-top mb-6 sm:mb-0" />
+                         :class="[
+                             'w-full shrink-0 aspect-[3/4] rounded-lg object-cover object-top',
+                             person.bio
+                                 ? 'sm:basis-[44%] sm:max-w-[380px] mb-6 sm:mb-0'
+                                 : 'sm:max-w-[420px] sm:mx-auto mb-6'
+                         ]" />
                     <div>
                         <h2 class="text-2xl font-bold text-brand-ink mb-1">{{ person.title }}</h2>
                         <p v-if="person.description" class="text-brand-green-700 font-medium mb-4">
