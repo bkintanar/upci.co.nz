@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Models\Church;
 use App\Models\Region;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 
 class ChurchController extends Controller
 {
@@ -35,7 +35,7 @@ class ChurchController extends Controller
 
         // Filter by service day
         if ($request->has('service_day') && $request->service_day) {
-            $query->whereRaw('service_times LIKE ?', ['%"' . $request->service_day . '"%']);
+            $query->whereRaw('service_times LIKE ?', ['%"'.$request->service_day.'"%']);
         }
 
         // Search by name, city, or address
@@ -43,19 +43,19 @@ class ChurchController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('city', 'like', "%{$searchTerm}%")
-                  ->orWhere('address', 'like', "%{$searchTerm}%")
-                  ->orWhere('region', 'like', "%{$searchTerm}%");
+                    ->orWhere('city', 'like', "%{$searchTerm}%")
+                    ->orWhere('address', 'like', "%{$searchTerm}%")
+                    ->orWhere('region', 'like', "%{$searchTerm}%");
             });
         }
 
         // Order by featured first, then by name
         $churches = $query->orderBy('is_featured', 'desc')
-                         ->orderBy('name')
-                         ->get()
-                         ->map(function ($church) {
-                             return $this->formatChurchForApi($church);
-                         });
+            ->orderBy('name')
+            ->get()
+            ->map(function ($church) {
+                return $this->formatChurchForApi($church);
+            });
 
         return response()->json([
             'success' => true,
@@ -67,7 +67,7 @@ class ChurchController extends Controller
                 'church_status' => $request->church_status,
                 'service_day' => $request->service_day,
                 'search' => $request->search,
-            ]
+            ],
         ]);
     }
 
@@ -76,16 +76,16 @@ class ChurchController extends Controller
      */
     public function show(Church $church): JsonResponse
     {
-        if (!$church->is_active) {
+        if (! $church->is_active) {
             return response()->json([
                 'success' => false,
-                'message' => 'Church not found'
+                'message' => 'Church not found',
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $this->formatChurchForApi($church)
+            'data' => $this->formatChurchForApi($church),
         ]);
     }
 
@@ -131,7 +131,7 @@ class ChurchController extends Controller
         return response()->json([
             'success' => true,
             'data' => $this->formatChurchForApi($church),
-            'message' => 'Church created successfully'
+            'message' => 'Church created successfully',
         ], 201);
     }
 
@@ -179,7 +179,7 @@ class ChurchController extends Controller
         return response()->json([
             'success' => true,
             'data' => $this->formatChurchForApi($church),
-            'message' => 'Church updated successfully'
+            'message' => 'Church updated successfully',
         ]);
     }
 
@@ -192,7 +192,7 @@ class ChurchController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Church deleted successfully'
+            'message' => 'Church deleted successfully',
         ]);
     }
 
@@ -211,7 +211,7 @@ class ChurchController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $regions
+            'data' => $regions,
         ]);
     }
 
@@ -247,7 +247,7 @@ class ChurchController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $serviceDays
+            'data' => $serviceDays,
         ]);
     }
 
@@ -257,7 +257,7 @@ class ChurchController extends Controller
     public function addressSearch(Request $request): JsonResponse
     {
         $request->validate([
-            'search' => 'required|string|min:2|max:255'
+            'search' => 'required|string|min:2|max:255',
         ]);
 
         $search = $request->input('search');
@@ -265,10 +265,9 @@ class ChurchController extends Controller
 
         return response()->json([
             'success' => true,
-            'results' => $results
+            'results' => $results,
         ]);
     }
-
 
     /**
      * Format church data for API response.
@@ -312,6 +311,13 @@ class ChurchController extends Controller
     /**
      * Format leadership data for API response.
      */
+    /**
+     * Public leadership summary. Deliberately excludes `email` and `id`:
+     * this endpoint is unauthenticated, and those emails are the login
+     * identifiers for the admin panel. Nothing in the SPA consumes this
+     * block. If a public directory is ever wanted it should be opt-in
+     * per user, not every user who happens to hold a role.
+     */
     private function formatLeadershipForApi(Church $church): array
     {
         $leadership = $church->leadership()->get();
@@ -320,39 +326,31 @@ class ChurchController extends Controller
             'total_count' => $leadership->count(),
             'pastors' => $church->pastors()->get()->map(function ($pastor) {
                 return [
-                    'id' => $pastor->id,
                     'name' => $pastor->name,
-                    'email' => $pastor->email,
                     'role' => $pastor->role->value,
                     'role_label' => $pastor->role->getLabel(),
                 ];
             }),
             'elders' => $church->users()->where('role', \App\Enums\UserRole::ELDER)->get()->map(function ($elder) {
                 return [
-                    'id' => $elder->id,
                     'name' => $elder->name,
-                    'email' => $elder->email,
                     'role' => $elder->role->value,
                     'role_label' => $elder->role->getLabel(),
                 ];
             }),
             'deacons' => $church->users()->where('role', \App\Enums\UserRole::DEACON)->get()->map(function ($deacon) {
                 return [
-                    'id' => $deacon->id,
                     'name' => $deacon->name,
-                    'email' => $deacon->email,
                     'role' => $deacon->role->value,
                     'role_label' => $deacon->role->getLabel(),
                 ];
             }),
             'other_leadership' => $church->users()->whereIn('role', [
                 \App\Enums\UserRole::USHER,
-                \App\Enums\UserRole::ADMINISTRATOR
+                \App\Enums\UserRole::ADMINISTRATOR,
             ])->get()->map(function ($member) {
                 return [
-                    'id' => $member->id,
                     'name' => $member->name,
-                    'email' => $member->email,
                     'role' => $member->role->value,
                     'role_label' => $member->role->getLabel(),
                 ];
