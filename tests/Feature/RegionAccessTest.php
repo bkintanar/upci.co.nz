@@ -153,3 +153,24 @@ test('the region page shows only its own regional events', function () {
     expect($names)->toContain('Northern one')
         ->and($names)->not->toContain('National one');
 });
+
+test('a region carries its presbyter as structured data', function () {
+    // The three names were published only as prose inside the leadership page's
+    // cards, so nothing could query who leads a region. They are the client's
+    // own already-published facts, read across rather than retyped.
+    App\Models\Region::where('slug', 'northern')->update(['presbyter_name' => 'Rev. Example']);
+
+    $row = collect($this->getJson('/api/regions')->json('data'))->firstWhere('slug', 'northern');
+
+    expect($row)->toHaveKey('presbyter_name')
+        ->and($row['presbyter_name'])->toBe('Rev. Example');
+});
+
+test('a region with no intro still returns the key', function () {
+    // Region.vue renders the message section on `intro` being truthy. A missing
+    // key and an empty one behave differently in JS, and intro is deliberately
+    // left unset — a message from a region is theirs to write, not ours.
+    $data = $this->getJson('/api/regions/northern')->json('data');
+
+    expect($data)->toHaveKey('intro');
+});
