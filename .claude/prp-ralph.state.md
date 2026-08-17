@@ -947,3 +947,40 @@ per-church "show email" flag or a relay form — not publishing every stored add
 1. Homepage direction — D1 / D2 / D3
 2. Do conference or congregation photographs exist?
 3. Department hues (T49)
+
+### Iteration 28 — 2026-08-17
+
+#### Completed
+- **T61** (`d7325ab`) — ABC section audited across four pages at desktop and mobile
+
+#### Validation
+Lint PASS · Build PASS · Tests **104 passed (251 assertions)** · all four pages re-verified at
+1440 and 390
+
+#### Two real defects
+1. **Two of four ABC pages scrolled sideways on a phone.** Facebook's embed code carries a
+   fixed pixel width — the live pages ship `width="560"` and `width="500"` — so at 390px they
+   ran up to **218px** past the right edge. Fixed in CSS, not content: those widths sit inside
+   copy authors paste from Facebook, so a content-side fix needs repeating forever. Video
+   plugins also get their 16:9 ratio back, since constraining width alone distorts them.
+2. **The Connect page linked twice to `/contact`, which has no route** and rendered the 404.
+   That was mine, from `2bbeda9` — the form lives at `/connect-with-us`. Corrected; no other
+   reference exists in pages, menu rows or source.
+
+#### 🔴 My own link check gave a false pass
+It reported `/contact` fine. It used `domcontentloaded` with a 600ms wait — **not long enough
+for an SPA to fetch and render its 404 state**. An impatient check is worse than no check: it
+manufactures confidence. Re-run on `networkidle` with a real wait, it failed immediately.
+
+Pairs with the vacuous-test lesson from iteration 26: a check that cannot fail, and a check
+that finishes before the thing it measures exists, are the same defect wearing different
+clothes.
+
+#### Still blocked on the user
+1. Homepage direction — D1 / D2 / D3
+2. Do conference or congregation photographs exist?
+3. Department hues (T49)
+
+#### Next unblocked
+T50/T51 spikes, T71 (§14.3 copy fix + §14.2 constraints), T64 (split T36's seven clauses),
+T65 (seed region intros/logos as editable content — partly blocked on client copy).
