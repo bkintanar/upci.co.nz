@@ -452,3 +452,42 @@ screenshot.
 #### Next
 T39 (rebuild `GetInvolved.vue` from `/api/departments`), then T26–T31 (CMS block library) and
 the rest of the Direction B rollout (T32, T45, T47–T49) plus spikes T50/T51.
+
+### Iteration 10 — 2026-08-17
+
+#### Completed
+- **T39 / G6** (`6cace1c`) — `/departments` rebuilt from `/api/departments`
+
+#### Validation
+Lint PASS · Build PASS · Tests **92 passed (222 assertions)** · browser-verified
+
+#### What G6 actually was
+The page hard-coded **four** ministries with invented age ranges, activity lists and
+scripture. The table holds **six**, a different set. `/api/departments` existed and was
+consumed by nothing, so adding or renaming a department in the admin changed nothing on the
+page it was meant to drive.
+
+Now: six real cards, each with its own logo and a plain-text excerpt of its CMS description.
+The invented detail was deliberately dropped rather than transcribed — reproducing it would
+keep publishing copy nobody can edit, the same reasoning as the fabricated statistics removed
+in `010186e`.
+
+#### Flagged, not fixed
+The **"Additional Opportunities"** section still hard-codes Music Ministry, Teaching Ministry
+and Evangelism. None are rows in `departments`. Left in place: I cannot tell from here whether
+they are real programmes that belong in the CMS or filler, and deleting possibly-real
+ministries is the client's call, not mine.
+
+#### Learnings
+- **Scope browser selectors to page content.** `a[href^="/departments/"]` matched the navbar
+  dropdown link first — hidden until hover — and the click timed out. The card grid needed
+  `.prose a[...]`. A selector that matches chrome as well as content will find the chrome.
+- Card excerpts should strip markdown to plain text rather than render HTML: the whole card is
+  an `<a>`, and nesting block or interactive content inside a link is invalid.
+- Send full field values from a list endpoint and let the caller truncate — server-side
+  truncation of markdown risks cutting mid-syntax.
+
+#### Next
+T26–T31 (CMS block library): `icon_svg` in the card schema (**must precede T31**), remove the
+four presentation heuristics, `two_column` ratio, per-block async loader, six data-bound
+blocks, card `bio`. Then the rest of Direction B (T32, T45, T47–T49) and spikes T50/T51.
