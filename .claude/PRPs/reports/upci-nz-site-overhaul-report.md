@@ -3,7 +3,7 @@
 **Plan**: `.claude/PRPs/plans/upci-nz-site-overhaul.plan.md`
 **Branch**: `main` (each task on a short-lived branch, squashed, fast-forwarded, pushed)
 **Date**: 2026-08-17
-**Status**: **PARTIAL** — Block A complete (T1–T8) plus six security fixes outside the plan. Blocks B–I not started.
+**Status**: **PARTIAL** — Block A complete (T1–T8), six security fixes outside the plan, and regression cover for all of them. Blocks B–I not started.
 
 ---
 
@@ -91,11 +91,27 @@ The full suite is **not** a valid gate: 16 tests fail before any change, all pre
 
 ## Tests Written
 
-**None.** This is a genuine gap and should not be read as "no tests needed".
+`tests/Feature/SecurityRegressionTest.php` — **11 tests, 62 assertions**, covering every fix in this pass.
 
-The four fixes that most warrant regression tests are: the church write routes returning 405; a `local` user being denied `DepartmentAnnouncement`; a non-national user being unable to write `access_level`; and the widget scoping. Each is currently protected only by a manual verification recorded in its commit message.
+| Test | Guards |
+|---|---|
+| church write verbs are not routable | `POST`/`PUT`/`PATCH`/`DELETE` on `/api/churches` return 405, and the row survives |
+| church read endpoints still work | the fix did not break the locator |
+| public church endpoint publishes no emails or user ids | the PII leak in `formatLeadershipForApi()` |
+| department announcements are national-only | the missing policy that chained into stored XSS |
+| every admin-reachable model has a policy | Filament treats an unpolicied model as **allow** — catches the *next* one at the point a model is added |
+| privilege fields are gated on national access | asserts both `disabled()` **and** `dehydrated()`; the first alone is not a fix |
+| attendance widgets query through the scoped resource | the three widgets that bypassed policy and scope |
+| attendance scoping limits what a local user sees | the behaviour, not just the source |
+| contact messages are national-only, never authored | read/delete yes, create/update no |
+| the public contact endpoint is rate limited | 429 within 8 requests |
+| every file upload targets the public disk | the P0, and any future `FileUpload` added without `->disk('public')` |
 
-The plan's own §8 proposes four new test files. Writing them needs factories that do not exist — only `UserFactory` is present — which the dry-run costed at roughly a day.
+**Verified to actually catch regressions.** Reverting three fixes — reopening the church write verbs, pointing a widget back at `Attendance::`, and deleting `DepartmentAnnouncementPolicy` — makes four of these tests fail, each naming the right defect. Restoring them returns all eleven to green. A test that passes without being able to fail is worse than no test, so this was checked rather than assumed.
+
+No factories exist beyond `UserFactory`, so these build models directly, matching the four pre-existing test files. The dry-run costed factories at ~1 day; they turned out not to be needed.
+
+**Gate baseline: 27 → 38 passing across five files.** The full suite still reports exactly 16 pre-existing Livewire starter-kit failures — no new ones.
 
 ---
 
@@ -103,6 +119,6 @@ The plan's own §8 proposes four new test files. Writing them needs factories th
 
 - [x] Logo pack imported — 42 SVG + 48 PNG under `resources/images/logos/<slug>/`. The 42 `.ai` sources (11.2 MB, 62% of the pack) are gitignored but kept on disk.
 - [ ] Wire the logos into `departments.logo_path` and site settings (T16/T17, T9–T11)
-- [ ] Write regression tests for the six security fixes
+- [x] Regression tests written — 11 tests, verified to fail when the fixes are reverted
 - [ ] Resolve the four decisions still blocking Block B: T21's morph target, T15's ownership semantics, T25's response shape, T12's seven coupling sites
 - [ ] Correct the Christchurch address (client data)
