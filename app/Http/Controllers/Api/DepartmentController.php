@@ -39,6 +39,9 @@ class DepartmentController extends Controller
             return response()->json(['success' => false, 'message' => 'Department not found'], 404);
         }
 
+        // The announcements() relation already applies orderBy('sort_order'),
+        // so this only adds the tiebreaker: equal sort_order falls back to
+        // newest first.
         $announcements = $department->announcements()
             ->published()
             ->orderByDesc('published_at')
