@@ -358,10 +358,10 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 | T18 ✅ | `events.region_id` + `scope` migration + backfill 49 rows | ⚠️ `down()` must `dropIndex(['region_id'])` **before** `dropConstrainedForeignId()` (§12.3) |
 | T19 ✅ | Fix the same latent bug in `2026_04_19_000003_add_department_id_to_events_table.php` | Its `down()` has never been exercised |
 | T20 ✅ | `EventController` — add `?scope=` / `?region=` filters and both fields to the payload | §12.5 |
-| T21 | `gallery_items`: **`nullableMorphs('galleryable')`** + **`is_published`** + `enforceMorphMap` + backfill | 🔴 `morphs()` aborts on SQLite (§12.2); no visibility column exists (§3.5) |
-| T22 | `GalleryController` — owner filtering, `is_published` filter, drop the free-text `department` scope | §12.5 + §4.2 |
-| T23 | Update `GalleryItemResource` form/table for the new owner fields | §5.2 — otherwise admin-created items are invisible |
-| T24 | `GalleryItemsRelationManager` on Department **and** Region | Mirrors `AnnouncementsRelationManager` |
+| T21 ✅ | `gallery_items`: **`nullableMorphs('galleryable')`** + **`is_published`** + `enforceMorphMap` + backfill | 🔴 `morphs()` aborts on SQLite (§12.2); no visibility column exists (§3.5) |
+| T22 ✅ | `GalleryController` — owner filtering, `is_published` filter, drop the free-text `department` scope | §12.5 + §4.2 |
+| T23 ✅ | Update `GalleryItemResource` form/table for the new owner fields | §5.2 — otherwise admin-created items are invisible |
+| T24 ✅ | `GalleryItemsRelationManager` on Department **and** Region | Mirrors `AnnouncementsRelationManager` |
 | T25 | `/api/regions` index + show — **define the response shape explicitly**; eager-load | §12.5. Do not copy `formatLeadershipForApi`'s N+1 |
 
 ### Block C — CMS block library

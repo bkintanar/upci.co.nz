@@ -79,9 +79,38 @@ question from whether its churches should be filterable — a bare filter repeat
 `withCoordinates()` defect fixed in `d1e0b0c`. Implemented as published OR has active
 churches, so only a draft region with nothing in it is withheld.
 
+#### Also completed this iteration
+- **T21/T22/T23** (`ab47361`) — `nullableMorphs` owner + `is_published` on gallery_items,
+  enforced morph map, rebuilt `GalleryController`, owner picker in the admin
+- **T24** (`e0d3d9b`) — one shared relation manager on Department and Region, plus the
+  `GalleryItemPolicy` ownership change it forced
+
+#### T21's "blocking decision" was not blocking
+The plan flagged it because the one gallery row has `department = "Apostolic Bible
+College"`, which is not a `departments` row. But **a null owner IS the general gallery**
+— requirement 2 asks for exactly that third case. The row keeps its legacy string and
+becomes a general item, so nothing is lost if ABC later gets a model. No user decision
+needed.
+
+#### Live defect found and fixed on the way
+`GetInvolved.vue` fetched `/api/gallery?department=general` — a department literally
+named "general", which no row has ever matched. That section has rendered its empty
+state since launch. Now points at the general gallery and shows its item.
+
+#### More learnings
+- **`enforceMorphMap` is app-wide, not per-relation.** Safe here only because
+  `gallery_items` holds the only morph column in the schema and `GalleryItem` the only
+  morph relation in `app/`. Check both before adding it anywhere else.
+- **Validating a filter can turn a silent empty result into a 422 that breaks a page.**
+  Always grep the frontend for existing callers before tightening an API filter — that
+  is what caught the `?department=general` call.
+- `$request->validate()` on these routes returns **302 without** `Accept: application/json`
+  and 422 with it. Axios sends it; curl does not. Test with the header or you will
+  misread a working validator as broken.
+
 #### Next
-T21–T24 (galleries) are next in the execution order, but **T21 is blocked on an open
-decision**: the single existing gallery row has `department = "Apostolic Bible College"`,
-which is not a `departments` row, so `enforceMorphMap` hard-fails on backfill.
+T25 (`/api/regions` index + show) then the region landing pages — the remaining half of
+requirement 11. Frontend work (Vue region pages, leadership modal, nav cleanup) is
+untouched and is now the bulk of what is left.
 
 ---
