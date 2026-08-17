@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use App\Enums\AccessLevel;
 use App\Enums\UserRole;
-use App\Models\Church;
+use App\Enums\AccessLevel;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
@@ -59,14 +58,28 @@ class UserForm
                                     ->options(AccessLevel::getOptions())
                                     ->placeholder('Select access level')
                                     ->helperText('Local: one church. Regional: one region. National: full access.')
-                                    ->live(),
+                                    ->live()
+                                    // Privilege fields: only a national user may change these.
+                                    // UserPolicy::update() returns true unconditionally for self-edit,
+                                    // so without this any panel user could promote themselves.
+                                    // disabled() alone is NOT enough — Filament re-hydrates disabled
+                                    // fields unless dehydrated() also returns false.
+                                    ->disabled(fn () => ! auth()->user()?->isNational())
+                                    ->dehydrated(fn () => (bool) auth()->user()?->isNational()),
 
                                 Select::make('role')
                                     ->label('Role')
                                     ->options(UserRole::getOptions())
                                     ->default(UserRole::MEMBER)
                                     ->required()
-                                    ->searchable(),
+                                    ->searchable()
+                                    // Privilege fields: only a national user may change these.
+                                    // UserPolicy::update() returns true unconditionally for self-edit,
+                                    // so without this any panel user could promote themselves.
+                                    // disabled() alone is NOT enough — Filament re-hydrates disabled
+                                    // fields unless dehydrated() also returns false.
+                                    ->disabled(fn () => ! auth()->user()?->isNational())
+                                    ->dehydrated(fn () => (bool) auth()->user()?->isNational()),
 
                                 Select::make('church_id')
                                     ->label('Church')
@@ -75,7 +88,14 @@ class UserForm
                                     ->preload()
                                     ->nullable()
                                     ->placeholder('Select a church')
-                                    ->requiredIf('access_level', AccessLevel::LOCAL->value),
+                                    ->requiredIf('access_level', AccessLevel::LOCAL->value)
+                                    // Privilege fields: only a national user may change these.
+                                    // UserPolicy::update() returns true unconditionally for self-edit,
+                                    // so without this any panel user could promote themselves.
+                                    // disabled() alone is NOT enough — Filament re-hydrates disabled
+                                    // fields unless dehydrated() also returns false.
+                                    ->disabled(fn () => ! auth()->user()?->isNational())
+                                    ->dehydrated(fn () => (bool) auth()->user()?->isNational()),
 
                                 Select::make('region_id')
                                     ->label('Assigned Region')
@@ -83,7 +103,14 @@ class UserForm
                                     ->preload()
                                     ->placeholder('Select region')
                                     ->visible(fn ($get) => $get('access_level') === AccessLevel::REGIONAL->value)
-                                    ->requiredIf('access_level', AccessLevel::REGIONAL->value),
+                                    ->requiredIf('access_level', AccessLevel::REGIONAL->value)
+                                    // Privilege fields: only a national user may change these.
+                                    // UserPolicy::update() returns true unconditionally for self-edit,
+                                    // so without this any panel user could promote themselves.
+                                    // disabled() alone is NOT enough — Filament re-hydrates disabled
+                                    // fields unless dehydrated() also returns false.
+                                    ->disabled(fn () => ! auth()->user()?->isNational())
+                                    ->dehydrated(fn () => (bool) auth()->user()?->isNational()),
                             ]),
                     ])
                     ->collapsible()
