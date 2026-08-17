@@ -167,6 +167,17 @@
                 </div>
             </section>
 
+            <!-- Data-bound blocks (§9). These render live data rather than
+                 authored content, so the author sets configuration and the page
+                 stays current on its own. Each handles its own loading, error
+                 and empty states through BlockState. -->
+            <ChurchFinderBlock v-else-if="block.type === 'church_finder'" :data="block.data" />
+            <ChurchDirectoryBlock v-else-if="block.type === 'church_directory'" :data="block.data" />
+            <EventsFeedBlock v-else-if="block.type === 'events_feed'" :data="block.data" />
+            <DepartmentListBlock v-else-if="block.type === 'department_list'" :data="block.data" />
+            <RegionListBlock v-else-if="block.type === 'region_list'" :data="block.data" />
+            <GalleryBlock v-else-if="block.type === 'gallery'" :data="block.data" />
+
             <!-- Embed Code -->
             <section v-else-if="block.type === 'embed'" class="py-12 bg-white">
                 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -208,11 +219,25 @@ import { marked } from 'marked';
 import { defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Modal from '../components/Modal.vue';
+import ChurchFinderBlock from '../components/blocks/ChurchFinderBlock.vue';
+import ChurchDirectoryBlock from '../components/blocks/ChurchDirectoryBlock.vue';
+import EventsFeedBlock from '../components/blocks/EventsFeedBlock.vue';
+import DepartmentListBlock from '../components/blocks/DepartmentListBlock.vue';
+import RegionListBlock from '../components/blocks/RegionListBlock.vue';
+import GalleryBlock from '../components/blocks/GalleryBlock.vue';
 import { usePageMeta } from '../composables/usePageMeta';
 
 export default defineComponent({
     name: 'CmsPage',
-    components: { Modal },
+    components: {
+        Modal,
+        ChurchFinderBlock,
+        ChurchDirectoryBlock,
+        EventsFeedBlock,
+        DepartmentListBlock,
+        RegionListBlock,
+        GalleryBlock,
+    },
     setup() {
         const { setPageMeta } = usePageMeta()
         const route = useRoute()

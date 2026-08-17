@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\Pages\Schemas;
 
+use App\Models\Region;
 use Filament\Forms\Get;
+use App\Enums\EventScope;
+use App\Models\Department;
 use Illuminate\Support\Str;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
@@ -382,6 +385,144 @@ class PageForm
                                             ->helperText('Paste your embed code (e.g., YouTube, Google Maps, etc.)'),
                                     ])
                                     ->icon('heroicon-o-code-bracket'),
+
+                                // ---------------------------------------------------------
+                                // Data-bound blocks (§9).
+                                //
+                                // These differ from every block above: the author sets
+                                // CONFIGURATION, not content. What renders comes from the
+                                // database at request time, so adding a church or publishing
+                                // an event updates the page without anyone editing it.
+                                //
+                                // Each carries its own empty-state message. A section with
+                                // nothing in it is a normal state, not a fault, and only the
+                                // author knows whether "No events scheduled" or "Dates are
+                                // being confirmed" is the true thing to say.
+                                // ---------------------------------------------------------
+
+                                Builder\Block::make('church_finder')
+                                    ->label('Church Finder')
+                                    ->schema([
+                                        TextInput::make('heading')->label('Heading')->maxLength(255),
+                                        TextInput::make('placeholder')
+                                            ->label('Search box placeholder')
+                                            ->default('Enter your town or suburb')
+                                            ->maxLength(255),
+                                        TextInput::make('button_text')
+                                            ->label('Button text')
+                                            ->default('Find a church')
+                                            ->maxLength(50),
+                                    ])
+                                    ->icon('heroicon-o-magnifying-glass'),
+
+                                Builder\Block::make('church_directory')
+                                    ->label('Church Directory')
+                                    ->schema([
+                                        TextInput::make('heading')->label('Heading')->maxLength(255),
+                                        Select::make('region')
+                                            ->label('Region')
+                                            ->options(fn () => Region::orderBy('sort_order')->pluck('name', 'slug')->all())
+                                            ->placeholder('All regions'),
+                                        Toggle::make('group_by_region')
+                                            ->label('Group by region')
+                                            ->default(true),
+                                        TextInput::make('limit')
+                                            ->label('Maximum shown')
+                                            ->numeric()
+                                            ->helperText('Leave blank for all.'),
+                                        TextInput::make('empty_message')
+                                            ->label('If there is nothing to show')
+                                            ->default('No churches are listed yet.')
+                                            ->maxLength(255),
+                                    ])
+                                    ->icon('heroicon-o-building-library'),
+
+                                Builder\Block::make('events_feed')
+                                    ->label('Events Feed')
+                                    ->schema([
+                                        TextInput::make('heading')->label('Heading')->maxLength(255),
+                                        Select::make('scope')
+                                            ->label('Calendar')
+                                            ->options(EventScope::options())
+                                            ->placeholder('Any'),
+                                        Select::make('region')
+                                            ->label('Region')
+                                            ->options(fn () => Region::orderBy('sort_order')->pluck('name', 'slug')->all())
+                                            ->placeholder('Any region'),
+                                        Select::make('department')
+                                            ->label('Department')
+                                            ->options(fn () => Department::orderBy('sort_order')->pluck('name', 'slug')->all())
+                                            ->placeholder('Any department'),
+                                        TextInput::make('limit')
+                                            ->label('Maximum shown')
+                                            ->numeric()
+                                            ->default(6),
+                                        Toggle::make('upcoming_only')
+                                            ->label('Upcoming only')
+                                            ->default(true)
+                                            ->helperText('Hides events whose date has passed.'),
+                                        TextInput::make('empty_message')
+                                            ->label('If there is nothing to show')
+                                            ->default('No events are scheduled at the moment.')
+                                            ->maxLength(255),
+                                    ])
+                                    ->icon('heroicon-o-calendar-days'),
+
+                                Builder\Block::make('department_list')
+                                    ->label('Department List')
+                                    ->schema([
+                                        TextInput::make('heading')->label('Heading')->maxLength(255),
+                                        Toggle::make('show_logos')->label('Show logos')->default(true),
+                                        TextInput::make('limit')->label('Maximum shown')->numeric(),
+                                        TextInput::make('empty_message')
+                                            ->label('If there is nothing to show')
+                                            ->default('No departments are published yet.')
+                                            ->maxLength(255),
+                                    ])
+                                    ->icon('heroicon-o-rectangle-stack'),
+
+                                Builder\Block::make('region_list')
+                                    ->label('Region List')
+                                    ->schema([
+                                        TextInput::make('heading')->label('Heading')->maxLength(255),
+                                        Toggle::make('show_logos')->label('Show logos')->default(true),
+                                        TextInput::make('empty_message')
+                                            ->label('If there is nothing to show')
+                                            ->default('No regions are published yet.')
+                                            ->maxLength(255),
+                                    ])
+                                    ->icon('heroicon-o-map'),
+
+                                Builder\Block::make('gallery')
+                                    ->label('Gallery')
+                                    ->schema([
+                                        TextInput::make('heading')->label('Heading')->maxLength(255),
+                                        Select::make('owner_type')
+                                            ->label('Show images from')
+                                            ->options([
+                                                'general' => 'The general gallery',
+                                                'department' => 'A department',
+                                                'region' => 'A region',
+                                            ])
+                                            ->default('general')
+                                            ->live()
+                                            ->required(),
+                                        Select::make('department')
+                                            ->label('Department')
+                                            ->options(fn () => Department::orderBy('sort_order')->pluck('name', 'slug')->all())
+                                            ->visible(fn ($get) => $get('owner_type') === 'department')
+                                            ->dehydrated(),
+                                        Select::make('region')
+                                            ->label('Region')
+                                            ->options(fn () => Region::orderBy('sort_order')->pluck('name', 'slug')->all())
+                                            ->visible(fn ($get) => $get('owner_type') === 'region')
+                                            ->dehydrated(),
+                                        TextInput::make('empty_message')
+                                            ->label('If there is nothing to show')
+                                            ->default('No photos have been added yet.')
+                                            ->maxLength(255),
+                                    ])
+                                    ->icon('heroicon-o-photo'),
                             ])
                             ->collapsible()
                             ->columnSpanFull()
