@@ -7,7 +7,9 @@ const routes = [
     {
         path: '/about',
         name: 'About',
-        component: () => import('../views/About.vue')
+        // Was a hard-coded About.vue. Now a CMS page like every other page in
+        // this section, so its own editors can change it.
+        component: () => import('../views/CmsPage.vue')
     },
     {
         path: '/about/upci',
