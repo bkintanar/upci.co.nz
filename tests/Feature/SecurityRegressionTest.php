@@ -88,17 +88,21 @@ test('the public church endpoint publishes no emails or user ids for leadership'
         'church_id' => $this->church->id,
     ]);
 
-    $payload = $this->getJson('/api/churches')->json('data');
+    $body = $this->getJson('/api/churches')->getContent();
 
-    foreach ($payload as $church) {
-        foreach (['pastors', 'elders', 'deacons', 'other_leadership'] as $group) {
-            foreach ($church['leadership'][$group] ?? [] as $person) {
-                expect($person)->not->toHaveKey('email')
-                    ->and($person)->not->toHaveKey('id')
-                    ->and($person)->toHaveKey('name');
-            }
-        }
-    }
+    // Asserted against the RAW RESPONSE rather than by walking a `leadership`
+    // structure. The original walked that structure, and when the block was
+    // removed from the payload entirely the loops simply had nothing to
+    // iterate — every assertion stopped running and Pest flagged the test
+    // risky. A shape-independent check cannot be hollowed out by a later change
+    // to the shape.
+    expect($body)->not->toContain('pastor-regression@example.com')
+        ->and($body)->not->toContain('"leadership"')
+        ->and($body)->not->toContain('"user_id"');
+
+    // The church itself must still be there — this is a check on what is
+    // published, not a check that the endpoint returns nothing.
+    expect($this->getJson('/api/churches')->json('data'))->not->toBeEmpty();
 });
 
 /*
@@ -389,4 +393,41 @@ test('churches without coordinates are still listed and filterable', function ()
         ->assertOk()->json('data');
 
     expect(collect($filtered)->pluck('id'))->toContain($unmapped->id);
+});
+
+test('the public church endpoint does not publish stored email addresses', function () {
+    // Four of the nine stored church addresses are personal Gmail accounts
+    // belonging to named individuals, two of whom appear on the leadership
+    // page. Nothing on the site displayed them, so they were pure exposure on
+    // an unauthenticated, scrapeable endpoint.
+    $region = App\Models\Region::firstOrCreate(['slug' => 'northern'], ['name' => 'Northern Region', 'sort_order' => 1]);
+
+    App\Models\Church::create([
+        'name' => 'Test Church',
+        'region_id' => $region->id,
+        'is_active' => true,
+        'email' => 'someones.personal.address@gmail.com',
+        'phone' => '+64 21 000 0000',
+    ]);
+
+    $body = test()->getJson('/api/churches')->getContent();
+
+    expect($body)->not->toContain('someones.personal.address@gmail.com')
+        ->and($body)->not->toContain('"email"')
+        // The phone IS displayed on the locator, so it stays. This asserts the
+        // trim was targeted rather than a blanket strip of contact details.
+        ->and($body)->toContain('+64 21 000 0000');
+});
+
+test('the public church endpoint does not publish internal flags or timestamps', function () {
+    // is_active said nothing useful — the query already filters on it — and
+    // potential_home_group is an internal planning flag. `leadership` was the
+    // block that leaked user ids and emails before 0357c36.
+    $region = App\Models\Region::firstOrCreate(['slug' => 'northern'], ['name' => 'Northern Region', 'sort_order' => 1]);
+    App\Models\Church::create(['name' => 'Flags', 'region_id' => $region->id, 'is_active' => true]);
+
+    $church = collect(test()->getJson('/api/churches')->json('data'))->firstWhere('name', 'Flags');
+
+    expect(array_keys($church))
+        ->not->toContain('is_active', 'is_featured', 'potential_home_group', 'created_at', 'updated_at', 'leadership');
 });

@@ -347,13 +347,22 @@ class ChurchController extends Controller
             'organizational_region' => $church->organizationalRegion?->slug,
             'organizational_region_name' => $church->organizationalRegion?->name,
             'church_status' => $church->church_status,
-            'potential_home_group' => $church->potential_home_group,
             'zip' => $church->zip,
             'country' => $church->country,
             'latitude' => $church->latitude,
             'longitude' => $church->longitude,
             'phone' => $church->phone,
-            'email' => $church->email,
+            // `email` is NOT published. Nothing on the site displays it, and
+            // four of the nine stored addresses are personal Gmail accounts
+            // belonging to named individuals — two of whom appear on the
+            // leadership page. An institutional address is public by design; a
+            // personal one harvested from an unauthenticated JSON endpoint is
+            // not, and there is no benefit here to weigh against it.
+            //
+            // The addresses stay in the database and in the admin. If the
+            // client wants a contact route on the directory, the right shape is
+            // a per-church "show email" flag or a relay form, not publishing
+            // every stored address by default.
             'website' => $church->website,
             'facebook' => $church->facebook,
             'twitter' => $church->twitter,
@@ -362,13 +371,14 @@ class ChurchController extends Controller
             'service_times' => $church->formatted_service_times,
             'pastor_name' => $church->pastor_name,
             'description' => $church->description,
-            'is_featured' => $church->is_featured,
-            'is_active' => $church->is_active,
             'full_address' => $church->full_address,
             'has_coordinates' => $church->hasCoordinates(),
-            'leadership' => $this->formatLeadershipForApi($church),
-            'created_at' => $church->created_at,
-            'updated_at' => $church->updated_at,
+            // Dropped with `email` above: internal flags and timestamps that no
+            // caller reads. `is_active` in particular said nothing useful —
+            // every church in this response is active, because the query
+            // already filters on it. `leadership` went too: nothing consumes
+            // it, and it was the block that leaked user ids and emails before
+            // 0357c36.
         ];
     }
 
