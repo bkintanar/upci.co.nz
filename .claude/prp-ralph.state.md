@@ -114,3 +114,39 @@ requirement 11. Frontend work (Vue region pages, leadership modal, nav cleanup) 
 untouched and is now the bulk of what is left.
 
 ---
+
+### Iteration 2 — 2026-08-17
+
+#### Completed
+- **T25** (`2bbeda9`) — `RegionController` index + show, routes registered, `Region::events()` added
+- **Requirement 4 (ABC)** — same commit, at the user's request to reconcile against the live site
+
+#### Validation
+Lint PASS · Build PASS · Tests **72 passed (173 assertions)** · migration up/down chain clean on a scratch DB
+
+#### Requirement 4 findings
+Most ABC content was ALREADY migrated, and **all four `forms.gle` URLs already matched the
+live site** — so the plan's "ABC replacement forms.gle URLs" client-data blocker is resolved,
+not outstanding. Two real defects instead:
+1. Five registration cards where the live site offers four — "Foundation level" and
+   "Foundation level course *NEW" pointed at the SAME form, so one destination appeared
+   twice under two names. Deduped, reordered to the live site's order.
+2. The live section has four sub-pages; **Connect did not exist here at all.** Added with a
+   route and an Explore-card link.
+
+#### Learnings
+- **The live site is Wix and renders most body text client-side.** `WebFetch` truncates it and
+  the served HTML does not contain it. Only the Principal's bio and the registration form URLs
+  were recoverable by scraping. Anything else has to come from the client directly — do not
+  burn cycles re-scraping.
+- The `apostolic-bible-college/*` slugs already existed and matched the live URLs, so no
+  redirects are needed.
+
+#### Still outstanding for requirement 4
+The Connect page's prose. It points at this site's existing `/contact` form rather than
+inventing copy or standing up a second form.
+
+#### Next
+Region landing pages in Vue (the frontend half of requirement 11, now that `/api/regions`
+exists), then requirement 5's remaining map work. Frontend is the bulk of what is left:
+requirements 3, 6, 7, 8, 10 are untouched.
