@@ -94,29 +94,6 @@
                     </div>
                 </div>
 
-                <div class="mb-12">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Global Impact</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="text-center p-6 bg-blue-50 rounded-lg">
-                            <div class="text-3xl font-bold text-blue-600 mb-2">200+</div>
-                            <h3 class="text-lg font-semibold text-blue-900 mb-2">Countries</h3>
-                            <p class="text-blue-800 text-sm">UPCI presence worldwide</p>
-                        </div>
-
-                        <div class="text-center p-6 bg-blue-50 rounded-lg">
-                            <div class="text-3xl font-bold text-blue-600 mb-2">40,000+</div>
-                            <h3 class="text-lg font-semibold text-blue-900 mb-2">Churches</h3>
-                            <p class="text-blue-800 text-sm">Under UPCI leadership</p>
-                        </div>
-
-                        <div class="text-center p-6 bg-blue-50 rounded-lg">
-                            <div class="text-3xl font-bold text-blue-600 mb-2">6M+</div>
-                            <h3 class="text-lg font-semibold text-blue-900 mb-2">Members</h3>
-                            <p class="text-blue-800 text-sm">Worldwide UPCI family</p>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="bg-blue-600 text-white p-8 rounded-lg text-center">
                     <h2 class="text-2xl font-bold mb-4">Pray for Our Leadership</h2>
                     <p class="text-blue-100 mb-6">
