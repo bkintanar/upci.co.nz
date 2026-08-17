@@ -578,3 +578,44 @@ that belongs with Direction B, so it is flagged rather than half-changed.
 T28 (`two_column` ratio + drop the forced grey box), T29 (per-block async loader with
 loading/error/empty states), T30 (six data-bound blocks). Then Direction B (T32, T45, T47–T49)
 and spikes T50/T51.
+
+### Iteration 13 — 2026-08-17
+
+#### Completed
+- **T28** (`35396b8`) — `two_column` ratio + optional grey panel
+- **T29** (`b5d7e63`) — `useBlockData` + `BlockState`; loading / error / empty per block
+
+#### Validation
+Lint PASS · Build PASS · Tests **98 passed (239 assertions)** · migration up/down clean ·
+all four block states browser-verified
+
+#### The bug that justified wiring infrastructure to a real consumer
+`useBlockData` only unwrapped **functions**. `GalleryGrid` passes a `computed`, which is an
+object, so the ref itself reached `fetch()`, stringified to `[object Object]` and 404'd —
+every department gallery rendered an error panel that looked like a broken endpoint rather
+than a broken call.
+
+Had I shipped the composable as unused infrastructure "for T30", this would have surfaced
+later and looked like an API fault. **Build infrastructure against a real consumer in the same
+change, or it is unverified by construction.**
+
+#### The backfill-then-change pattern held again (T28)
+Seven `two_column` blocks backfilled to their current appearance (even split, panel on) before
+the renderer started reading the fields. Verified both directions: unchanged pages still
+render 584/584 with the panel; `ratio=2-1` with the panel off gives 795/373 and a transparent
+column, while a page left on the default is unaffected — so the setting is genuinely per
+block, not global.
+
+#### Learnings
+- **`typeof ref === 'object'`, not `'function'`.** A composable taking "a URL" must handle
+  string, getter and ref, or a computed silently becomes `[object Object]`.
+- An empty state must be distinguishable from a failure *and* from loading. Three states, three
+  renderings — and the empty wording belongs to the author, not the component.
+- Test the component where it is actually mounted. `/get-involved` redirects to `/departments`,
+  which has its own inline gallery, so my first pass was measuring a different implementation
+  entirely and reported false failures.
+
+#### Next
+T30 — six data-bound blocks (`events_feed`, `department_list`, `region_list`, `gallery`, plus
+the remaining two), each with an authored empty-state message, now that the state handling
+exists. Then Direction B (T32, T45, T47–T49) and spikes T50/T51.

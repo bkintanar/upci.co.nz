@@ -371,7 +371,7 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 | T26 ✅ | **Declare `icon_svg` in the `card` block schema** | 🔴 §11.3 — **must precede T31** (the task that adds `bio` to `card`). T30 is the data-bound blocks and never touches `card`. Run T31 first and the 5 live `icon_svg` values are permanently stripped |
 | T27 ✅ | Replace the four presentation heuristics with explicit author options | §11.2 — `getTextBlockClasses(index)`, `hasStats()`, `getCardsGridClasses()`, `isRegistrationBlock()` |
 | T28 ✅ | Add a `ratio` option to `two_column`; remove the forced grey box | §11.4 — cannot express 2/3 + 1/3 today |
-| T29 | Per-block async loader in `CmsPage.vue` — loading / error / empty states | §9 + §10 |
+| T29 ✅ | Per-block async loader in `CmsPage.vue` — loading / error / empty states | §9 + §10 |
 | T30 | Six data-bound blocks, each with an **authored empty-state message field** | §9 + §13.5. Depends on T20, T22, T25 |
 | T31 ✅ | `card` block `bio` + clickable cards — **decide `bio` vs `link_url` precedence** | §12.11 — nested interactive elements otherwise |
 | T32 | Re-author the `home` page to Direction B's block sequence | |
