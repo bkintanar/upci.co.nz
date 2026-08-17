@@ -1,5 +1,5 @@
 ---
-iteration: 17
+iteration: 18
 max_iterations: 40
 plan_path: ".claude/PRPs/plans/upci-nz-site-overhaul.plan.md"
 input_type: "plan"
@@ -702,3 +702,60 @@ constraint the section describes is met by other means.
 T32 (re-author home to B's block sequence — the six data-bound blocks now exist to express
 it), T45 (hero → "ten congregations, named"), T47 (error hue), T49 (craft fixes), then spikes
 T50 (`/calendar` month grid) and T51 (the cards block under B).
+
+### Iteration 16–17 — 2026-08-17
+
+#### Homepage: rejected, rolled back, re-approached — AWAITING USER CHOICE
+The Direction B homepage was built, switched live, and **rejected on sight**. Rolled back; the
+live page is its original content. The rest of the B work (tokens, breadcrumb, page header,
+contents, data-bound blocks) is untouched and not in question.
+
+Fetched `upca.org.au` rather than assuming it. Its homepage is **image-led**: one large
+photograph carrying the current event, a single REGISTER button, a thin About, then the church
+locator, then past-event media. B's founding move is the opposite — *no hero photography, the
+front page is a task*. Near-inverses. B remains right for interior pages.
+
+**🔴 The binding constraint, found by inventory:** there is **no hero photography**. 27 images
+on the public disk — 23 leadership portraits, 2 logos, 1 department image, 1 gallery photo.
+Nothing landscape. UPCA's approach is built on photography UPCINZ does not have, and
+`brand-spec.md` forbids the substitute in as many words: no stock "community" photography.
+
+Three directions built and shown (`design-demos/home-r2/`), each a different honest answer to
+*what an image-led homepage does before the images exist*:
+- **D1 Dark Editorial** — style roulette (`date +%S`=50 → #11)
+- **D2 Search-led** — benchmark transfer from the Church of England's *A Church Near You*
+  (verified: Archbishops' Council, deliberately search-led, no photography)
+- **D3 Vessel** — Kenya Hara, emptiness as a container
+
+**Stopped per the skill's three-direction gate. The choice is the user's.** Open question only
+they can close: are conference/congregation photographs available?
+
+#### Completed
+- **T32** — homepage authored, switched, then rolled back at the user's direction (`981a379`,
+  reverted). Statistics work from it **survives and is live**: `/api/church-statistics` counts
+  from records, replacing four typed figures of which three had drifted.
+- **T47** (`500ee1e`) — `ErrorSummary` + field validation treatment (D13)
+
+#### Validation
+Lint PASS · Build PASS · Tests **102 passed (246 assertions)**
+
+#### 🔴 Fifth regression, caught in the browser
+Adding `ErrorSummary` **broke the entire contact page**. The component was registered but never
+imported — my edit matched `import { defineComponent, ref }` while the file imports `reactive`
+too — so the view threw `ErrorSummary is not defined` and rendered nothing. **The build passed
+throughout.** Only opening the page showed it.
+
+That is now five for five: every Vue regression this session was invisible to lint, tests and
+build, and visible immediately in a browser.
+
+#### Learnings
+- An exact-match string edit against an import line is fragile — the line drifts. Assert the
+  replacement applied, or match on a prefix.
+- `a:last-of-type` matches the last `<a>` *within each parent*, so in a list of one-link items
+  it matches every link. My test reported a focus bug that did not exist.
+- Statistics belong in an endpoint, not in prose. Three of four typed figures had drifted, and
+  one category ("Daughter Works") never existed in the data at all.
+
+#### Next
+Blocked on the homepage choice for T45 (hero). Unblocked: T49 (craft fixes), T50/T51 spikes,
+Block H/I gaps.
