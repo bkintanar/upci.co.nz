@@ -61,11 +61,6 @@
         <Breadcrumb v-if="page" :current="page.title" />
         <PageHeader v-if="page && !hasHero && !isHome" :title="pageTitle" :lede="page.meta_description" />
 
-        <!-- Only on pages long enough to need it: a two-section page does not
-             benefit from an index of itself. -->
-        <div v-if="contentsItems.length >= 3 && !isHome" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Contents :items="contentsItems" />
-        </div>
 
         <div v-for="(block, index) in page.content" :key="index">
             <!-- Hero Section -->
@@ -269,7 +264,6 @@ import { useRoute } from 'vue-router';
 import Modal from '../components/Modal.vue';
 import Breadcrumb from '../components/layout/Breadcrumb.vue';
 import PageHeader from '../components/layout/PageHeader.vue';
-import Contents from '../components/layout/Contents.vue';
 import ChurchFinderBlock from '../components/blocks/ChurchFinderBlock.vue';
 import ChurchDirectoryBlock from '../components/blocks/ChurchDirectoryBlock.vue';
 import EventsFeedBlock from '../components/blocks/EventsFeedBlock.vue';
@@ -285,7 +279,6 @@ export default defineComponent({
         Modal,
         Breadcrumb,
         PageHeader,
-        Contents,
         ChurchFinderBlock,
         ChurchDirectoryBlock,
         EventsFeedBlock,
@@ -323,10 +316,6 @@ export default defineComponent({
         // on-page heading should not repeat it.
         const pageTitle = computed(() => (page.value?.title || '').split(/\s+[-|]\s+/)[0].trim())
 
-        // Derived from the page's own section headings so the list cannot drift
-        // from the content it indexes.
-        const slugify = (text) => String(text || '')
-            .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
         const contentsItems = computed(() =>
             (page.value?.content || [])
@@ -334,7 +323,10 @@ export default defineComponent({
                 .map((block) => ({ href: `#${slugify(block.data.heading)}`, label: block.data.heading }))
         )
 
-        const sectionId = (heading) => slugify(heading)
+        // Section headings keep stable ids so a heading can be linked to
+        // directly, even though the contents list that used them is gone.
+        const sectionId = (heading) => String(heading || '')
+            .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
         const person = ref(null)
         const personOpen = ref(false)
@@ -553,7 +545,6 @@ export default defineComponent({
             notFoundLinks,
             fetchPage,
             getSlug,
-            contentsItems,
             sectionId,
             pageTitle,
             person,
