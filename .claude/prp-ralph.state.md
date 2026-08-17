@@ -1,5 +1,5 @@
 ---
-iteration: 26
+iteration: 27
 max_iterations: 40
 plan_path: ".claude/PRPs/plans/upci-nz-site-overhaul.plan.md"
 input_type: "plan"
@@ -904,3 +904,46 @@ premise before executing the task.**
 #### Next unblocked
 T50/T51 spikes, T61 (a real ABC inspect/fix pass), T63 (audit the wider public API surface for
 auth/throttle), T71 (§14.3 copy fix).
+
+### Iteration 26 — 2026-08-17
+
+#### Completed
+- **T63** (`db5b1e1`) — public API surface audited; `/api/churches` payload trimmed
+
+#### Validation
+Lint PASS · Build PASS · Tests **104 passed (251 assertions)** · locator, church detail and
+region pages browser-verified after the trim
+
+#### What the audit found
+21 public endpoints, all GET except two POSTs. Write verbs genuinely gone; rate limiting
+enforced (verified by hammering `/api/contact` to a 429 — `route:list` does not render
+group-level middleware, which is why it looks absent).
+
+**`/api/churches` published 31 fields, 17 with no caller — including `email`.** Four of the
+nine stored addresses are **personal Gmail accounts belonging to named individuals**, two of
+whom appear on the leadership page. Nothing displayed them. Pure exposure on an
+unauthenticated, scrapeable endpoint.
+
+Removed: `email`, `leadership`, `is_active`, `is_featured`, `potential_home_group`,
+`created_at`, `updated_at`. **Phone kept** — the locator displays it with a `tel:` link, so
+this was targeted, not a blanket strip.
+
+#### A test of mine went vacuous and Pest caught it
+Removing the `leadership` block left an existing PII test walking a structure that no longer
+existed — every loop body skipped, **zero assertions ran**, flagged `risky`. Rewritten to
+assert against the raw response, which a later change to the payload shape cannot hollow out.
+
+**This is the vacuous-test problem I have hit repeatedly, and the first time tooling caught it
+rather than me.** Pest's risky flag is worth watching for.
+
+#### Cleaned up after myself
+Two contact messages created while testing the rate limit were deleted.
+
+#### Left to the client
+Whether the directory should offer a contact route at all. If so, the right shape is a
+per-church "show email" flag or a relay form — not publishing every stored address by default.
+
+#### Still blocked on the user
+1. Homepage direction — D1 / D2 / D3
+2. Do conference or congregation photographs exist?
+3. Department hues (T49)
