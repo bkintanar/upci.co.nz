@@ -406,3 +406,49 @@ Remaining work is refinement, not requirements: T39 (rebuild `GetInvolved.vue` f
 `/api/departments`), T42 (meta/title on route change), T26–T31 (CMS block library), then the
 Direction B rollout (T32, T45–T49) and spikes T50/T51. **T46 also fixes the nine-item navbar
 crowding.**
+
+### Iteration 9 — 2026-08-17
+
+#### Completed
+- **T42** (G14) — `usePageMeta` composable; titles and descriptions on route change
+- **T46** — two-row header, pulled forward because the user hit the crowding
+- Four user-reported UI defects (`35b3e73`)
+
+#### Validation
+Lint PASS · Build PASS · Tests **92 passed (222 assertions)** · browser-verified at 3 widths
+
+#### 🔴 Second regression from the Modal refactor
+The locator's ORIGINAL inner X button survived the refactor and still only set
+`selectedChurch = null`. That emptied the panel while the `<dialog>` stayed open — backdrop
+over a blank page. **My iteration-7 test missed it because I clicked `Modal`'s own close
+button, not the one left in the locator's markup.**
+
+Lesson: after replacing a component's chrome, **grep the old markup for leftover handlers**
+(`grep -n "selectedChurch = null"` found it instantly). Testing the new affordance says
+nothing about the old one still sitting in the template.
+
+#### Navbar — measured, not guessed
+Before: last nav item ended at **1614px in a 1440 viewport** (174px off-screen); 446px
+overflow at 1024. After the two-row split and removing the extra flex gap: 9 items, **one
+row, centred to 0px, logo vertically clear, no overflow, no horizontal page scroll.**
+
+The 5px rule uses `border-brand-green-700` — first live use of the T33 tokens, visible in the
+screenshot.
+
+#### Learnings
+- **`margin: 2rem auto` on a dialog panel pins it to the top.** Make the dialog
+  `display:flex` **scoped to `[open]`** and give the panel `margin: auto`. Unscoped, it
+  overrides the UA's `dialog:not([open]){display:none}` and the panel never hides.
+- **Meta descriptions need markdown stripped.** A department description starting
+  `**Who we are**` shipped literal asterisks and newlines into the tag.
+- **Playwright measurements can flake** — one 1440 run returned 0 items where the previous
+  returned 9. Wait on a specific selector (`waitForSelector`) before measuring, and re-run
+  before believing an outlier.
+- A test pinning presentational LABELS breaks on a wording change. Assert URLs.
+- Again: assertions over seeder-created rows are unusable under `RefreshDatabase` — assert
+  the `sort_order` values that encode the intent, and verify the rendered sequence against
+  the dev DB separately.
+
+#### Next
+T39 (rebuild `GetInvolved.vue` from `/api/departments`), then T26–T31 (CMS block library) and
+the rest of the Direction B rollout (T32, T45, T47–T49) plus spikes T50/T51.
