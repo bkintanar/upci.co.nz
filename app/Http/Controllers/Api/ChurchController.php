@@ -43,14 +43,26 @@ class ChurchController extends Controller
             $query->whereRaw('service_times LIKE ?', ['%"'.$request->service_day.'"%']);
         }
 
-        // Search by name, city, or address
+        // Search by name, city, or address.
+        //
+        // Every column is table-qualified. `churches` and `regions` share four
+        // column names — id, name, created_at, updated_at — so once the
+        // leftJoin below is in play, a bare `name` is ambiguous and SQLite
+        // rejects the whole query with a 500. That is not hypothetical: the
+        // join was added to fix region ordering and it broke every search on
+        // this endpoint, which went unnoticed because the only caller that
+        // sends `search` was itself dropping the parameter. Two defects hid
+        // each other.
+        //
+        // `city`, `address` and `region` are unambiguous today, but they are
+        // qualified too — the next join should not be able to reintroduce this.
         if ($request->has('search') && $request->search) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                    ->orWhere('city', 'like', "%{$searchTerm}%")
-                    ->orWhere('address', 'like', "%{$searchTerm}%")
-                    ->orWhere('region', 'like', "%{$searchTerm}%");
+                $q->where('churches.name', 'like', "%{$searchTerm}%")
+                    ->orWhere('churches.city', 'like', "%{$searchTerm}%")
+                    ->orWhere('churches.address', 'like', "%{$searchTerm}%")
+                    ->orWhere('churches.region', 'like', "%{$searchTerm}%");
             });
         }
 

@@ -384,6 +384,7 @@
 import Modal from '../components/Modal.vue'
 import { usePageMeta } from '../composables/usePageMeta'
 import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 // Marker images are bundled by Vite rather than fetched from cdnjs. The CDN
@@ -406,9 +407,27 @@ L.Icon.Default.mergeOptions({
             name: 'ChurchLocator',
     components: { Modal },
             setup() {
-                const searchQuery = ref('')
-                const selectedRegion = ref('')
-                const selectedServiceDays = ref([])
+                const route = useRoute()
+                const router = useRouter()
+
+                // A repeated query param arrives as an array and a single one as
+                // a string, so normalise before handing it to a ref that is typed
+                // as an array. filter(Boolean) drops a valueless `?service_day=`.
+                const queryList = (value) => [].concat(value ?? []).filter(Boolean)
+
+                // Seeded from the URL, not empty. The homepage finder hands its
+                // term over as `?search=`, and this is the half of that contract
+                // that was missing: the block has always pushed the param and
+                // this component never read it, so the term was silently dropped
+                // and the visitor got every church back with an empty box.
+                //
+                // Seeded here in setup() rather than in onMounted deliberately.
+                // Assigning a ref's INITIAL value does not fire the watcher
+                // below, so the single fetchChurches() in onMounted picks these
+                // up and there is no duplicate request.
+                const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '')
+                const selectedRegion = ref(typeof route.query.region === 'string' ? route.query.region : '')
+                const selectedServiceDays = ref(queryList(route.query.service_day))
                 const { setPageMeta } = usePageMeta()
                 setPageMeta('Find a Church', 'Find your nearest UPCI church in New Zealand, by region or by name.')
                 const selectedChurch = ref(null)
@@ -707,6 +726,39 @@ L.Icon.Default.mergeOptions({
                 // Watch for filter changes and refetch data
                 watch([searchQuery, selectedRegion, selectedServiceDays], () => {
                     fetchChurches()
+                }, { deep: true })
+
+                // Mirror the filters back into the URL, so the locator's own
+                // state is shareable and survives a reload. That is what routing
+                // was chosen for in the first place; until now only the homepage
+                // wrote a param and nothing ever read one.
+                //
+                // `replace`, not `push`: typing in a search box should not stack
+                // a history entry per keystroke.
+                //
+                // The equality check is not an optimisation. Navigating to an
+                // identical location is a duplicated navigation in vue-router,
+                // which rejects and surfaces as an unhandled rejection in the
+                // console — so this skips the call rather than swallowing the
+                // result in an empty catch.
+                //
+                // Deliberately NOT paired with a watcher on route.query writing
+                // back into these refs: with this writer in place that is a
+                // feedback loop. Nothing navigates from /find-church to
+                // /find-church, so setup() re-runs whenever these params change.
+                watch([searchQuery, selectedRegion, selectedServiceDays], () => {
+                    const query = {}
+                    if (searchQuery.value) query.search = searchQuery.value
+                    if (selectedRegion.value) query.region = selectedRegion.value
+                    if (selectedServiceDays.value.length) query.service_day = [...selectedServiceDays.value]
+
+                    const current = route.query
+                    const same = Object.keys(query).length === Object.keys(current).length
+                        && Object.keys(query).every((key) => String(query[key]) === String(current[key]))
+
+                    if (! same) {
+                        router.replace({ path: '/find-church', query })
+                    }
                 }, { deep: true })
 
         const initializeMap = () => {

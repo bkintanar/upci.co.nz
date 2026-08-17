@@ -45,8 +45,13 @@ export default defineComponent({
         const router = useRouter()
         const query = ref('')
 
-        // Routed rather than posted: the locator reads its filters from the
-        // URL, so this stays a link the user can bookmark and share.
+        // Routed rather than posted, so the result is a link the visitor can
+        // bookmark and share.
+        //
+        // The locator seeds its filters from these params in its own setup().
+        // This comment used to assert that as though it were already true, and
+        // it was not — the param was pushed and never read, so every search
+        // from this box was silently discarded and returned the full list.
         const submit = () => {
             router.push({
                 path: '/find-church',
