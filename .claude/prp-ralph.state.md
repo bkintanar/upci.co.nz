@@ -1,6 +1,6 @@
 ---
 iteration: 17
-max_iterations: 20
+max_iterations: 40
 plan_path: ".claude/PRPs/plans/upci-nz-site-overhaul.plan.md"
 input_type: "plan"
 started_at: "2026-08-17T14:20:00+12:00"
