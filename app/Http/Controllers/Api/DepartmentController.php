@@ -23,6 +23,11 @@ class DepartmentController extends Controller
                 'hero_image' => $d->hero_image,
                 'logo_path' => $d->logo_path,
                 'color_theme' => $d->color_theme,
+                // The listing page needs a line of real copy per department.
+                // Sent whole rather than pre-truncated: the caller decides how
+                // much to show, and truncating markdown server-side risks
+                // cutting mid-syntax.
+                'description' => $d->description,
             ]);
 
         return response()->json(['success' => true, 'data' => $departments]);
