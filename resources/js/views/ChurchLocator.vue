@@ -263,14 +263,13 @@
         </section>
 
         <!-- Order Summary Style Modal -->
-        <div v-if="selectedChurch" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <!-- Backdrop -->
-            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" @click="selectedChurch = null"></div>
-
-            <!-- Modal container -->
-            <div class="fixed inset-0 z-10 overflow-y-auto">
-                <div class="flex min-h-full items-center justify-center p-4">
-                    <div class="relative w-full max-w-4xl transform overflow-hidden rounded-lg bg-white shadow-xl transition-all flex">
+        <!-- Requirement 5 / T35: the hand-rolled overlay this replaced had
+             role="dialog" but no focus trap and no Escape handling — the page
+             behind it stayed tabbable. Modal.vue uses a native <dialog> so the
+             browser supplies inertness and Escape, and adds the trap. -->
+        <Modal v-model="modalOpen" panel-class="modal-panel--wide"
+               :label="selectedChurch ? selectedChurch.name : 'Church details'">
+                <div v-if="selectedChurch" class="flex">
                         <!-- Left side - Church Details -->
                         <div class="w-full md:w-1/2 flex-shrink-0">
                             <!-- Header -->
@@ -356,10 +355,8 @@
                         <div class="w-full md:w-1/2 flex-shrink-0">
                             <div ref="modalMapContainer" class="w-full h-full min-h-[500px]"></div>
                         </div>
-                    </div>
                 </div>
-            </div>
-        </div>
+        </Modal>
 
         <!-- Call to Action -->
         <section class="py-16 bg-blue-600 text-white">
@@ -378,6 +375,7 @@
 
 <script>
 // ChurchLocator.vue - Updated: 2025-10-12 00:45:00
+import Modal from '../components/Modal.vue'
 import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -399,11 +397,13 @@ L.Icon.Default.mergeOptions({
 
         export default defineComponent({
             name: 'ChurchLocator',
+    components: { Modal },
             setup() {
                 const searchQuery = ref('')
                 const selectedRegion = ref('')
                 const selectedServiceDays = ref([])
                 const selectedChurch = ref(null)
+                const modalOpen = ref(false)
                 const mapContainer = ref(null)
                 const modalMapContainer = ref(null)
                 const churches = ref([])
@@ -616,6 +616,13 @@ L.Icon.Default.mergeOptions({
                     })
                 })
 
+                // Closing the dialog clears the selection. Without this,
+                // reopening the SAME church does nothing: selectedChurch never
+                // changed, so no watcher fires.
+                watch(modalOpen, (open) => {
+                    if (!open) selectedChurch.value = null
+                })
+
                 const clearFilters = () => {
                     searchQuery.value = ''
                     selectedRegion.value = ''
@@ -625,6 +632,7 @@ L.Icon.Default.mergeOptions({
 
                 const selectChurch = (church) => {
                     selectedChurch.value = church
+                    modalOpen.value = true
                     // isMappable, not just `map`: five churches have no
                     // coordinates, and setView([null, null]) throws inside
                     // Leaflet and takes the click handler down with it.
@@ -632,9 +640,13 @@ L.Icon.Default.mergeOptions({
                         // Zoom to a level that shows the area around the church without the popup covering everything
                         map.setView([church.lat, church.lng], 12)
                     }
-                    // Initialize modal map after the modal is shown
+                    // Two ticks, not one. Modal.vue opens the dialog inside its
+                    // own watcher and teleports the panel to <body>, so after a
+                    // single tick modalMapContainer is still null and the map
+                    // silently never initialises. The old inline markup rendered
+                    // in the same pass, which is why one tick used to be enough.
                     nextTick(() => {
-                        initializeModalMap(church)
+                        nextTick(() => initializeModalMap(church))
                     })
                 }
 
@@ -838,6 +850,8 @@ L.Icon.Default.mergeOptions({
             modalMapContainer,
             churches,
             filteredChurches,
+            groupedChurches,
+            modalOpen,
             regions,
             serviceDays,
             loading,

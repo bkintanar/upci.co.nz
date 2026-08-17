@@ -114,9 +114,32 @@
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 v-if="block.data.heading" class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-10 lg:mb-12">{{ block.data.heading }}</h2>
                     <div :class="getCardsGridClasses(block.data.items, block.data.heading)">
-                        <div v-for="(card, cardIndex) in block.data.items" :key="cardIndex"
-                             :class="[getMinistryCardClasses(card), isRegistrationBlock(block) ? 'cms-registration-card' : '']">
-                            <div v-if="card.data.icon_svg && card.data.icon_svg.includes('<svg')"
+                        <!-- variant === 'person' is an explicit author option, not
+                             an inference from the heading or item count: portrait
+                             crop, and the whole card opens a detail modal
+                             (requirement 3). -->
+                        <component
+                            :is="card.data.variant === 'person' ? 'button' : 'div'"
+                            v-for="(card, cardIndex) in block.data.items" :key="cardIndex"
+                            :type="card.data.variant === 'person' ? 'button' : null"
+                            :class="[
+                                getMinistryCardClasses(card),
+                                isRegistrationBlock(block) ? 'cms-registration-card' : '',
+                                card.data.variant === 'person' ? 'text-left w-full cursor-pointer group focus:outline-none focus:ring-2 focus:ring-brand-green-700' : ''
+                            ]"
+                            @click="card.data.variant === 'person' ? openPerson(card.data) : null"
+                        >
+                            <!-- Portrait presentation, applied in the shared renderer
+                                 rather than per page. object-cover with a fixed 3:4 box
+                                 means a landscape or square source is cropped to
+                                 portrait instead of letterboxed — two of the seven
+                                 board photos are not portrait originals. object-top
+                                 keeps heads in frame when the crop takes height. -->
+                            <img v-if="card.data.variant === 'person' && card.data.icon"
+                                 :src="getImageUrl(card.data.icon)" :alt="card.data.title"
+                                 loading="lazy"
+                                 class="w-full aspect-[3/4] mb-4 rounded-lg object-cover object-top group-hover:opacity-95 transition-opacity" />
+                            <div v-else-if="card.data.icon_svg && card.data.icon_svg.includes('<svg')"
                                  :class="getCardIconContainerClass(card, cardIndex)"
                                  v-html="card.data.icon_svg">
                             </div>
@@ -126,10 +149,14 @@
                                 <h3 :class="getMinistryCardTitleClasses(card)">{{ card.data.title }}</h3>
                                 <p :class="getMinistryCardDescClasses(card)">{{ card.data.description }}</p>
                             </div>
-                            <a v-if="card.data.link_url" :href="card.data.link_url" :target="card.data.link_url.startsWith('http') ? '_blank' : '_self'" :rel="card.data.link_url.startsWith('http') ? 'noopener noreferrer' : null" :class="isRegistrationBlock(block) ? 'cms-registration-card-link' : ''" class="text-blue-600 hover:text-blue-800 font-semibold block text-center">
+                            <a v-if="card.data.link_url && card.data.variant !== 'person'" :href="card.data.link_url" :target="card.data.link_url.startsWith('http') ? '_blank' : '_self'" :rel="card.data.link_url.startsWith('http') ? 'noopener noreferrer' : null" :class="isRegistrationBlock(block) ? 'cms-registration-card-link' : ''" class="text-blue-600 hover:text-blue-800 font-semibold block text-center">
                                 {{ card.data.link_text || 'Learn More' }} →
                             </a>
-                        </div>
+                            <span v-if="card.data.variant === 'person'"
+                                  class="mt-2 block text-sm font-medium text-brand-green-700 group-hover:underline">
+                                More info
+                            </span>
+                        </component>
                     </div>
                 </div>
             </section>
@@ -142,6 +169,31 @@
                 </div>
             </section>
         </div>
+
+        <!-- Requirement 3: leadership detail opens in place rather than
+             navigating away. -->
+        <Modal v-model="personOpen" :label="person ? person.title : 'Leadership detail'">
+            <div v-if="person" class="p-6 sm:p-8">
+                <div class="sm:flex sm:gap-8">
+                    <img v-if="person.icon" :src="getImageUrl(person.icon)" :alt="person.title"
+                         class="w-full sm:w-48 shrink-0 aspect-[3/4] rounded-lg object-cover object-top mb-6 sm:mb-0" />
+                    <div>
+                        <h2 class="text-2xl font-bold text-brand-ink mb-1">{{ person.title }}</h2>
+                        <p v-if="person.description" class="text-brand-green-700 font-medium mb-4">
+                            {{ person.description }}
+                        </p>
+                        <div v-if="person.bio" class="prose prose-slate max-w-none"
+                             v-html="renderMarkdown(person.bio)"></div>
+                        <!-- Said plainly rather than left blank: no biography
+                             exists in the CMS for anyone yet, and an empty panel
+                             reads as a loading failure. -->
+                        <p v-else class="text-brand-grey-600 text-sm">
+                            A fuller biography for {{ person.title }} has not been added yet.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -149,12 +201,22 @@
 import { marked } from 'marked';
 import { defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import Modal from '../components/Modal.vue';
 
 export default defineComponent({
     name: 'CmsPage',
+    components: { Modal },
     setup() {
         const route = useRoute()
         const page = ref(null)
+        const person = ref(null)
+        const personOpen = ref(false)
+
+        // Requirement 3: open the detail in place instead of navigating away.
+        const openPerson = (data) => {
+            person.value = data
+            personOpen.value = true
+        }
         const loading = ref(true)
         const error = ref(null)
 
@@ -350,6 +412,9 @@ export default defineComponent({
         })
 
         return {
+            person,
+            personOpen,
+            openPerson,
             page,
             loading,
             error,
