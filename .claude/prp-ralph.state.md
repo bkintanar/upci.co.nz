@@ -150,3 +150,40 @@ inventing copy or standing up a second form.
 Region landing pages in Vue (the frontend half of requirement 11, now that `/api/regions`
 exists), then requirement 5's remaining map work. Frontend is the bulk of what is left:
 requirements 3, 6, 7, 8, 10 are untouched.
+
+### Iteration 3 — 2026-08-17
+
+#### Completed
+- **T52** (`9705468`) — locator switched to the organizational region axis
+- **T36** — partial: bounds, capped fitBounds, region grouping, "More info", global removed.
+  Still open: refactoring the modal onto a shared `Modal.vue` (that is T35)
+
+#### Validation
+Lint PASS (no dirty PHP) · Build PASS · Tests **72 passed (173 assertions)**
+
+#### The big finding — T52 was worse than the plan described
+The plan predicted the dropdown would offer names while the filter expected slugs, giving
+zero results. The reality: **the locator was never on the organizational axis at all.** It
+read `/api/churches-regions` (the free-text `churches.region` column) and sent `?region=`.
+That column holds eight inconsistent values — Auckland, Bay of Plenty, Canterbury,
+**Rangiora**, **Rolleston**, Waikato, Wellington, Whangarei — two of which are towns. The
+clean Northern/Central/Southern data sat unused.
+
+This is why `?region=northern` returning 0 churches earlier was *correct*: two different
+axes, not a bug. Both now exist; the locator uses the structural one.
+
+#### Learnings
+- **`churches.region` (free text, geographic) and `churches.region_id` → `regions` (structural)
+  are two independent axes.** `?region=` filters the first, `?organizational_region=` the
+  second. Do not assume a param named `region` means the region model.
+- **Leaflet `maxBounds`/`minZoom` must be set in the `L.map()` constructor**, not after. Applied
+  later, the first `fitBounds` escapes them and the map visibly snaps back.
+- **Leaflet builds popup DOM only on open**, so a popup button listener has to attach on the
+  `popupopen` event — binding at `bindPopup` time finds no element.
+- Unguarded `setView([lat, lng])` throws inside Leaflet when either is null and kills the
+  calling handler. Guard with `isMappable()` everywhere, not just in the marker loop.
+
+#### Next
+T38 (`Regions.vue` + `Region.vue` + routes) — `/api/regions` exists, so the region landing
+pages are unblocked. Then T53 (`Department.vue` logo + gallery rendering), T35 (`Modal.vue`),
+T39–T41. Requirements 3, 6, 7, 8, 10 still untouched.

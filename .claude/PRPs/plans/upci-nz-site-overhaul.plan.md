@@ -383,7 +383,7 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 | T33 | Tailwind `theme.extend` with brand tokens; settle Figtree vs Poppins | Currently the webfont is loaded and never used |
 | T34 | `utils/theme.js` — literal class-string lookup map | Mirror `eventStatus.js`; no regex safelist |
 | T35 | `Modal.vue` (native `<dialog>` + `<Teleport>` + focus trap); refactor `ChurchLocator.vue` onto it | |
-| T36 | Locator: switch to `organizational_region`; Leaflet `maxBounds`; cap `fitBounds`; group by region; "More info"; kill the `window.selectChurchFromMap` global; fix the hard-coded hero stats and dead CTA | §12 + G9 + G10 |
+| T36 ◐ | Locator: switch to `organizational_region`; Leaflet `maxBounds`; cap `fitBounds`; group by region; "More info"; kill the `window.selectChurchFromMap` global; fix the hard-coded hero stats and dead CTA | §12 + G9 + G10 |
 | T37 | Events national/regional split | ⚠️ Must precede T38 or region pages ship with permanently empty feeds |
 | T38 | `Regions.vue` + `Region.vue` + routes | |
 | T39 | Rebuild `GetInvolved.vue` from `/api/departments` | G6 — largest hard-coded surface |
@@ -423,7 +423,7 @@ Time-boxed. Do them **early** — both can invalidate downstream work if they fa
 
 | # | Task | Notes / hazards |
 |---|---|---|
-| T52 | 🔴 **Fix B-1 — reconcile the region filter contract, inside T12/T14.** `organizationalRegions()` (`ChurchController:223`) plucks **`name`**; T12 switches the filter at `:28` to **`slug`**. After both land, the dropdown offers "Northern Region", the filter expects "northern", `whereHas` matches nothing, and **every region filter silently returns zero churches** | Return `[{slug,name}]` from the endpoint, or accept both forms. §12.6 caught the *write* path (`:125`,`:172`) and missed this *read* path |
+| T52 ✅ | 🔴 **Fix B-1 — reconcile the region filter contract, inside T12/T14.** `organizationalRegions()` (`ChurchController:223`) plucks **`name`**; T12 switches the filter at `:28` to **`slug`**. After both land, the dropdown offers "Northern Region", the filter expects "northern", `whereHas` matches nothing, and **every region filter silently returns zero churches** | Return `[{slug,name}]` from the endpoint, or accept both forms. §12.6 caught the *write* path (`:125`,`:172`) and missed this *read* path |
 | T53 | 🔴 **`Department.vue`: render `logo_path` (with site-logo fallback) + a `<GalleryGrid>` section** | Reqs 1b + 2a had **no rendering surface at all** — verified 0 mentions of `Department.vue` in the T-list. T16/T17 add the column and API field; nothing consumed them. `/departments/:slug` is a Vue view, not a CMS page, so T30's blocks don't reach it |
 | T54 | **Decide and task `/calendar`.** T50 is a *spike*, not a deliverable | Verified 0 mentions of `Calendar.vue` in the T-list. Either implement the month grid or retire the route — if retired, the catch-all sends it to `CmsPage.vue` → 404 with no 404 view (T56) |
 | T55 | **Assign the 49 existing events to regions, or declare it client data in writing** | T18 backfills everything to `scope='national', region_id=null`. Region appears today only as free text inside event *names* ("PM – Central Region, Waikato", `NationalCalendar2026Seeder.php:39`). Without this, req 9b ships structure with zero data. Compare T5, which *does* task the equivalent cleanup |
