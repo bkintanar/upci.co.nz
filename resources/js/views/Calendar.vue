@@ -95,12 +95,16 @@
 <script>
 import { defineComponent, ref, computed, watch, onMounted } from 'vue'
 import { getEventStatus, eventStatusClasses } from '../utils/eventStatus'
+import { usePageMeta } from '../composables/usePageMeta'
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 export default defineComponent({
     name: 'Calendar',
     setup() {
+        const { setPageMeta } = usePageMeta()
+        onMounted(() => setPageMeta('Month Calendar', 'UPCI New Zealand events shown month by month.'))
+
         const current = ref(new Date())
         const events = ref([])
 

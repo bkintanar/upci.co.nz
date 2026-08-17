@@ -55,10 +55,12 @@
 
     <div v-else-if="page">
         <!-- Render content blocks -->
-        <!-- §13.1: B could not render a non-homepage page. The breadcrumb hides
-             itself at the root, and the title band only appears when the page
-             has no hero of its own, so neither duplicates existing content. -->
-        <Breadcrumb v-if="page" :current="page.title" />
+        <!-- §13.1: B could not render a non-homepage page. The title band only
+             appears when the page has no hero of its own, so it never duplicates
+             existing content.
+             The breadcrumb used to sit here too. It now lives in App.vue, because
+             this is one of nine view components and putting a site-wide concern
+             in one of them left 14 of 19 routes without a trail. -->
         <PageHeader v-if="page && !hasHero && !isHome" :title="pageTitle" :lede="page.meta_description" />
 
 
@@ -290,7 +292,6 @@ import { renderMarkdown } from '../utils/markdown';
 import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Modal from '../components/Modal.vue';
-import Breadcrumb from '../components/layout/Breadcrumb.vue';
 import PageHeader from '../components/layout/PageHeader.vue';
 import ChurchFinderBlock from '../components/blocks/ChurchFinderBlock.vue';
 import ChurchDirectoryBlock from '../components/blocks/ChurchDirectoryBlock.vue';
@@ -299,13 +300,12 @@ import DepartmentListBlock from '../components/blocks/DepartmentListBlock.vue';
 import RegionListBlock from '../components/blocks/RegionListBlock.vue';
 import GalleryBlock from '../components/blocks/GalleryBlock.vue';
 import StatisticsBlock from '../components/blocks/StatisticsBlock.vue';
-import { usePageMeta } from '../composables/usePageMeta';
+import { usePageMeta, currentPageTitle, breadcrumbSuppressed } from '../composables/usePageMeta';
 
 export default defineComponent({
     name: 'CmsPage',
     components: {
         Modal,
-        Breadcrumb,
         PageHeader,
         ChurchFinderBlock,
         ChurchDirectoryBlock,
@@ -382,9 +382,18 @@ export default defineComponent({
                 page.value = data.data
 
                 setPageMeta(page.value?.title, page.value?.meta_description)
+                breadcrumbSuppressed.value = false
             } catch (err) {
                 error.value = err.message
                 page.value = null
+
+                // A page that does not exist must not render a trail naming
+                // itself — a 404 at /this-does-not-exist would otherwise read
+                // "Home › This Does Not Exist". This used to happen for free,
+                // because the breadcrumb sat behind `v-if="page"` in this
+                // component; now that it lives in App.vue it has to be said.
+                currentPageTitle.value = null
+                breadcrumbSuppressed.value = true
             } finally {
                 loading.value = false
             }

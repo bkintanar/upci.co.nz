@@ -1,4 +1,4 @@
-import { onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 
 /**
  * Sets the document title and meta description per route (G14).
@@ -19,6 +19,24 @@ const DEFAULT_DESCRIPTION = 'United Pentecostal Church International New Zealand
     + 'departments and regions across Aotearoa.'
 
 const MAX_DESCRIPTION = 155
+
+/**
+ * The current page's human title, and whether the breadcrumb should be hidden.
+ *
+ * Module-level rather than per-instance, because the breadcrumb now lives in
+ * App.vue — outside every view — and needs the one label a route path cannot
+ * supply. "apostolic-bible-college" is not "Apostolic Bible College", and
+ * humanising the slug would be a second, worse source of truth for something
+ * this composable already computes.
+ *
+ * `breadcrumbSuppressed` exists for exactly one case: a page that does not
+ * exist must not assert a trail to itself. Without it a 404 renders
+ * "Home › This Does Not Exist", naming a page that was never there. That used
+ * to be handled by accident, because the breadcrumb sat behind CmsPage's
+ * `v-if="page"`; moving it to the layout means saying so deliberately.
+ */
+export const currentPageTitle = ref(null)
+export const breadcrumbSuppressed = ref(false)
 
 /**
  * Flattens authored copy into something a meta tag can carry.
@@ -91,6 +109,11 @@ export function usePageMeta() {
                 ? trimmed
                 : `${trimmed} | ${SITE_NAME}`)
 
+        // The leaf crumb wants the bare title without the site-name suffix that
+        // several CMS titles carry — the same strip the breadcrumb used to do
+        // locally on `page.title`.
+        currentPageTitle.value = trimmed ? trimmed.split(/\s+[-|]\s+/)[0].trim() : null
+
         const desc = truncate(toPlainText(description)) || DEFAULT_DESCRIPTION
         setMeta('description', desc)
         setMeta('og:title', document.title)
@@ -104,6 +127,12 @@ export function usePageMeta() {
         if (typeof document === 'undefined') return
         document.title = SITE_NAME
         setMeta('description', DEFAULT_DESCRIPTION)
+
+        // Reset here rather than in a new hook: Vue unmounts the outgoing view
+        // before the incoming one mounts, so a title set by the next route is
+        // not clobbered. A separate hook would race with that ordering.
+        currentPageTitle.value = null
+        breadcrumbSuppressed.value = false
     })
 
     return { setPageMeta }

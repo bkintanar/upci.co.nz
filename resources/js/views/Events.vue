@@ -186,10 +186,14 @@
 <script>
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import { getEventStatus, eventStatusClasses, departmentChipClasses } from '../utils/eventStatus'
+import { usePageMeta } from '../composables/usePageMeta'
 
 export default defineComponent({
     name: 'Events',
     setup() {
+        const { setPageMeta } = usePageMeta()
+        onMounted(() => setPageMeta('Calendar of Events', 'The UPCI New Zealand national calendar - conferences, ministers meetings and department events.'))
+
         const events = ref([])
 
         // One year reads "2026"; a span reads "2026-2027"; nothing reads as

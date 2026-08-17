@@ -39,10 +39,14 @@
 <script>
 import { defineComponent, ref, onMounted } from 'vue'
 import { renderMarkdown } from '../utils/markdown'
+import { usePageMeta } from '../composables/usePageMeta'
 
 export default defineComponent({
     name: 'AgsUpdates',
     setup() {
+        const { setPageMeta } = usePageMeta()
+        onMounted(() => setPageMeta('AGS Updates', 'Updates from the Assistant General Superintendent of UPCI New Zealand.'))
+
         const updates = ref([])
         const loading = ref(true)
         const error = ref(null)

@@ -112,9 +112,21 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, onMounted } from 'vue'
+import { usePageMeta } from '../../composables/usePageMeta'
 
 export default defineComponent({
-    name: 'GeneralSuperintendent'
+    name: 'GeneralSuperintendent',
+    setup() {
+        // This page had no setup() at all, so it never set a title and the tab
+        // read the static blade default. It also sits one level below /about,
+        // which makes it the page that most needed the breadcrumb it never had.
+        const { setPageMeta } = usePageMeta()
+
+        onMounted(() => setPageMeta(
+            'General Superintendent',
+            'The General Superintendent of the United Pentecostal Church International New Zealand.'
+        ))
+    }
 })
 </script>

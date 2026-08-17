@@ -102,13 +102,17 @@
 </template>
 
 <script>
-import { defineComponent, reactive, ref } from 'vue'
+import { defineComponent, reactive, ref, onMounted } from 'vue'
 import ErrorSummary from '../components/layout/ErrorSummary.vue'
+import { usePageMeta } from '../composables/usePageMeta'
 
 export default defineComponent({
     name: 'ConnectWithUs',
     components: { ErrorSummary },
     setup() {
+        const { setPageMeta } = usePageMeta()
+        onMounted(() => setPageMeta('Connect with Us', 'Get in touch with UPCI New Zealand - questions, prayer requests, or finding a church home.'))
+
         const form = reactive({
             first_name: '',
             last_name: '',
