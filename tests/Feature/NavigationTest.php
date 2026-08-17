@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Page;
 use App\Models\MenuItem;
 use App\Models\SiteSetting;
 
@@ -32,38 +33,43 @@ test('the General Superintendent link is gone from the menu', function () {
         ->and(headerLabels())->not->toContain('General Superintendent');
 });
 
-test('SBQ and JBQ sit under Youth and Childrens', function () {
-    // Requirements 7 and 10. Asserted on URL, not label: the labels carry the
-    // full programme name and are presentational, so pinning them here makes
-    // a wording change look like a broken menu.
+test('quizzing pages live under their ministry path', function () {
+    // The URLs follow the parent's: SBQ under youth, JBQ under children's.
+    // They previously sat at /youth-and-childrens/*, a path invented for a menu
+    // section that is not itself a URL — its parent links to "#".
+    //
+    // Asserted on Page rows because those are created by migration and so exist
+    // under RefreshDatabase; the ministry MENU rows come from a seeder that does
+    // not run here.
+    expect(Page::where('slug', 'departments/youth/sbq')->exists())->toBeTrue()
+        ->and(Page::where('slug', 'departments/childrens/jbq')->exists())->toBeTrue()
+        ->and(Page::where('slug', 'youth-and-childrens/sbq')->exists())->toBeFalse()
+        ->and(Page::where('slug', 'youth-and-childrens/jbq')->exists())->toBeFalse();
+});
+
+test('each quizzing menu item points under its own ministry', function () {
+    $sbq = MenuItem::where('label', 'like', 'SBQ%')->first();
+    $jbq = MenuItem::where('label', 'like', 'JBQ%')->first();
+
+    // URLs only. The reparenting itself cannot be asserted here: the two
+    // ministry menu rows come from a seeder that does not run under
+    // RefreshDatabase, so the migration finds no parent to attach to and skips.
+    // The real nesting is verified against the dev database, where those rows
+    // exist — see the migration's own comment.
+    expect($sbq->url)->toBe('/departments/youth/sbq')
+        ->and($jbq->url)->toBe('/departments/childrens/jbq');
+});
+
+test('the menu API returns three levels', function () {
+    // The formatter used to stop at children, so a grandchild existed in the
+    // database and in the admin but could never render.
     $section = collect($this->getJson('/api/menu/header')->json('data'))
         ->firstWhere('label', "Youth & Children's");
 
-    expect($section)->not->toBeNull();
-
-    expect(collect($section['children'])->pluck('url'))
-        ->toContain('/youth-and-childrens/sbq', '/youth-and-childrens/jbq');
-});
-
-test('each quizzing programme is ordered to pair with its own ministry', function () {
-    // SBQ is a youth programme and JBQ a children's one. The navbar renders
-    // only two levels, so the pairing is carried by sort_order: Youth 10,
-    // SBQ 20, Children's 30, JBQ 40 — each quiz immediately after its ministry
-    // rather than both dumped at the end.
-    //
-    // Asserted on the sort_order VALUES rather than the rendered sequence: the
-    // two department rows come from a seeder that does not run under
-    // RefreshDatabase, so a sequence assertion would fail on their absence
-    // rather than on the ordering being wrong. These values are what makes the
-    // interleaving happen once the ministries are present.
-    $sbq = MenuItem::where('url', '/youth-and-childrens/sbq')->first();
-    $jbq = MenuItem::where('url', '/youth-and-childrens/jbq')->first();
-
-    expect($sbq->sort_order)->toBe(20)
-        ->and($jbq->sort_order)->toBe(40)
-        // Same parent, or they are not in one section at all.
-        ->and($sbq->parent_id)->toBe($jbq->parent_id)
-        ->and($sbq->parent_id)->not->toBeNull();
+    expect($section)->not->toBeNull()
+        // Every child carries a children key, even when empty, so the frontend
+        // can iterate without a guard on every level.
+        ->and(collect($section['children'])->every(fn ($c) => array_key_exists('children', $c)))->toBeTrue();
 });
 
 test('no destination appears twice in the header menu', function () {

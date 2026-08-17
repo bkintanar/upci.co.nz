@@ -16,7 +16,7 @@ class MenuItemController extends Controller
         $menuItems = MenuItem::active()
             ->header()
             ->topLevel()
-            ->with('children')
+            ->with('children.children')
             ->orderBy('sort_order')
             ->get()
             ->map(function ($item) {
@@ -37,7 +37,7 @@ class MenuItemController extends Controller
         $menuItems = MenuItem::active()
             ->footer()
             ->topLevel()
-            ->with('children')
+            ->with('children.children')
             ->orderBy('sort_order')
             ->get()
             ->map(function ($item) {
@@ -61,15 +61,11 @@ class MenuItemController extends Controller
             'description' => $item->description,
             'url' => $item->url,
             'open_in_new_tab' => $item->open_in_new_tab,
-            'children' => $item->children->map(function ($child) {
-                return [
-                    'id' => $child->id,
-                    'label' => $child->label,
-                    'description' => $child->description,
-                    'url' => $child->url,
-                    'open_in_new_tab' => $child->open_in_new_tab,
-                ];
-            }),
+            // Recursive so a third level reaches the frontend. Previously
+            // this stopped at children, so a grandchild existed in the admin
+            // and in the database but could never appear in the menu — SBQ
+            // under Youth Ministry, JBQ under Children's.
+            'children' => $item->children->map(fn (MenuItem $child) => $this->formatMenuItem($child)),
         ];
     }
 }

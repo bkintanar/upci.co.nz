@@ -64,12 +64,12 @@ const routes = [
         component: () => import('../views/CmsPage.vue')
     },
     {
-        path: '/youth-and-childrens/sbq',
+        path: '/departments/youth/sbq',
         name: 'SBQ',
         component: () => import('../views/CmsPage.vue')
     },
     {
-        path: '/youth-and-childrens/jbq',
+        path: '/departments/childrens/jbq',
         name: 'JBQ',
         component: () => import('../views/CmsPage.vue')
     },

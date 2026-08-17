@@ -257,6 +257,43 @@ class PageForm
                                                         TextInput::make('link_text')
                                                             ->label('Link Text')
                                                             ->maxLength(50),
+
+                                                        // 🔴 These three were rendered by CmsPage.vue but
+                                                        // declared NOWHERE. Filament's Builder rebuilds block
+                                                        // state from the declared schema on save, so editing an
+                                                        // affected card silently dropped them and the card lost
+                                                        // its styling for good.
+                                                        //
+                                                        // A Textarea rather than a Select: icon_svg holds either
+                                                        // a style token or raw <svg> markup — CmsPage branches on
+                                                        // both — and a Select would coerce any raw markup to null
+                                                        // on the next save, which is the very failure this fixes.
+                                                        Textarea::make('icon_svg')
+                                                            ->label('Icon style or SVG')
+                                                            ->rows(2)
+                                                            ->helperText('A style token (blue-ministry, green-ministry) or raw <svg> markup. Leave blank for the default treatment.')
+                                                            ->columnSpanFull(),
+
+                                                        Select::make('variant')
+                                                            ->label('Card type')
+                                                            ->options([
+                                                                'person' => 'Person (portrait image, opens a detail dialog)',
+                                                            ])
+                                                            ->placeholder('Standard card')
+                                                            ->live()
+                                                            ->helperText('Person cards show a portrait crop and open a biography dialog.'),
+
+                                                        Textarea::make('bio')
+                                                            ->label('Biography')
+                                                            ->rows(5)
+                                                            ->maxLength(2000)
+                                                            ->visible(fn ($get) => $get('variant') === 'person')
+                                                            // Dehydrated so clearing it persists; a hidden
+                                                            // Filament field is otherwise omitted from the save
+                                                            // and the old value survives.
+                                                            ->dehydrated()
+                                                            ->helperText('Shown in the dialog when the card is opened. Markdown is supported.')
+                                                            ->columnSpanFull(),
                                                     ])
                                                     ->columns(2),
                                             ])
