@@ -1147,36 +1147,3 @@ result**, and the pattern is worth naming:
 All three manufactured confidence rather than earning it, and two of them pointed at
 non-existent defects while the first hid a real one. **Verification code deserves the same
 scepticism as the code it verifies.**
-
----
-
-## Run closed at iteration 40 of 40 (configured maximum)
-
-**Final: 60 done · 2 partial · 3 declined with reasons · 7 remaining.**
-
-Iterations 36–40 produced no code changes. That was not the loop stalling — it was the plan
-reaching the end of what can be done without the client. Each of the seven remaining tasks was
-checked individually rather than assumed blocked.
-
-### What is incomplete, and what blocks it
-
-| Blocked by | Tasks |
-|---|---|
-| Homepage direction (D1 / D2 / D3) | T45, T50, T51, T54 |
-| Which hue each department owns | T49, T69 |
-| Whether the 49 events belong to regions | T55 |
-
-Underneath the first: **do conference or congregation photographs exist?** Direction is
-unresolvable without it — UPCA's approach is image-led and the brand spec rules out stock
-congregation photography.
-
-### Outside this repository
-`.env` is gitignored. Production needs **`CACHE_STORE=file`** set by hand, or roughly 60% of
-page loads return 500s — invisible, because the fallbacks absorb them.
-
-### Archived
-`.claude/PRPs/ralph-archives/2026-08-17-upci-nz-site-overhaul/` — state, plan and report.
-
-### The one thing to carry into the next session
-Do not resume by working the task list. Get the four answers first. Everything else is
-finished, deliberately declined with the reasoning recorded, or genuinely waiting.
