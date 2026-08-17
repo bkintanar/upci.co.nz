@@ -64,6 +64,16 @@ const routes = [
         component: () => import('../views/CmsPage.vue')
     },
     {
+        path: '/regions',
+        name: 'Regions',
+        component: () => import('../views/Regions.vue')
+    },
+    {
+        path: '/regions/:slug',
+        name: 'Region',
+        component: () => import('../views/Region.vue')
+    },
+    {
         path: '/find-church',
         name: 'ChurchLocator',
         component: () => import('../views/ChurchLocator.vue')

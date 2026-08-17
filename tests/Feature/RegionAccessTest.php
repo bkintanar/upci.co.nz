@@ -106,3 +106,50 @@ test('region content fields are fillable', function () {
         ->presbyter_name->toBe('Rev. Placeholder')
         ->logo_path->toBe('region-logos/north.png');
 });
+
+test('the region show payload always carries churches, events and gallery as arrays', function () {
+    // Region.vue reads region.churches.length directly. A null or a missing
+    // key throws in the template and blanks the whole page, so the shape is
+    // part of the contract rather than an implementation detail.
+    $data = $this->getJson('/api/regions/northern')->json('data');
+
+    expect($data)->toHaveKeys(['slug', 'name', 'logo_url', 'intro', 'presbyter_name', 'churches', 'events', 'gallery'])
+        ->and($data['churches'])->toBeArray()
+        ->and($data['events'])->toBeArray()
+        ->and($data['gallery'])->toBeArray();
+});
+
+test('the region index reports a church count', function () {
+    App\Models\Church::create(['name' => 'Counted', 'region_id' => $this->north->id, 'is_active' => true]);
+    App\Models\Church::create(['name' => 'Inactive', 'region_id' => $this->north->id, 'is_active' => false]);
+
+    $row = collect($this->getJson('/api/regions')->json('data'))->firstWhere('slug', 'northern');
+
+    // Inactive churches are excluded from the count, matching the list.
+    expect($row['churches_count'])->toBe(1);
+});
+
+test('an unpublished region is not reachable through the public region endpoints', function () {
+    $this->north->update(['is_published' => false]);
+
+    $slugs = collect($this->getJson('/api/regions')->json('data'))->pluck('slug');
+
+    expect($slugs)->not->toContain('northern');
+    $this->getJson('/api/regions/northern')->assertStatus(404);
+});
+
+test('the region page shows only its own regional events', function () {
+    $national = App\Models\Event::create([
+        'name' => 'National one', 'slug' => 'nat-one', 'start_date' => '2026-10-01',
+        'is_published' => true, 'scope' => App\Enums\EventScope::NATIONAL,
+    ]);
+    App\Models\Event::create([
+        'name' => 'Northern one', 'slug' => 'north-one', 'start_date' => '2026-10-02',
+        'is_published' => true, 'scope' => App\Enums\EventScope::REGIONAL, 'region_id' => $this->north->id,
+    ]);
+
+    $names = collect($this->getJson('/api/regions/northern')->json('data.events'))->pluck('name');
+
+    expect($names)->toContain('Northern one')
+        ->and($names)->not->toContain('National one');
+});
