@@ -1,5 +1,5 @@
 ---
-iteration: 29
+iteration: 30
 max_iterations: 40
 plan_path: ".claude/PRPs/plans/upci-nz-site-overhaul.plan.md"
 input_type: "plan"
@@ -984,3 +984,40 @@ clothes.
 #### Next unblocked
 T50/T51 spikes, T71 (§14.3 copy fix + §14.2 constraints), T64 (split T36's seven clauses),
 T65 (seed region intros/logos as editable content — partly blocked on client copy).
+
+### Iteration 29 — 2026-08-17
+
+#### Completed (partial by design)
+- **T65 ◐** (`e2b5428`) — presbyters linked to their regions. `intro` and `logo_path`
+  deliberately left unset.
+
+#### Validation
+Lint PASS · Build PASS · Tests **106 passed (254 assertions)** · both region surfaces
+browser-verified
+
+#### What was actually wrong
+The three presbyter names were already published — inside the leadership page's cards as
+"Northern Region Presbyter" and so on — but only as **prose in a CMS block**. `presbyter_name`
+was null, so nothing could query who leads a region. Read across from the cards rather than
+retyped, so it cannot disagree with its source; a reworded card makes the migration a no-op
+rather than writing a stale name.
+
+#### Where I stopped, and why
+`intro` is a message **from** the region. Inventing one puts words in a presbyter's mouth on a
+public page. The template already omits the section when empty, so an unfilled intro costs
+nothing while invented copy would cost credibility.
+
+The user sanctioned placeholders for missing information, and I have used that latitude freely
+elsewhere (SBQ/JBQ pages, region lettermarks, empty-state messages). **It does not extend to
+attributed speech.** That is the line.
+
+#### Remaining work is thin and mostly gated
+42 done, 1 partial, 1 declined. What is left divides into:
+- **Blocked on the user**: T45 (homepage hero), T49 (department hues), region intros/logos,
+  T55 (assigning 49 events to regions), photography-dependent work
+- **Design spikes**: T50 (`/calendar` month grid), T51 (cards under B) — both shaped by the
+  homepage direction, so premature
+- **Plan hygiene**: T64 (split T36), T71 (§14.3 copy fix)
+
+The feature and security work is substantially complete. Further grinding without the three
+outstanding decisions produces churn rather than progress.
