@@ -867,3 +867,40 @@ browser-verified
 T66 (`/about` live, routed, fully hard-coded), T49 (department hues — my palette pass
 deliberately left the six theme colours alone because collapsing them into green made two
 departments identical), T50/T51 spikes.
+
+### Iteration 25 — 2026-08-17
+
+#### Completed
+- **T66** (`7141aca`) — `/about` converted from a hard-coded view to a CMS page
+
+#### Validation
+Lint PASS · Build PASS · Tests **102 passed (246 assertions)** · migration up/down clean ·
+browser-verified
+
+#### What it actually was
+A hub page: 85 lines of hard-coded markup in front of five sub-pages that were **already**
+CMS-managed. The hub was the only part of the About section its own editors could not touch.
+Content carried across verbatim — the conversion is about who can change it, not about
+changing it. `About.vue` deleted, since leaving it implies it still renders the route.
+
+#### A content decision left to the client rather than taken
+The General Superintendent block promotes a page whose **menu** link was removed in T44 while
+its route was deliberately kept. Whether the hub should still feature it is a judgement call,
+so it is carried across as-is — and as CMS content, removing it is now one click rather than
+another deploy. Silently dropping it would have been me deciding.
+
+#### Running theme this session
+Three tasks in a row turned out to be mis-specified once the code was actually read: T56 (a 404
+already existed), T57 (worse than described — the comment contradicted the code), T70 (the
+column was not orphaned of meaning). **The plan is a good map but not the territory; check the
+premise before executing the task.**
+
+#### Still blocked on the user
+1. Homepage direction — D1 / D2 / D3
+2. **Do conference or congregation photographs exist?**
+3. **Department hues** — which colour each of the six owns. My palette pass left them alone
+   because collapsing them into brand green made two departments identical (T49).
+
+#### Next unblocked
+T50/T51 spikes, T61 (a real ABC inspect/fix pass), T63 (audit the wider public API surface for
+auth/throttle), T71 (§14.3 copy fix).
