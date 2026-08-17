@@ -1,5 +1,5 @@
 ---
-iteration: 18
+iteration: 19
 max_iterations: 40
 plan_path: ".claude/PRPs/plans/upci-nz-site-overhaul.plan.md"
 input_type: "plan"

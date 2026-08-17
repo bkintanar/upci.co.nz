@@ -179,6 +179,19 @@ import { computed, defineComponent, onMounted, ref } from 'vue';
 import upciLogo from '../../images/upci-nz-logo-nav.png';
 import { useSiteSettings } from '../composables/useSiteSettings';
 
+// Used only when /api/menu/header fails. Hard-coded on purpose: a fallback
+// that depends on the thing that just failed is not a fallback. Kept to the
+// routes that are stable and top-level, so it cannot drift far from the real
+// menu — anything deeper belongs in the CMS.
+const FALLBACK_MENU = [
+    { id: 'fb-about', label: 'About the UPCI NZ', url: '/about/upci', children: [] },
+    { id: 'fb-departments', label: 'Departments', url: '/departments', children: [] },
+    { id: 'fb-find', label: 'Find a Church', url: '/find-church', children: [] },
+    { id: 'fb-regions', label: 'Regions', url: '/regions', children: [] },
+    { id: 'fb-events', label: 'Calendar of Events', url: '/events', children: [] },
+    { id: 'fb-contact', label: 'Connect with Us', url: '/connect-with-us', children: [] },
+]
+
 export default defineComponent({
     name: 'Navbar',
     setup() {
@@ -200,8 +213,12 @@ export default defineComponent({
                 menuItems.value = response.data.data || response.data
             } catch (error) {
                 console.error('Failed to fetch menu items:', error)
-                // Keep default menu if API fails
-                menuItems.value = []
+                // The comment here used to promise a default menu and then set
+                // an empty array, so a menu-endpoint failure left the site with
+                // NO navigation at all — every page reachable only by typing a
+                // URL. The fallback below is deliberately short: the handful of
+                // destinations someone would actually need if the CMS is down.
+                menuItems.value = FALLBACK_MENU
             } finally {
                 loading.value = false
             }

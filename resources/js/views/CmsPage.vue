@@ -6,15 +6,50 @@
         </div>
     </div>
 
-    <div v-else-if="error" class="min-h-screen flex items-center justify-center">
-        <div class="text-center">
-            <div class="text-6xl mb-4">😞</div>
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Page not found</h1>
-            <p v-if="error !== 'Page not found'" class="text-gray-600 mb-6">{{ error }}</p>
-            <p v-else class="text-gray-600 mb-6">The page you're looking for doesn't exist or has been moved.</p>
-            <router-link to="/" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                Go to Home
-            </router-link>
+    <!-- A missing page and a failed request are different problems and get
+         different words. The emoji that used to head this is out: brand-spec.md
+         §4 rules emoji icons out, and a sad face is the wrong register for a
+         church telling someone they took a wrong turn. -->
+    <div v-else-if="error" class="min-h-[60vh] flex items-center">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <p class="text-sm font-semibold uppercase tracking-wide text-brand-green-700 mb-2">
+                {{ isMissing ? 'Page not found' : 'Something went wrong' }}
+            </p>
+
+            <h1 class="text-3xl sm:text-4xl font-bold text-brand-ink mb-4 leading-tight">
+                {{ isMissing ? 'We couldn\'t find that page.' : 'We couldn\'t load that page.' }}
+            </h1>
+
+            <p class="text-brand-grey-600 mb-8">
+                <template v-if="isMissing">
+                    It may have been moved or removed. These are the places people usually want.
+                </template>
+                <template v-else>
+                    {{ error }} You could try again, or start from one of these.
+                </template>
+            </p>
+
+            <!-- Onward links, not a lone "go home". Several URLs were retired
+                 when the CMS scaffolding pages were unpublished, so someone can
+                 land here holding a link that used to work. -->
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                <li v-for="link in notFoundLinks" :key="link.to">
+                    <router-link
+                        :to="link.to"
+                        class="block border border-brand-grey-200 rounded-lg px-4 py-3 hover:border-brand-green-700 transition-colors"
+                    >
+                        <span class="font-semibold text-brand-ink">{{ link.label }}</span>
+                        <span class="block text-sm text-brand-grey-600">{{ link.hint }}</span>
+                    </router-link>
+                </li>
+            </ul>
+
+            <button
+                v-if="!isMissing"
+                type="button"
+                @click="fetchPage(getSlug())"
+                class="inline-flex items-center px-5 py-3 font-semibold text-white bg-brand-green-700 hover:bg-brand-green-900 transition-colors rounded-lg"
+            >Try again</button>
         </div>
     </div>
 
@@ -270,6 +305,18 @@ export default defineComponent({
         // to documents, and neither suits the front door.
         const isHome = computed(() => route.path === '/')
 
+        // A 404 and a network failure are not the same event. Saying "page not
+        // found" when the request simply failed sends someone hunting for a
+        // page that is actually still there.
+        const isMissing = computed(() => /not found/i.test(error.value || ''))
+
+        const notFoundLinks = [
+            { to: '/find-church', label: 'Find a church', hint: 'Congregations across New Zealand' },
+            { to: '/departments', label: 'Departments', hint: 'The national ministries' },
+            { to: '/events', label: 'Calendar of events', hint: "What's on this year" },
+            { to: '/connect-with-us', label: 'Connect with us', hint: 'Get in touch' },
+        ]
+
         const hasHero = computed(() => (page.value?.content || []).some((b) => b.type === 'hero'))
 
         // The CMS titles carry a site-name suffix for the browser tab; the
@@ -512,6 +559,10 @@ export default defineComponent({
         return {
             hasHero,
             isHome,
+            isMissing,
+            notFoundLinks,
+            fetchPage,
+            getSlug,
             contentsItems,
             sectionId,
             pageTitle,
