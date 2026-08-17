@@ -759,3 +759,40 @@ build, and visible immediately in a browser.
 #### Next
 Blocked on the homepage choice for T45 (hero). Unblocked: T49 (craft fixes), T50/T51 spikes,
 Block H/I gaps.
+
+### Iteration 19 — 2026-08-17
+
+#### Completed
+- **T56 / T57** (`afd1211`) — resilient navigation and not-found handling
+- **T59** marked done retrospectively — the announcement `published_at` gate landed in `e83e24e`
+
+#### Validation
+Lint PASS · Build PASS · Tests **102 passed (246 assertions)** · all three failure paths
+browser-verified by aborting requests
+
+#### Both tasks were mis-recorded in the plan
+- **T57 was worse.** `Navbar.vue`'s catch carried the comment *"Keep default menu if API
+  fails"* and then set `menuItems = []` — the comment promised the opposite of the code. A menu
+  endpoint failure left the site with **no navigation at all**. Now falls back to six stable
+  top-level destinations, hard-coded deliberately: a fallback that depends on the thing that
+  just failed is not a fallback.
+- **T56 was not missing.** A 404 view already existed. Its actual faults: an emoji heading
+  (ruled out by `brand-spec.md` §4) and reporting *"Page not found"* for **any** failure,
+  including a network error — which sends someone hunting for a page that is still there.
+
+#### Learnings
+- **Read the code, not the comment.** The most misleading thing in this codebase so far was a
+  comment that stated the intended behaviour beside code doing the opposite. Nothing flagged
+  it; the plan inherited the comment's claim.
+- Distinguish *missing* from *failed to load* in any fetch-backed view. They need different
+  words and different affordances — a retry button on a genuinely missing page is a lie.
+- `page.route(url, r => r.abort())` is the cheapest way to exercise a failure path end to end.
+
+#### Still blocked on the user
+Homepage direction (D1 / D2 / D3), and whether conference or congregation **photography**
+exists. T45 waits on both.
+
+#### Next unblocked
+T62 (announcement content carries raw `<iframe>` through `v-html`), T67 (calendar year is
+hard-coded and goes stale on 1 Jan 2027), T66 (`/about` is live, routed and fully hard-coded),
+T70 (drop the orphaned `gallery_items.department` column), T50/T51 spikes.
