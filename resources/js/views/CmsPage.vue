@@ -20,6 +20,18 @@
 
     <div v-else-if="page">
         <!-- Render content blocks -->
+        <!-- §13.1: B could not render a non-homepage page. The breadcrumb hides
+             itself at the root, and the title band only appears when the page
+             has no hero of its own, so neither duplicates existing content. -->
+        <Breadcrumb v-if="page" :current="page.title" />
+        <PageHeader v-if="page && !hasHero" :title="pageTitle" :lede="page.meta_description" />
+
+        <!-- Only on pages long enough to need it: a two-section page does not
+             benefit from an index of itself. -->
+        <div v-if="contentsItems.length >= 3" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Contents :items="contentsItems" />
+        </div>
+
         <div v-for="(block, index) in page.content" :key="index">
             <!-- Hero Section -->
             <section v-if="block.type === 'hero'" :class="getHeroClasses(block.data.style)" class="relative text-white overflow-hidden">
@@ -71,7 +83,7 @@
             <section v-else-if="block.type === 'text'" :class="sectionBackground(block, 'py-20')">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="text-center">
-                        <h2 v-if="block.data.heading" class="text-4xl md:text-5xl font-bold text-slate-900 mb-6">{{ block.data.heading }}</h2>
+                        <h2 v-if="block.data.heading" :id="sectionId(block.data.heading)" class="text-4xl md:text-5xl font-bold text-slate-900 mb-6">{{ block.data.heading }}</h2>
                         <div class="max-w-4xl mx-auto text-xl text-slate-600 leading-relaxed cms-text-content" :class="{ 'stats-content': isStatsBlock(block) }" :data-has-stats="isStatsBlock(block)" v-html="renderMarkdown(block.data.content)"></div>
                     </div>
                 </div>
@@ -118,7 +130,7 @@
             <section v-else-if="block.type === 'cards'"
                      :class="sectionBackground(block, 'py-16 lg:py-20')">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 v-if="block.data.heading" class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-10 lg:mb-12">{{ block.data.heading }}</h2>
+                    <h2 v-if="block.data.heading" :id="sectionId(block.data.heading)" class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-10 lg:mb-12">{{ block.data.heading }}</h2>
                     <div :class="cardsGridClasses(block)">
                         <!-- variant === 'person' is an explicit author option, not
                              an inference from the heading or item count: portrait
@@ -216,9 +228,12 @@
 
 <script>
 import { marked } from 'marked';
-import { defineComponent, onMounted, ref, watch } from 'vue';
+import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Modal from '../components/Modal.vue';
+import Breadcrumb from '../components/layout/Breadcrumb.vue';
+import PageHeader from '../components/layout/PageHeader.vue';
+import Contents from '../components/layout/Contents.vue';
 import ChurchFinderBlock from '../components/blocks/ChurchFinderBlock.vue';
 import ChurchDirectoryBlock from '../components/blocks/ChurchDirectoryBlock.vue';
 import EventsFeedBlock from '../components/blocks/EventsFeedBlock.vue';
@@ -231,6 +246,9 @@ export default defineComponent({
     name: 'CmsPage',
     components: {
         Modal,
+        Breadcrumb,
+        PageHeader,
+        Contents,
         ChurchFinderBlock,
         ChurchDirectoryBlock,
         EventsFeedBlock,
@@ -242,6 +260,27 @@ export default defineComponent({
         const { setPageMeta } = usePageMeta()
         const route = useRoute()
         const page = ref(null)
+        // A page with its own hero already states what it is; adding the
+        // title band on top would say it twice.
+        const hasHero = computed(() => (page.value?.content || []).some((b) => b.type === 'hero'))
+
+        // The CMS titles carry a site-name suffix for the browser tab; the
+        // on-page heading should not repeat it.
+        const pageTitle = computed(() => (page.value?.title || '').split(/\s+[-|]\s+/)[0].trim())
+
+        // Derived from the page's own section headings so the list cannot drift
+        // from the content it indexes.
+        const slugify = (text) => String(text || '')
+            .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+        const contentsItems = computed(() =>
+            (page.value?.content || [])
+                .filter((block) => block.data?.heading)
+                .map((block) => ({ href: `#${slugify(block.data.heading)}`, label: block.data.heading }))
+        )
+
+        const sectionId = (heading) => slugify(heading)
+
         const person = ref(null)
         const personOpen = ref(false)
 
@@ -463,6 +502,10 @@ export default defineComponent({
         })
 
         return {
+            hasHero,
+            contentsItems,
+            sectionId,
+            pageTitle,
             person,
             personOpen,
             openPerson,
