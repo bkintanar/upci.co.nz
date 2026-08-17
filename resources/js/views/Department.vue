@@ -27,19 +27,28 @@
                              a logo, and an absent one should read as the parent
                              brand rather than as a gap.
 
-                             Larger than it was (h-24/h-32), and the emblem-only
-                             lockup, because the stacked lockup spent half its
-                             height on a wordmark that repeats the h1 directly
-                             below it — which is what made the mark read as
-                             small. drop-shadow-lg is gone: it existed to rescue
-                             contrast that the light variant now provides. -->
+                             Sized by WIDTH, not height. This is the horizontal
+                             2:1 lockup, so capping its height — as h-24/h-32 did
+                             — leaves most of the hero's width unused and the mark
+                             reads small however tall the box is. A width cap lets
+                             it use the space a hero actually has.
+
+                             drop-shadow-lg is gone: it existed to rescue contrast
+                             that the light variant now provides. -->
                         <img
                             v-if="departmentLogo"
                             :src="departmentLogo"
                             :alt="`${department.name} logo`"
-                            class="h-32 md:h-44 w-auto mx-auto mb-8"
+                            class="w-full max-w-sm sm:max-w-lg lg:max-w-2xl h-auto mx-auto mb-8"
                         />
-                        <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+
+                        <!-- The logo carries the department's name, so a visible
+                             heading repeats it. Hidden rather than deleted: the
+                             redundancy is visual, and the page still needs an h1
+                             for its document outline and for screen readers.
+                             Falls back to a visible heading when a department has
+                             no logo — there, nothing else states the name. -->
+                        <h1 :class="departmentLogo ? 'sr-only' : 'text-4xl md:text-5xl font-bold mb-6 leading-tight'">
                             {{ department.name }}
                         </h1>
                         <p v-if="department.scripture_quote" class="text-lg md:text-xl italic text-slate-100 max-w-3xl mx-auto whitespace-pre-line">
