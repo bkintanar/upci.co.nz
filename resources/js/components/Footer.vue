@@ -4,7 +4,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                         <div class="md:col-span-2">
                             <div class="flex items-center mb-6">
-                                <img :src="upciLogo"
+                                <img :src="footerLogo"
                                      alt="UPCI New Zealand"
                                      class="h-24 w-auto mr-6 drop-shadow-lg">
                             </div>
@@ -96,15 +96,19 @@ import { defineComponent, computed } from 'vue'
 // Still a build-time import —
 // making this CMS-editable is the site-settings work (T9-T11).
 import upciLogo from '../../images/upci-nz-logo-footer.png'
+import { useSiteSettings } from '../composables/useSiteSettings'
 
 export default defineComponent({
     name: 'Footer',
     setup() {
+        const { settings } = useSiteSettings()
+        const footerLogo = computed(() => settings.value?.footer_logo_url || upciLogo)
+
         const currentYear = computed(() => new Date().getFullYear())
 
         return {
             currentYear,
-            upciLogo
+            footerLogo
         }
     }
 })

@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Enums\AccessLevel;
 use App\Models\Attendance;
 use App\Models\Department;
+use App\Models\SiteSetting;
 use App\Models\ContactMessage;
 use App\Models\DepartmentAnnouncement;
 use App\Filament\Resources\Attendances\AttendanceResource;
@@ -311,4 +312,47 @@ test('every file upload targets the public disk and rejects svg', function () {
                 ->toBeTrue("a FileUpload in {$form} does not target the public disk");
         }
     }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Site settings page
+|--------------------------------------------------------------------------
+| A custom Filament Page has no model and never consults a policy —
+| CanAuthorizeAccess::canAccess() hard-returns true and discoverPages()
+| auto-registers it. The page must gate itself, and the assertion has to be
+| on the URL: a policy check would pass while the page stayed wide open.
+*/
+
+// Two separate tests on purpose: issuing the 403 and the 200 from one test
+// leaves Filament/Livewire state behind that breaks the second request.
+test('a local user cannot reach the site settings page', function () {
+    $local = regressionUser('local', ['church_id' => $this->church->id]);
+
+    $this->actingAs($local)->get('/admin/manage-site-settings')->assertForbidden();
+});
+
+test('a national user can reach the site settings page', function () {
+    $national = regressionUser('national');
+
+    $this->actingAs($national)->get('/admin/manage-site-settings')->assertOk();
+});
+
+test('site settings expose two independently editable logos', function () {
+    $settings = SiteSetting::current();
+
+    expect($settings->getFillable())->toContain('header_logo_path')
+        ->and($settings->getFillable())->toContain('footer_logo_path');
+
+    // one row, always
+    SiteSetting::current();
+    expect(SiteSetting::count())->toBe(1);
+
+    $settings->update([
+        'header_logo_path' => 'site/header.png',
+        'footer_logo_path' => 'site/footer.png',
+    ]);
+
+    expect(SiteSetting::current()->header_logo_path)->toBe('site/header.png')
+        ->and(SiteSetting::current()->footer_logo_path)->toBe('site/footer.png');
 });

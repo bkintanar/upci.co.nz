@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\AGSUpdateController;
 use App\Http\Controllers\Api\DepartmentController;
+use App\Http\Controllers\Api\SiteSettingController;
 
 // API routes (must come before catch-all route)
 // A baseline limit for the whole public API. None of these routes are
@@ -53,6 +54,9 @@ Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     // Departments (public, published only)
     Route::get('/departments', [DepartmentController::class, 'index']);
     Route::get('/departments/{slug}', [DepartmentController::class, 'show']);
+
+    // Site-wide settings (logos, socials, footer copy)
+    Route::get('/site-settings', [SiteSettingController::class, 'index']);
 
     // Contact form
     // Unauthenticated write with no captcha or honeypot — without a limit the

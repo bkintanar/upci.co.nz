@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Department;
+use App\Models\SiteSetting;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -83,9 +84,11 @@ class InstallDepartmentLogos extends Command
             $installed++;
         }
 
+        $this->installSiteLogos($disk, $dryRun, $force);
+
         $this->newLine();
         $this->info(sprintf(
-            '%s %d logo(s). Skipped %d already set, %d missing from the pack.',
+            '%s %d department logo(s). Skipped %d already set, %d missing from the pack.',
             $dryRun ? 'Would install' : 'Installed',
             $installed,
             $skipped,
@@ -93,6 +96,48 @@ class InstallDepartmentLogos extends Command
         ));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The header and footer take different lockups: the navbar suits the
+     * stacked mark, the footer has room for the horizontal one.
+     */
+    private function installSiteLogos($disk, bool $dryRun, bool $force): void
+    {
+        $settings = SiteSetting::current();
+
+        $pairs = [
+            'header_logo_path' => 'upci-nz-logo-nav.png',
+            'footer_logo_path' => 'upci-nz-logo-footer.png',
+        ];
+
+        foreach ($pairs as $column => $file) {
+            $source = base_path('resources/images/'.$file);
+
+            if (! is_file($source)) {
+                $this->warn("  site logo source missing: {$file}");
+
+                continue;
+            }
+
+            if (filled($settings->{$column}) && ! $force) {
+                $this->line("  already set, skipping: {$column}");
+
+                continue;
+            }
+
+            $target = 'site/'.$file;
+
+            if ($dryRun) {
+                $this->line("  would install: {$column} -> {$target}");
+
+                continue;
+            }
+
+            $disk->put($target, file_get_contents($source));
+            $settings->update([$column => $target]);
+            $this->info("  installed: {$column} -> {$target}");
+        }
     }
 
     /**

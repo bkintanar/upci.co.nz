@@ -4,7 +4,7 @@
             <div class="flex justify-between items-center h-28">
                         <div class="flex items-center">
                             <router-link to="/" class="flex-shrink-0 flex items-center group">
-                                <img :src="upciLogo"
+                                <img :src="headerLogo"
                                      alt="UPCI New Zealand"
                                      class="h-24 w-auto group-hover:scale-105 transition-transform duration-300">
                             </router-link>
@@ -139,7 +139,7 @@
 
 <script>
 import axios from 'axios';
-import { defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 // New UPCI NZ mark from the 2026 logo pack, white variant — both the
 // navbar and footer sit on dark surfaces, and the standard mark sets its
 // wordmark in black. PNG rather than SVG deliberately: the SVG export
@@ -150,10 +150,15 @@ import { defineComponent, onMounted, ref } from 'vue';
 // Still a build-time import —
 // making this CMS-editable is the site-settings work (T9-T11).
 import upciLogo from '../../images/upci-nz-logo-nav.png';
+import { useSiteSettings } from '../composables/useSiteSettings';
 
 export default defineComponent({
     name: 'Navbar',
     setup() {
+        const { settings } = useSiteSettings()
+        // CMS value when set, bundled asset otherwise
+        const headerLogo = computed(() => settings.value?.header_logo_url || upciLogo)
+
         const mobileMenuOpen = ref(false)
         const menuItems = ref([])
         const loading = ref(true)
@@ -184,7 +189,7 @@ export default defineComponent({
             menuItems,
             loading,
             toggleMobileMenu,
-            upciLogo
+            headerLogo
         }
     }
 })
