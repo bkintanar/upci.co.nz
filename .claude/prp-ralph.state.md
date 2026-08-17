@@ -316,3 +316,49 @@ doing the conversion myself rather than assuming.
 Requirement 3 (T35 `Modal.vue` + T41 portrait leadership) and requirement 6 (announcements)
 are the last two untouched requirements. Then the full B rollout: T32, T45–T49, spikes
 T50/T51. **T46 (two-row header) also fixes the nine-item navbar crowding.**
+
+### Iteration 7 — 2026-08-17
+
+#### Completed
+- **Requirement 3 / T35 / T41 / T36 remainder** (`ea347d8`) — `Modal.vue`, leadership detail
+  modal, portrait imagery, locator refactored onto the shared modal
+
+#### 🔴 REGRESSION I INTRODUCED AND SHIPPED — now fixed
+`groupedChurches` was computed in `9705468` but **never returned from `setup()`**. The
+template iterated `undefined`, Vue rendered nothing, no error was raised, and **the church
+list on `/find-church` was empty from that commit until this one.**
+
+I reported it working having checked the API payload (4/2/4) and an HTTP 200. For an SPA a
+200 means the shell loaded — it says nothing about what rendered. **Curl cannot verify a Vue
+change.** Browser verification is now mandatory for any template work.
+
+#### Verification method that actually works
+Playwright (`npm install playwright` in the scratch dir; `npx playwright install chromium`).
+Assert on rendered DOM, not status codes. This iteration it confirmed: 13 person cards,
+portrait ratio 0.75, modal heading = name / subtitle = role, focus enters and returns,
+Escape closes, 3 region headings, 10 church cards, 9 Leaflet tiles inside the dialog, zero
+JS errors.
+
+#### Decisions
+- **T41 field mapping:** swapped in the DATA so `title` = name, matching every other card on
+  the site. Special-casing the renderer for one page would be a heuristic — what T27 removes.
+- **`variant: 'person'`** is an explicit author option, not inferred from heading text or
+  item count.
+
+#### Learnings
+- **A Vue computed that is never returned from `setup()` fails silently.** `v-for` over
+  `undefined` renders nothing and raises no error. The build passes. Only the DOM shows it.
+- **Native `<dialog>` + `showModal()`** gives Escape, inertness and top-layer stacking free;
+  the focus trap must be written. Teleport to `<body>` or a transformed ancestor clips it.
+- **A teleported dialog needs TWO ticks** before its content is measurable — Modal opens in
+  its own watcher, so one tick leaves the container null and Leaflet never initialises.
+- Closing a modal must clear the selection, or reopening the same record is a no-op.
+
+#### Client blocker RESOLVED
+**Rev. Peter Lloyd's portrait exists** — a real 2048×2048 headshot. All 13 leadership photos
+are present and distinct. Two (Matika, Lloyd) are landscape/square originals, which the 3:4
+`object-cover` box handles.
+
+#### Next
+Requirement 6 (announcements) is the last untouched requirement. Then T39, T42, and the
+Direction B rollout (T32, T45–T49, spikes).
