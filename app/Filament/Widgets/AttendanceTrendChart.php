@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Attendance;
 use Illuminate\Support\Carbon;
 use Filament\Widgets\ChartWidget;
+use App\Filament\Resources\Attendances\AttendanceResource;
 
 class AttendanceTrendChart extends ChartWidget
 {
@@ -14,7 +14,8 @@ class AttendanceTrendChart extends ChartWidget
 
     protected function getData(): array
     {
-        $data = Attendance::where('date', '>=', Carbon::now()->subDays(30))
+        // Scoped via the resource — see MainStatsWidget.
+        $data = AttendanceResource::getEloquentQuery()->where('date', '>=', Carbon::now()->subDays(30))
             ->orderBy('date')
             ->get()
             ->map(function ($attendance) {

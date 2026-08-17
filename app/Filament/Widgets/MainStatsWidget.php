@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Attendance;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use App\Filament\Resources\Attendances\AttendanceResource;
 
 class MainStatsWidget extends BaseWidget
 {
@@ -18,8 +18,11 @@ class MainStatsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $lastEvent = Attendance::latest('date')->first();
-        $previousEvent = Attendance::latest('date')->skip(1)->first();
+        // Route through the resource so ScopesToAccessLevel applies. Querying
+        // Attendance:: directly bypasses both the policy and the scope, and this
+        // widget sits on the Dashboard every panel user lands on.
+        $lastEvent = AttendanceResource::getEloquentQuery()->latest('date')->first();
+        $previousEvent = AttendanceResource::getEloquentQuery()->latest('date')->skip(1)->first();
 
         if (! $lastEvent) {
             return [

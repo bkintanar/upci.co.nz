@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Attendance;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use App\Filament\Resources\Attendances\AttendanceResource;
 
 class CategoryBreakdownWidget extends BaseWidget
 {
@@ -19,7 +19,8 @@ class CategoryBreakdownWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $lastEvent = Attendance::latest('date')->first();
+        // Scoped via the resource — see MainStatsWidget.
+        $lastEvent = AttendanceResource::getEloquentQuery()->latest('date')->first();
 
         if (! $lastEvent || $lastEvent->total === 0) {
             return [
