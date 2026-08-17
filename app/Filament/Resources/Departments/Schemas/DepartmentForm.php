@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Departments\Schemas;
 
-use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Support\Str;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
@@ -13,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Schemas\Components\Utilities\Get;
 
 class DepartmentForm
 {
@@ -45,6 +45,10 @@ class DepartmentForm
                         FileUpload::make('hero_image')
                             ->label('Hero Image')
                             ->image()
+                            // See GalleryItemForm — same disk and SVG constraints.
+                            ->disk('public')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                             ->directory('department-images')
                             ->maxSize(5120),
                         Grid::make(2)->schema([
