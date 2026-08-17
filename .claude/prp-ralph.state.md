@@ -1,5 +1,5 @@
 ---
-iteration: 23
+iteration: 24
 max_iterations: 40
 plan_path: ".claude/PRPs/plans/upci-nz-site-overhaul.plan.md"
 input_type: "plan"
@@ -835,3 +835,35 @@ structurally; nothing had changed chromatically. That gap was mine to have flagg
 #### Next unblocked
 T49 (department hues, type scale), T67 (calendar year hard-coded to 2026), T66 (`/about` live
 and fully hard-coded), T70 (drop the orphaned `gallery_items.department` column).
+
+### Iteration 23 — 2026-08-17
+
+#### Completed
+- **T67** (`5effcbe`) — calendar year derived from the events, not written into the copy
+
+#### Declined with reason
+- **T70 ⛔** — drop `gallery_items.department`. The task's premise is that T21's backfill gave
+  every row an owner, so the column is orphaned. It did not: the single gallery row carries
+  `"Apostolic Bible College"`, which is not a `departments` row — which is exactly why that row
+  became a general-gallery item. **That string is the only surviving record of what the
+  photograph is.** Dropping the column destroys it. Safe to remove once ABC has a model of its
+  own, or the client confirms the label is disposable.
+
+#### Validation
+Lint PASS · Build PASS · Tests **102 passed (246 assertions)** · both year states
+browser-verified
+
+#### Learnings
+- A year written into prose is a dated assertion with no expiry. Derive it, and **omit it when
+  the data cannot support it** — a calendar with no events should not name a year.
+- A "safe to drop, nothing consumes it" task deserves checking what the column still *holds*,
+  not just who reads it. Orphaned by code is not the same as empty of meaning.
+
+#### Still blocked on the user
+1. Homepage direction — D1 / D2 / D3
+2. **Do conference or congregation photographs exist?**
+
+#### Next unblocked
+T66 (`/about` live, routed, fully hard-coded), T49 (department hues — my palette pass
+deliberately left the six theme colours alone because collapsing them into green made two
+departments identical), T50/T51 spikes.

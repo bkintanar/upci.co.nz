@@ -443,10 +443,10 @@ Time-boxed. Do them **early** — both can invalidate downstream work if they fa
 |---|---|---|
 | T65 | **Seed the three region intros / logos as editable content** | The **only** item in the deleted §6 with no T-number. Sequence after T13 (columns exist) and before T38 (`Region.vue` consumes them). Ships §15 placeholders where copy is absent |
 | T66 | Convert `/about` to a CMS page | G7 — it is **live and routed** (`routes.js:8-11`) and 100% hard-coded, unlike the unrouted `views/about/*.vue` dead files. Identified in §11.1 and never tasked |
-| T67 | Derive the calendar year from data | G12 — `Events.vue:7` hard-codes "2026 National Calendar"; stale on 1 Jan 2027 |
+| T67 ✅ | Derive the calendar year from data | G12 — `Events.vue:7` hard-codes "2026 National Calendar"; stale on 1 Jan 2027 |
 | T68 | Footer copyright + the three `href="#"` legal links into site settings | G3/G4 — **and add the columns to §3.1's `site_settings` schema**, which currently has none for them |
 | T69 | Extend the department colour family from **6 to 8** for SBQ/JBQ, **or** decide they share the Youth tint | D8 creates 8 departments; §13.7 says the palette holds exactly 6 and "has run out of room". Colour lives in **three** places that must change together (§11.4) — miss one and hero gradients silently fall back to blue |
-| T70 | Drop the orphaned `gallery_items.department` column once T21's backfill is verified | §3.5 says "drop in a later migration"; no task ever did. T22 removes its only consumer, leaving it permanently orphaned |
+| T70 ⛔ | Drop the orphaned `gallery_items.department` column once T21's backfill is verified | §3.5 says "drop in a later migration"; no task ever did. T22 removes its only consumer, leaving it permanently orphaned |
 | T71 | Apply §14.3's copy fix and enforce §14.2's "must NOT be built" constraints in review | Both are concrete requirements with no owner. §14.2 needs a checklist line, not just prose |
 
 ### Corrections to earlier gradings
