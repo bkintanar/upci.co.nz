@@ -435,7 +435,7 @@ Time-boxed. Do them **early** — both can invalidate downstream work if they fa
 | T61 ✅ | **Req 4 — an actual ABC inspect/fix task.** T43 (blocked) + T49 (a grid tweak) cover ~15% of a requirement asking for layout, responsive behaviour, CMS content, missing sections, broken links and visual inconsistencies | The enrollment page is the only one unedited since seeding — its CMS content is still placeholder, and nothing addresses that |
 | T62 ✅ | **Sanitise or clean announcement content** (§13.8) | Real rows contain emoji-heavy Facebook copy and raw `<iframe>` inside broken markdown, rendered via `v-html` at `Department.vue:56`. This is req 6's display logic |
 | T63 ✅ | **Audit the existing public API surface for auth/throttle** | The plan gates only the *new* resources. This is how the unauthenticated church DELETE survived every earlier pass — it never reached a policy |
-| T64 | **Split T36.** It carries seven clauses across four sub-requirements, in a plan whose stated standard is "every task is independently completable" | Also reword **T41** to name the shared component (`CmsPage.vue:117-131`) — req 3b's whole point is fixing it in the shared component, and the task text doesn't say so |
+| T64 ⛔ | **Split T36.** It carries seven clauses across four sub-requirements, in a plan whose stated standard is "every task is independently completable" | Also reword **T41** to name the shared component (`CmsPage.vue:117-131`) — req 3b's whole point is fixing it in the shared component, and the task text doesn't say so |
 
 ### Block I — Rescued from the deleted §6, plus untasked findings
 
@@ -447,7 +447,7 @@ Time-boxed. Do them **early** — both can invalidate downstream work if they fa
 | T68 ✅ | Footer copyright + the three `href="#"` legal links into site settings | G3/G4 — **and add the columns to §3.1's `site_settings` schema**, which currently has none for them |
 | T69 | Extend the department colour family from **6 to 8** for SBQ/JBQ, **or** decide they share the Youth tint | D8 creates 8 departments; §13.7 says the palette holds exactly 6 and "has run out of room". Colour lives in **three** places that must change together (§11.4) — miss one and hero gradients silently fall back to blue |
 | T70 ⛔ | Drop the orphaned `gallery_items.department` column once T21's backfill is verified | §3.5 says "drop in a later migration"; no task ever did. T22 removes its only consumer, leaving it permanently orphaned |
-| T71 | Apply §14.3's copy fix and enforce §14.2's "must NOT be built" constraints in review | Both are concrete requirements with no owner. §14.2 needs a checklist line, not just prose |
+| T71 ✅ | Apply §14.3's copy fix and enforce §14.2's "must NOT be built" constraints in review | Both are concrete requirements with no owner. §14.2 needs a checklist line, not just prose |
 
 ### Corrections to earlier gradings
 
@@ -891,3 +891,23 @@ built from it, so blanking degrades the listing twice over. Correcting it is cli
 
 **T65 ◐** — presbyters linked from the leadership page. Region intros and logos deliberately
 not invented: an intro is a message *from* a region.
+
+**T71 ✅** — both halves.
+
+*§14.2 enforcement:* audited the shipped surfaces for copy or layout implying the regions
+partition the country geographically. Frontend source, CMS page content and region records are
+all clean. "South Island" appears once, as an event *venue* in the 2026 calendar — that
+describes where a thing happens, not what a region is, and it is the client's own wording.
+
+*§14.3 copy:* reworded in `B2-coverage-screens.html`. The plan quoted the line as "organised
+across the Northern, Central and Southern regions of New Zealand"; it actually read "Ten
+churches across …". The complaint held regardless — the trailing "of New Zealand" attaches the
+region names to the country's geography — so it now reads "Ten churches, organised into three
+regions". The phrase existed only in that demo, never in shipped code or CMS content.
+
+**T64 ⛔ — obsolete.** It asks to split T36 into independently completable pieces. T36 is
+finished (`9705468` and `ea347d8`): the locator moved to the organisational region axis, the
+map gained NZ bounds and a capped fit, churches group by region, "More info" is explicit, and
+the `window.selectChurchFromMap` global is gone. Splitting a completed task produces
+bookkeeping, not work. The observation was sound when written — it was a genuinely overloaded
+task — and is recorded here for whoever writes the next plan.
