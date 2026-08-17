@@ -1,7 +1,8 @@
 # Implementation Report — UPCI NZ site overhaul
 
 **Plan**: `.claude/PRPs/plans/upci-nz-site-overhaul.plan.md` (72 tasks)
-**Branch**: `main` — 65 commits, all fast-forward, no merge commits
+**Branch**: `main` — 90 commits (69 substantive, 21 ralph progress-tracking), all fast-forward,
+no merge commits
 **Date**: 2026-08-17
 **Status**: **PAUSED ON DECISIONS** — 60 done · 2 partial · 3 declined with reasons · 7 remaining
 
