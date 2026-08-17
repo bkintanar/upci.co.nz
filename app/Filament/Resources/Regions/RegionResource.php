@@ -13,6 +13,7 @@ use App\Filament\Resources\Regions\Pages\EditRegion;
 use App\Filament\Resources\Regions\Pages\ListRegions;
 use App\Filament\Resources\Regions\Schemas\RegionForm;
 use App\Filament\Resources\Regions\Tables\RegionsTable;
+use App\Filament\Resources\Shared\GalleryItemsRelationManager;
 
 /**
  * Regions are a fixed taxonomy (Northern, Central, Southern), so there is no
@@ -53,6 +54,13 @@ class RegionResource extends Resource
         }
 
         return $query;
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            GalleryItemsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

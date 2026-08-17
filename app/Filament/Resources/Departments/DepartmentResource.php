@@ -13,6 +13,7 @@ use App\Filament\Resources\Departments\Pages\ViewDepartment;
 use App\Filament\Resources\Departments\Pages\ListDepartments;
 use App\Filament\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Resources\Departments\Schemas\DepartmentForm;
+use App\Filament\Resources\Shared\GalleryItemsRelationManager;
 use App\Filament\Resources\Departments\Tables\DepartmentsTable;
 use App\Filament\Resources\Departments\Schemas\DepartmentInfolist;
 use App\Filament\Resources\Departments\RelationManagers\EventsRelationManager;
@@ -46,6 +47,7 @@ class DepartmentResource extends Resource
         return [
             AnnouncementsRelationManager::class,
             EventsRelationManager::class,
+            GalleryItemsRelationManager::class,
         ];
     }
 

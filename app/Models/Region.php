@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Region extends Model
 {
@@ -38,5 +39,14 @@ class Region extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Gallery items belonging to this region. Shares one GalleryItem model with
+     * departments, regions and the general gallery (requirement 2).
+     */
+    public function galleryItems(): MorphMany
+    {
+        return $this->morphMany(GalleryItem::class, 'galleryable');
     }
 }

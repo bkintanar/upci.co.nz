@@ -98,3 +98,37 @@ test('the morph relation resolves back to the owning model', function () {
         ->and($this->deptItem->galleryable->slug)->toBe('youth')
         ->and($this->generalItem->galleryable)->toBeNull();
 });
+
+test('a regional user manages their own region gallery only', function () {
+    $user = App\Models\User::create([
+        'name' => 'P', 'email' => 'p'.uniqid().'@x', 'password' => 'x',
+        'role' => App\Enums\UserRole::SENIOR_PASTOR,
+        'access_level' => App\Enums\AccessLevel::REGIONAL,
+        'region_id' => $this->north->id,
+    ]);
+
+    $otherRegion = Region::firstOrCreate(['slug' => 'southern'], ['name' => 'Southern Region', 'sort_order' => 3]);
+    $otherItem = GalleryItem::create([
+        'title' => 'Southern shot', 'image_path' => 'gallery/e.jpg', 'is_published' => true,
+        'galleryable_type' => 'region', 'galleryable_id' => $otherRegion->id,
+    ]);
+
+    expect($user->can('update', $this->regionItem))->toBeTrue()
+        ->and($user->can('update', $otherItem))->toBeFalse()
+        // A department gallery is not theirs; no user is scoped to a department.
+        ->and($user->can('update', $this->deptItem))->toBeFalse()
+        // The general gallery stays national.
+        ->and($user->can('update', $this->generalItem))->toBeFalse();
+});
+
+test('a local user manages no gallery at all', function () {
+    $user = App\Models\User::create([
+        'name' => 'L', 'email' => 'l'.uniqid().'@x', 'password' => 'x',
+        'role' => App\Enums\UserRole::SENIOR_PASTOR,
+        'access_level' => App\Enums\AccessLevel::LOCAL,
+        'region_id' => $this->north->id,
+    ]);
+
+    expect($user->can('viewAny', GalleryItem::class))->toBeFalse()
+        ->and($user->can('update', $this->regionItem))->toBeFalse();
+});

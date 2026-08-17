@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Department extends Model
 {
@@ -39,5 +40,14 @@ class Department extends Model
     public function events(): HasMany
     {
         return $this->hasMany(Event::class);
+    }
+
+    /**
+     * Gallery items belonging to this department. Shares one GalleryItem model with
+     * departments, regions and the general gallery (requirement 2).
+     */
+    public function galleryItems(): MorphMany
+    {
+        return $this->morphMany(GalleryItem::class, 'galleryable');
     }
 }
