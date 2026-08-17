@@ -106,22 +106,9 @@
                 </div>
             </section>
 
-            <!-- Gallery -->
-            <section v-if="region.gallery.length" class="py-16 bg-slate-50">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 class="text-2xl font-bold text-slate-900 mb-8">Gallery</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        <figure v-for="item in region.gallery" :key="item.id"
-                                class="rounded-xl overflow-hidden border border-slate-200 bg-white">
-                            <img :src="item.image_url" :alt="item.title || ''" loading="lazy"
-                                 class="w-full h-48 object-cover">
-                            <figcaption v-if="item.title" class="p-3 text-sm text-slate-600">
-                                {{ item.title }}
-                            </figcaption>
-                        </figure>
-                    </div>
-                </div>
-            </section>
+            <!-- Same grid the department pages use. Items come from this
+                 page's own payload, so it is passed in rather than refetched. -->
+            <GalleryGrid :preloaded="region.gallery" heading="Gallery" />
         </template>
     </div>
 </template>
@@ -130,9 +117,11 @@
 import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { marked } from 'marked'
+import GalleryGrid from '../components/GalleryGrid.vue'
 
 export default defineComponent({
     name: 'Region',
+    components: { GalleryGrid },
     setup() {
         const route = useRoute()
         const region = ref(null)

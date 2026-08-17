@@ -22,9 +22,13 @@
                 ></div>
                 <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
                     <div class="text-center">
+                        <!-- Requirement 1b: the department's own mark, falling
+                             back to the site logo. Not all six departments have
+                             a logo, and an absent one should read as the parent
+                             brand rather than as a gap. -->
                         <img
-                            v-if="department.logo_path"
-                            :src="imageUrl(department.logo_path)"
+                            v-if="departmentLogo"
+                            :src="departmentLogo"
                             :alt="`${department.name} logo`"
                             class="h-24 md:h-32 w-auto mx-auto mb-8 drop-shadow-lg"
                         />
@@ -91,14 +95,18 @@
                     <div v-else class="text-center text-slate-500">No upcoming events.</div>
                 </div>
             </section>
+            <!-- Requirement 2a: department gallery, through the shared grid. -->
+            <GalleryGrid :department="department.slug" heading="Gallery" />
         </template>
     </div>
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, watch } from 'vue'
+import { defineComponent, ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { marked } from 'marked'
+import GalleryGrid from '../components/GalleryGrid.vue'
+import { useSiteSettings } from '../composables/useSiteSettings'
 
 const THEME_CLASSES = {
     blue: 'bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900',
@@ -111,7 +119,9 @@ const THEME_CLASSES = {
 
 export default defineComponent({
     name: 'Department',
+    components: { GalleryGrid },
     setup() {
+        const { settings } = useSiteSettings()
         const route = useRoute()
         const department = ref(null)
         const loading = ref(true)
@@ -156,12 +166,19 @@ export default defineComponent({
             }
         }
 
+        // Falls back to the site header logo when a department has none.
+        const departmentLogo = computed(() => {
+            if (department.value?.logo_path) return imageUrl(department.value.logo_path)
+            if (settings.value?.header_logo_url) return settings.value.header_logo_url
+            return null
+        })
+
         onMounted(() => fetchDepartment(route.params.slug))
         watch(() => route.params.slug, (slug) => {
             if (slug) fetchDepartment(slug)
         })
 
-        return { department, loading, error, formatDate, renderMarkdown, heroClasses, imageUrl }
+        return { department, loading, error, formatDate, renderMarkdown, heroClasses, imageUrl, departmentLogo }
     }
 })
 </script>
