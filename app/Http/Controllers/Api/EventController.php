@@ -59,6 +59,10 @@ class EventController extends Controller
             'name' => $event->name,
             'slug' => $event->slug,
             'description' => $event->description,
+            // Published as a bare disk-relative path, matching every other image
+            // field in this API. The client resolves it, so a stored path stays
+            // portable across domains and disks.
+            'image_path' => $event->image_path,
             'start_date' => $event->start_date->format('Y-m-d'),
             'end_date' => $event->end_date?->format('Y-m-d'),
             'location' => $event->location,

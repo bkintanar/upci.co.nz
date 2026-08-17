@@ -12,6 +12,7 @@ class Event extends Model
         'name',
         'slug',
         'description',
+        'image_path',
         'start_date',
         'end_date',
         'location',

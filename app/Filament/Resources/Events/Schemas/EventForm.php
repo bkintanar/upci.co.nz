@@ -11,6 +11,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 
 class EventForm
 {
@@ -23,6 +24,20 @@ class EventForm
                         TextInput::make('name')->required()->maxLength(255),
                         TextInput::make('slug')->required()->maxLength(255)->unique(ignoreRecord: true),
                         Textarea::make('description')->rows(4),
+
+                        // ->disk('public') is not optional here. FILESYSTEM_DISK
+                        // is `local` in this project's .env, so a FileUpload that
+                        // does not name its disk writes into private storage and
+                        // the image 404s on the public site — a defect this
+                        // codebase has already shipped once.
+                        FileUpload::make('image_path')
+                            ->label('Event artwork')
+                            ->image()
+                            ->disk('public')
+                            ->directory('events')
+                            ->imageEditor()
+                            ->maxSize(4096)
+                            ->helperText('Optional promotional flyer. The calendar shows it as a thumbnail beside the event; events without artwork simply omit it, so there is no need to invent one.'),
                         Grid::make(2)->schema([
                             DatePicker::make('start_date')->required(),
                             DatePicker::make('end_date'),

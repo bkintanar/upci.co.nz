@@ -1,40 +1,64 @@
 <template>
-    <div class="py-12 bg-slate-50 min-h-screen">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10">
-                <h1 class="text-4xl font-bold text-slate-900 mb-3">Calendar of Events</h1>
+    <!-- Direction E2, "wide agenda" (client-approved 2026-08-17). The page was a
+         narrow centred column on a 1440 viewport, which left the calendar looking
+         like a memo while two thirds of the screen sat empty. It now uses the
+         page, and the month rule runs the full width so the year reads as a
+         structure rather than a stack. -->
+    <div class="py-12 bg-brand-paper min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Left-aligned, not centred: this is a reference document people
+                 scan for a date, not a poster. -->
+            <div class="mb-10 pb-6 border-b-2 border-brand-green-700">
+                <h1 class="text-4xl md:text-5xl font-bold text-brand-ink mb-3">Calendar of Events</h1>
                 <!-- The year was written into the copy, so this page would have
                      announced "2026" throughout 2027 and every year after. It is
                      read from the events themselves now, and omitted entirely
                      when there are none rather than stating a year on faith. -->
-                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                <p class="text-lg text-brand-grey-600 max-w-3xl">
                     UPCI New Zealand<template v-if="calendarYears"> — {{ calendarYears }} National Calendar</template>.
                     General Conference, Annual Ministers Meeting, department events, and more.
                 </p>
             </div>
 
-            <div v-if="loading" class="text-center py-20">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green-700"></div>
-                <p class="mt-4 text-slate-600">Loading events...</p>
+            <!-- Scope filter. Rendered ONLY when more than one scope is actually
+                 present in the data. Every one of the 49 events is currently
+                 `national` with no region, so shipping a National/Regional
+                 control today would offer a tab that is permanently empty — a
+                 filter that finds nothing is worse than no filter. This appears
+                 by itself the moment regional events exist. -->
+            <div v-if="!loading && !error && scopes.length > 1" class="flex flex-wrap gap-2 mb-8">
+                <button
+                    v-for="s in scopes" :key="s.key" type="button"
+                    @click="activeScope = s.key"
+                    :class="activeScope === s.key
+                        ? 'bg-brand-green-700 text-white border-brand-green-700'
+                        : 'bg-white text-brand-ink border-brand-grey-200 hover:border-brand-green-700'"
+                    class="px-4 py-2 text-sm font-semibold border transition-colors"
+                >{{ s.label }} <span class="opacity-70">({{ s.count }})</span></button>
             </div>
 
-            <div v-else-if="error" class="text-center py-20 text-red-600">
+            <div v-if="loading" class="text-center py-20">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green-700"></div>
+                <p class="mt-4 text-brand-grey-600">Loading events...</p>
+            </div>
+
+            <div v-else-if="error" class="text-center py-20 text-brand-error">
                 {{ error }}
             </div>
 
-            <div v-else-if="!events.length" class="text-center py-20 text-slate-500">
+            <div v-else-if="!visibleEvents.length" class="text-center py-20 text-brand-grey-600">
                 No upcoming events at the moment. Check back soon.
             </div>
 
             <div v-else class="space-y-10">
                 <section v-for="group in groupedEvents" :key="group.monthKey">
                     <header
-                        class="sticky top-28 z-10 bg-slate-50/95 backdrop-blur py-3 mb-4 border-b-2 border-slate-200 flex items-baseline gap-3"
+                        class="sticky top-28 z-10 bg-brand-paper/95 backdrop-blur py-3 mb-4 border-b-2 border-brand-grey-200 flex items-baseline gap-3"
                     >
-                        <h2 class="text-sm font-bold uppercase tracking-widest text-slate-700">
+                        <h2 class="text-sm font-bold uppercase tracking-widest text-brand-ink">
                             {{ group.monthLabel }}
                         </h2>
-                        <span class="text-xs text-slate-400">
+                        <span class="text-xs text-brand-grey-400">
                             {{ group.items.length }} event<template v-if="group.items.length !== 1">s</template>
                         </span>
                     </header>
@@ -43,7 +67,7 @@
                         <article
                             v-for="event in group.items"
                             :key="event.id"
-                            class="flex gap-4 sm:gap-6 rounded-xl shadow-sm border overflow-hidden transition-shadow hover:shadow-md"
+                            class="flex gap-4 sm:gap-6 border overflow-hidden transition-colors"
                             :class="statusClasses(event).card"
                         >
                             <!-- Date block -->
@@ -63,6 +87,23 @@
                                     </template>
                                 </div>
                                 <div class="text-[10px] opacity-80 mt-0.5">{{ yearFrom(event.start_date) }}</div>
+                            </div>
+
+                            <!-- Event artwork, where it exists. The client confirmed
+                                 flyers exist for most events; this is where they
+                                 land. Hidden below `sm` so a phone gets the
+                                 schedule rather than a column of thumbnails, and
+                                 omitted entirely when there is no artwork — an
+                                 event without a flyer is a normal event, so it
+                                 gets no placeholder box pretending otherwise. -->
+                            <div
+                                v-if="event.image_path"
+                                class="hidden sm:block flex-shrink-0 self-stretch w-28 lg:w-40 bg-brand-grey-200"
+                            >
+                                <img
+                                    :src="imageUrl(event.image_path)" :alt="''" loading="lazy"
+                                    class="w-full h-full object-cover"
+                                >
                             </div>
 
                             <!-- Right content -->
@@ -87,7 +128,7 @@
                                         </svg>
                                         {{ formatDateRange(event) }}
                                     </span>
-                                    <span v-if="event.location" class="inline-flex items-center gap-1.5 text-slate-600">
+                                    <span v-if="event.location" class="inline-flex items-center gap-1.5 text-brand-grey-600">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -96,7 +137,7 @@
                                     </span>
                                 </div>
 
-                                <p v-if="event.description" class="mt-2 text-sm text-slate-600 line-clamp-2">
+                                <p v-if="event.description" class="mt-2 text-sm text-brand-grey-600 line-clamp-2">
                                     {{ event.description }}
                                 </p>
 
@@ -188,9 +229,45 @@ export default defineComponent({
             return `${d1} – ${d2}`
         }
 
+        // Matches CmsPage's resolver: the API publishes a bare disk-relative
+        // path, so a stored value stays portable across domains and disks.
+        const imageUrl = (path) => {
+            if (!path) return ''
+            if (path.startsWith('http')) return path
+            return `/storage/${path}`
+        }
+
+        const activeScope = ref('all')
+
+        // Built from the data, never hard-coded. The plan's anti-requirement
+        // watch forbids hard-coded region names in resources/js, and a fixed
+        // National/Regional pair would also be a lie whenever one side is empty.
+        const scopes = computed(() => {
+            const counts = new Map()
+            for (const ev of events.value) {
+                const key = ev.region?.slug || ev.scope || 'national'
+                const label = ev.region?.name || (ev.scope === 'national' ? 'National' : ev.scope)
+                if (!counts.has(key)) counts.set(key, { key, label, count: 0 })
+                counts.get(key).count += 1
+            }
+            const list = [...counts.values()]
+
+            // A lone scope needs no filter — the caller checks length > 1.
+            return list.length > 1
+                ? [{ key: 'all', label: 'All events', count: events.value.length }, ...list]
+                : list
+        })
+
+        const visibleEvents = computed(() => {
+            if (activeScope.value === 'all') return events.value
+            return events.value.filter(
+                (ev) => (ev.region?.slug || ev.scope || 'national') === activeScope.value
+            )
+        })
+
         const groupedEvents = computed(() => {
             const groups = new Map()
-            for (const ev of events.value) {
+            for (const ev of visibleEvents.value) {
                 if (!ev.start_date) continue
                 const d = parseDate(ev.start_date)
                 const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
@@ -225,10 +302,17 @@ export default defineComponent({
 
         onMounted(fetchEvents)
 
+        // Everything the template touches must be listed here. A computed that
+        // is declared and not returned is silently undefined in the template —
+        // `groupedChurches` shipped exactly that way and left /find-church with
+        // zero church cards through several commits, because lint, tests and
+        // build all pass regardless.
         return {
             calendarYears,
             events, loading, error,
-            groupedEvents,
+            groupedEvents, visibleEvents,
+            scopes, activeScope,
+            imageUrl,
             statusClasses, deptChip, departmentLabel,
             dayNumber, monthAbbr, yearFrom,
             isMultiDay, sameMonth, formatDateRange,

@@ -32,19 +32,19 @@ export function eventStatusClasses(status) {
     switch (status) {
         case 'past':
             return {
-                card: 'bg-slate-50 border-slate-200 opacity-75',
-                date: 'text-slate-500',
-                title: 'text-slate-600',
-                chip: 'bg-slate-100 text-slate-500',
+                card: 'bg-brand-grey-200/40 border-brand-grey-200 opacity-75',
+                date: 'text-brand-grey-400',
+                title: 'text-brand-grey-600',
+                chip: 'bg-brand-grey-200/50 text-brand-grey-600',
                 pill: '',
                 pillLabel: '',
-                dateBlock: 'bg-slate-200 text-slate-500',
+                dateBlock: 'bg-brand-grey-200 text-brand-grey-600',
             }
         case 'live':
             return {
                 card: 'bg-white border-green-200 ring-2 ring-green-300',
                 date: 'text-green-700',
-                title: 'text-slate-900',
+                title: 'text-brand-ink',
                 chip: 'bg-green-100 text-green-800',
                 pill: 'inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-green-600 text-white',
                 pillLabel: 'Happening now',
@@ -54,7 +54,7 @@ export function eventStatusClasses(status) {
             return {
                 card: 'bg-white border-amber-200 ring-2 ring-amber-300',
                 date: 'text-amber-700',
-                title: 'text-slate-900',
+                title: 'text-brand-ink',
                 chip: 'bg-amber-100 text-amber-800',
                 pill: 'inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500 text-white',
                 pillLabel: 'This week',
@@ -63,9 +63,9 @@ export function eventStatusClasses(status) {
         case 'future':
         default:
             return {
-                card: 'bg-white border-slate-200',
+                card: 'bg-white border-brand-grey-200',
                 date: 'text-blue-700',
-                title: 'text-slate-900',
+                title: 'text-brand-ink',
                 chip: 'bg-blue-100 text-blue-800',
                 pill: '',
                 pillLabel: '',
