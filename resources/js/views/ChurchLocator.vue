@@ -278,7 +278,13 @@
                                 <h2 class="text-lg font-bold text-gray-900" id="modal-title">
                                     {{ selectedChurch.name }}
                                 </h2>
-                                <button type="button" @click="selectedChurch = null"
+                                <!-- Must close the DIALOG, not just clear the
+                                     selection. Setting selectedChurch = null
+                                     alone emptied the panel while the native
+                                     <dialog> stayed open, leaving the backdrop
+                                     on screen over a blank page. Left over from
+                                     the pre-Modal markup. -->
+                                <button type="button" @click="modalOpen = false"
                                         class="text-gray-400 hover:text-gray-600 transition-colors">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -376,6 +382,7 @@
 <script>
 // ChurchLocator.vue - Updated: 2025-10-12 00:45:00
 import Modal from '../components/Modal.vue'
+import { usePageMeta } from '../composables/usePageMeta'
 import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -402,6 +409,8 @@ L.Icon.Default.mergeOptions({
                 const searchQuery = ref('')
                 const selectedRegion = ref('')
                 const selectedServiceDays = ref([])
+                const { setPageMeta } = usePageMeta()
+                setPageMeta('Find a Church', 'Find your nearest UPCI church in New Zealand, by region or by name.')
                 const selectedChurch = ref(null)
                 const modalOpen = ref(false)
                 const mapContainer = ref(null)

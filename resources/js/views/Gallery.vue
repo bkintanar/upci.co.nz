@@ -49,12 +49,15 @@
 <script>
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import GalleryGrid from '../components/GalleryGrid.vue'
+import { usePageMeta } from '../composables/usePageMeta'
 
 export default defineComponent({
     name: 'Gallery',
     components: { GalleryGrid },
     setup() {
+        const { setPageMeta } = usePageMeta()
         const active = ref('all')
+        setPageMeta('Gallery', 'Photos from across UPCI New Zealand.')
         const departments = ref([])
         const regions = ref([])
         const loadingTabs = ref(true)

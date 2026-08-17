@@ -118,11 +118,13 @@ import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { marked } from 'marked'
 import GalleryGrid from '../components/GalleryGrid.vue'
+import { usePageMeta } from '../composables/usePageMeta'
 
 export default defineComponent({
     name: 'Region',
     components: { GalleryGrid },
     setup() {
+        const { setPageMeta } = usePageMeta()
         const route = useRoute()
         const region = ref(null)
         const loading = ref(true)
@@ -149,6 +151,7 @@ export default defineComponent({
                 const body = await res.json()
                 if (body.success && body.data) {
                     region.value = body.data
+                    setPageMeta(region.value.name, region.value.intro)
                 } else {
                     error.value = body.message || 'Region not found'
                 }

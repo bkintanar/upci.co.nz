@@ -68,10 +68,12 @@
 
 <script>
 import { defineComponent, ref, onMounted } from 'vue'
+import { usePageMeta } from '../composables/usePageMeta'
 
 export default defineComponent({
     name: 'Regions',
     setup() {
+        const { setPageMeta } = usePageMeta()
         const regions = ref([])
         const loading = ref(true)
         const error = ref(null)
@@ -84,6 +86,7 @@ export default defineComponent({
                 const body = await res.json()
                 if (body.success && body.data) {
                     regions.value = body.data
+                    setPageMeta('Regions', 'The three regions of UPCI New Zealand and the churches in each.')
                 } else {
                     error.value = body.message || 'Regions could not be loaded'
                 }

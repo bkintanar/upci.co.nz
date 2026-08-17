@@ -108,11 +108,13 @@ import { marked } from 'marked'
 import GalleryGrid from '../components/GalleryGrid.vue'
 import { useSiteSettings } from '../composables/useSiteSettings'
 import { departmentHeroClasses } from '../utils/theme'
+import { usePageMeta } from '../composables/usePageMeta'
 
 export default defineComponent({
     name: 'Department',
     components: { GalleryGrid },
     setup() {
+        const { setPageMeta } = usePageMeta()
         const { settings } = useSiteSettings()
         const route = useRoute()
         const department = ref(null)
@@ -149,6 +151,7 @@ export default defineComponent({
                 const body = await res.json()
                 if (body.success && body.data) {
                     department.value = body.data
+                    setPageMeta(department.value.name, department.value.description)
                 } else {
                     error.value = body.message || 'Department not found'
                 }

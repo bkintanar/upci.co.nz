@@ -202,11 +202,13 @@ import { marked } from 'marked';
 import { defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Modal from '../components/Modal.vue';
+import { usePageMeta } from '../composables/usePageMeta';
 
 export default defineComponent({
     name: 'CmsPage',
     components: { Modal },
     setup() {
+        const { setPageMeta } = usePageMeta()
         const route = useRoute()
         const page = ref(null)
         const person = ref(null)
@@ -233,6 +235,8 @@ export default defineComponent({
                 }
 
                 page.value = data.data
+
+                setPageMeta(page.value?.title, page.value?.meta_description)
             } catch (err) {
                 error.value = err.message
                 page.value = null

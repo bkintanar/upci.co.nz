@@ -33,15 +33,37 @@ test('the General Superintendent link is gone from the menu', function () {
 });
 
 test('SBQ and JBQ sit under Youth and Childrens', function () {
-    // Requirements 7 and 10.
+    // Requirements 7 and 10. Asserted on URL, not label: the labels carry the
+    // full programme name and are presentational, so pinning them here makes
+    // a wording change look like a broken menu.
     $section = collect($this->getJson('/api/menu/header')->json('data'))
         ->firstWhere('label', "Youth & Children's");
 
     expect($section)->not->toBeNull();
 
-    $children = collect($section['children'])->pluck('label');
+    expect(collect($section['children'])->pluck('url'))
+        ->toContain('/youth-and-childrens/sbq', '/youth-and-childrens/jbq');
+});
 
-    expect($children)->toContain('SBQ', 'JBQ');
+test('each quizzing programme is ordered to pair with its own ministry', function () {
+    // SBQ is a youth programme and JBQ a children's one. The navbar renders
+    // only two levels, so the pairing is carried by sort_order: Youth 10,
+    // SBQ 20, Children's 30, JBQ 40 — each quiz immediately after its ministry
+    // rather than both dumped at the end.
+    //
+    // Asserted on the sort_order VALUES rather than the rendered sequence: the
+    // two department rows come from a seeder that does not run under
+    // RefreshDatabase, so a sequence assertion would fail on their absence
+    // rather than on the ordering being wrong. These values are what makes the
+    // interleaving happen once the ministries are present.
+    $sbq = MenuItem::where('url', '/youth-and-childrens/sbq')->first();
+    $jbq = MenuItem::where('url', '/youth-and-childrens/jbq')->first();
+
+    expect($sbq->sort_order)->toBe(20)
+        ->and($jbq->sort_order)->toBe(40)
+        // Same parent, or they are not in one section at all.
+        ->and($sbq->parent_id)->toBe($jbq->parent_id)
+        ->and($sbq->parent_id)->not->toBeNull();
 });
 
 test('no destination appears twice in the header menu', function () {

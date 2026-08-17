@@ -143,6 +143,15 @@ export default defineComponent({
     height: 100%;
 }
 
+/* Scoped to [open]: setting display on the bare element would override the
+   UA's `dialog:not([open]) { display: none }` and leave the panel on screen
+   permanently. */
+.modal-dialog[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .modal-dialog::backdrop {
     background: rgb(15 19 15 / 0.6);
 }
@@ -155,7 +164,9 @@ export default defineComponent({
     width: calc(100% - 2rem);
     max-height: calc(100vh - 4rem);
     overflow-y: auto;
-    margin: 2rem auto;
+    /* auto on all sides so the flex parent centres it vertically as well as
+       horizontally. `2rem auto` pinned it to the top of the viewport. */
+    margin: auto;
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.35);
 }
 
