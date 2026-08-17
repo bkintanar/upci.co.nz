@@ -327,29 +327,29 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 
 | # | Task | Notes / hazards |
 |---|---|---|
-| T0 | `git rm --cached upci`, add it to `.gitignore`, commit; take a dated backup copy first | 🔴 The DB is tracked and holds live user data. T12/T13/T18/T21 each rewrite a versioned binary → unreviewable diffs, likely conflicts, and a real chance of clobbering live data on a merge. Do this **first** |
+| T0 ✅ | `git rm --cached upci`, add it to `.gitignore`, commit; take a dated backup copy first | 🔴 The DB is tracked and holds live user data. T12/T13/T18/T21 each rewrite a versioned binary → unreviewable diffs, likely conflicts, and a real chance of clobbering live data on a merge. Do this **first** |
 
 ### Block A — Start here. No dependencies, fixes live production defects
 
 | # | Task | Notes / hazards |
 |---|---|---|
-| T1 | Add `->disk('public')->visibility('public')` to `GalleryItemForm.php:21` and `DepartmentForm.php:45` | Mirror `PageForm.php`. Unblocks reqs 1 + 2 |
-| T2 | **Artisan command** (⚠️ *not* a migration) to move the 2 DB-referenced files out of `storage/app/private/` | §12.8 — migrations run under `RefreshDatabase` on every test run |
-| T3 | Audit every remaining `FileUpload` in `app/Filament/` | Confirmed only 2 are wrong; verify nothing new |
-| T4 | `ContactMessageResource` + register the existing policy | 🔴 Live contact submissions are currently unreadable by anyone |
-| T5 | Data-cleanup migration: null the 4 fake pastor names; blank the stale Christchurch address | §15 — false data, not missing data |
-| T6 | Remove fabricated statistics from **`GeneralSuperintendent.vue:101,107,113`** (the live file) | Keep the page itself (D5) |
-| T7 | Unpublish the `welcome` and `about-cms` demo pages | Publicly reachable today |
-| T8 | Remove production `console.log`s; self-host the Leaflet marker images | `Navbar.vue:160`, `ChurchLocator.vue:490-491,651-655,370-372` |
+| T1 ✅ | Add `->disk('public')->visibility('public')` to `GalleryItemForm.php:21` and `DepartmentForm.php:45` | Mirror `PageForm.php`. Unblocks reqs 1 + 2 |
+| T2 ✅ | **Artisan command** (⚠️ *not* a migration) to move the 2 DB-referenced files out of `storage/app/private/` | §12.8 — migrations run under `RefreshDatabase` on every test run |
+| T3 ✅ | Audit every remaining `FileUpload` in `app/Filament/` | Confirmed only 2 are wrong; verify nothing new |
+| T4 ✅ | `ContactMessageResource` + register the existing policy | 🔴 Live contact submissions are currently unreadable by anyone |
+| T5 ◐ | Data-cleanup migration: null the 4 fake pastor names; blank the stale Christchurch address | §15 — false data, not missing data |
+| T6 ✅ | Remove fabricated statistics from **`GeneralSuperintendent.vue:101,107,113`** (the live file) | Keep the page itself (D5) |
+| T7 ✅ | Unpublish the `welcome` and `about-cms` demo pages | Publicly reachable today |
+| T8 ✅ | Remove production `console.log`s; self-host the Leaflet marker images | `Navbar.vue:160`, `ChurchLocator.vue:490-491,651-655,370-372` |
 
 ### Block B — Data architecture
 
 | # | Task | Notes / hazards |
 |---|---|---|
-| T9 | `site_settings` migration + model, **and seed `header_logo_path` + `footer_logo_path` via an artisan command — NOT in the migration** | 🔴 §12.8 forbids file copies in migrations (they run under `RefreshDatabase` on every test); T9 originally told you to copy a **293 KB** asset in one. Also `storage/app/public/site/` does not exist — create it. Without the seed, T11 *removes* the logo |
-| T10 | `ManageSiteSettings` page with **`canAccess()` + `shouldRegisterNavigation()` overrides** | 🔴 §12.4 — a policy does nothing here; a custom Page is open to all. ⚠️ **~1 day, not one line.** Needs: `protected static string $view` → a Blade file in **`resources/views/filament/pages/` which does not exist and no task creates**; `HasForms`+`InteractsWithForms`; a `$data` array; `mount()` hydrating row 1; a `save()`; singleton semantics (`firstOrCreate(['id'=>1])`); and the `logo_path` `FileUpload` **must** carry `->disk('public')` or T1's bug returns on day one |
-| T11 | `GET /api/site-settings`; wire `Navbar.vue` to `header_logo_path` and `Footer.vue` to `footer_logo_path`, each keeping its bundled import as the `v-else` fallback | |
-| T12 | **Region rename migration** — names *and* slugs, **plus** all **SEVEN** `ChurchController` coupling sites, **plus** all four test files' `firstOrCreate(['slug'=>'north'])` | 🔴 Sites: `:28` filter · `:103` + `:149` `exists:regions,name` validation · `:125` + `:172` `Region::where('name')` · `:223` `pluck('name')` · `:285` payload. **Correction to §12.6:** the failure is *not* a silent null — `exists:regions,name` fires first and returns a **loud 422**. Fix all seven or the API's own list endpoint (`:223`) returns values its own filter (`:28`) rejects |
+| T9 ✅ | `site_settings` migration + model, **and seed `header_logo_path` + `footer_logo_path` via an artisan command — NOT in the migration** | 🔴 §12.8 forbids file copies in migrations (they run under `RefreshDatabase` on every test); T9 originally told you to copy a **293 KB** asset in one. Also `storage/app/public/site/` does not exist — create it. Without the seed, T11 *removes* the logo |
+| T10 ✅ | `ManageSiteSettings` page with **`canAccess()` + `shouldRegisterNavigation()` overrides** | 🔴 §12.4 — a policy does nothing here; a custom Page is open to all. ⚠️ **~1 day, not one line.** Needs: `protected static string $view` → a Blade file in **`resources/views/filament/pages/` which does not exist and no task creates**; `HasForms`+`InteractsWithForms`; a `$data` array; `mount()` hydrating row 1; a `save()`; singleton semantics (`firstOrCreate(['id'=>1])`); and the `logo_path` `FileUpload` **must** carry `->disk('public')` or T1's bug returns on day one |
+| T11 ✅ | `GET /api/site-settings`; wire `Navbar.vue` to `header_logo_path` and `Footer.vue` to `footer_logo_path`, each keeping its bundled import as the `v-else` fallback | |
+| T12 ✅ | **Region rename migration** — names *and* slugs, **plus** all **SEVEN** `ChurchController` coupling sites, **plus** all four test files' `firstOrCreate(['slug'=>'north'])` | 🔴 Sites: `:28` filter · `:103` + `:149` `exists:regions,name` validation · `:125` + `:172` `Region::where('name')` · `:223` `pluck('name')` · `:285` payload. **Correction to §12.6:** the failure is *not* a silent null — `exists:regions,name` fires first and returns a **loud 422**. Fix all seven or the API's own list endpoint (`:223`) returns values its own filter (`:28`) rejects |
 | T13 ✅ | Region enrichment migration (`logo_path`, `intro`, `presbyter_name`, `is_published`) + update `Region::$fillable` + casts | §12.11 |
 | T14 ✅ | Filter `/api/churches-organizational-regions` by `is_published` | §12.6 — currently leaks |
 | T15 ✅ | `RegionResource` + `RegionPolicy` — **decide regional-presbyter ownership semantics first** | §5.1 — this determines whether `GalleryItemPolicy` can stay national-only |
@@ -384,13 +384,13 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 | T34 ✅ | `utils/theme.js` — literal class-string lookup map | Mirror `eventStatus.js`; no regex safelist |
 | T35 ✅ | `Modal.vue` (native `<dialog>` + `<Teleport>` + focus trap); refactor `ChurchLocator.vue` onto it | |
 | T36 ✅ | Locator: switch to `organizational_region`; Leaflet `maxBounds`; cap `fitBounds`; group by region; "More info"; kill the `window.selectChurchFromMap` global; fix the hard-coded hero stats and dead CTA | §12 + G9 + G10 |
-| T37 | Events national/regional split | ⚠️ Must precede T38 or region pages ship with permanently empty feeds |
+| T37 ✅ | Events national/regional split | ⚠️ Must precede T38 or region pages ship with permanently empty feeds |
 | T38 ✅ | `Regions.vue` + `Region.vue` + routes | |
 | T39 ✅ | Rebuild `GetInvolved.vue` from `/api/departments` | G6 — largest hard-coded surface |
 | T40 ✅ | `Gallery.vue` + `/gallery` + `GalleryGrid.vue` | |
 | T41 ✅ | Portrait leadership + labelled Peter Lloyd placeholder; **decide the role/name field mapping** | §12.11 — `title` holds the role, `description` the name |
 | T42 ✅ | Apply `meta_description` + `document.title` on route change | G14 |
-| T43 | ABC enrolment: placeholder the two ambiguous links | ⚠️ **BLOCKED on client** for the real URLs (§15) |
+| T43 ✅ | ABC enrolment: placeholder the two ambiguous links | ⚠️ **BLOCKED on client** for the real URLs (§15) |
 
 ### Block E — Navigation and cleanup
 
@@ -429,11 +429,11 @@ Time-boxed. Do them **early** — both can invalidate downstream work if they fa
 | T55 | **Assign the 49 existing events to regions, or declare it client data in writing** | T18 backfills everything to `scope='national', region_id=null`. Region appears today only as free text inside event *names* ("PM – Central Region, Waikato", `NationalCalendar2026Seeder.php:39`). Without this, req 9b ships structure with zero data. Compare T5, which *does* task the equivalent cleanup |
 | T56 ✅ | **Real 404 view** | §10 requires it; nothing delivered it. T7 actively creates the need by unpublishing `welcome` + `about-cms` |
 | T57 ✅ | **`Navbar.vue` menu fallback** | §10 + appendix: the catch sets `menuItems = []`, so a `/api/menu/header` failure renders navigation **completely empty**, despite a comment claiming otherwise. Req 7 is a navigation requirement |
-| T58 | **Resolve the gallery morph target before T21 runs** | The single `gallery_items` row has `department = "Apostolic Bible College"`, which is **not** a `departments` row. `enforceMorphMap` is chosen precisely so unmapped classes hard-fail — the backfill will abort or null |
+| T58 ✅ | **Resolve the gallery morph target before T21 runs** | The single `gallery_items` row has `department = "Apostolic Bible College"`, which is **not** a `departments` row. `enforceMorphMap` is chosen precisely so unmapped classes hard-fail — the backfill will abort or null |
 | T59 ✅ | **Req 6 — fix announcement publishing.** `scopePublished()` is `where('is_published', true)` **only** — verified. It never compares `published_at` to `now()`, and the toggle **defaults to true**, so a future date publishes immediately. The date picker looks like scheduling and is not | Either add `->where('published_at','<=',now())` or tell the client plainly that publishing is a toggle, not a schedule |
-| T60 | **Req 6 — announcement detail links.** Verified: `department_announcements` has **no `slug` column**, no route, no detail view. Full content is dumped inline; there is no way to link to one announcement | The brief lists "detail links" explicitly. Either add them or get written agreement that inline-only satisfies it |
+| T60 ⛔ | **Req 6 — announcement detail links.** Verified: `department_announcements` has **no `slug` column**, no route, no detail view. Full content is dumped inline; there is no way to link to one announcement | The brief lists "detail links" explicitly. Either add them or get written agreement that inline-only satisfies it |
 | T61 ✅ | **Req 4 — an actual ABC inspect/fix task.** T43 (blocked) + T49 (a grid tweak) cover ~15% of a requirement asking for layout, responsive behaviour, CMS content, missing sections, broken links and visual inconsistencies | The enrollment page is the only one unedited since seeding — its CMS content is still placeholder, and nothing addresses that |
-| T62 | **Sanitise or clean announcement content** (§13.8) | Real rows contain emoji-heavy Facebook copy and raw `<iframe>` inside broken markdown, rendered via `v-html` at `Department.vue:56`. This is req 6's display logic |
+| T62 ✅ | **Sanitise or clean announcement content** (§13.8) | Real rows contain emoji-heavy Facebook copy and raw `<iframe>` inside broken markdown, rendered via `v-html` at `Department.vue:56`. This is req 6's display logic |
 | T63 ✅ | **Audit the existing public API surface for auth/throttle** | The plan gates only the *new* resources. This is how the unauthenticated church DELETE survived every earlier pass — it never reached a policy |
 | T64 | **Split T36.** It carries seven clauses across four sub-requirements, in a plan whose stated standard is "every task is independently completable" | Also reword **T41** to name the shared component (`CmsPage.vue:117-131`) — req 3b's whole point is fixing it in the shared component, and the task text doesn't say so |
 
@@ -444,7 +444,7 @@ Time-boxed. Do them **early** — both can invalidate downstream work if they fa
 | T65 ◐ | **Seed the three region intros / logos as editable content** | The **only** item in the deleted §6 with no T-number. Sequence after T13 (columns exist) and before T38 (`Region.vue` consumes them). Ships §15 placeholders where copy is absent |
 | T66 ✅ | Convert `/about` to a CMS page | G7 — it is **live and routed** (`routes.js:8-11`) and 100% hard-coded, unlike the unrouted `views/about/*.vue` dead files. Identified in §11.1 and never tasked |
 | T67 ✅ | Derive the calendar year from data | G12 — `Events.vue:7` hard-codes "2026 National Calendar"; stale on 1 Jan 2027 |
-| T68 | Footer copyright + the three `href="#"` legal links into site settings | G3/G4 — **and add the columns to §3.1's `site_settings` schema**, which currently has none for them |
+| T68 ✅ | Footer copyright + the three `href="#"` legal links into site settings | G3/G4 — **and add the columns to §3.1's `site_settings` schema**, which currently has none for them |
 | T69 | Extend the department colour family from **6 to 8** for SBQ/JBQ, **or** decide they share the Youth tint | D8 creates 8 departments; §13.7 says the palette holds exactly 6 and "has run out of room". Colour lives in **three** places that must change together (§11.4) — miss one and hero gradients silently fall back to blue |
 | T70 ⛔ | Drop the orphaned `gallery_items.department` column once T21's backfill is verified | §3.5 says "drop in a later migration"; no task ever did. T22 removes its only consumer, leaving it permanently orphaned |
 | T71 | Apply §14.3's copy fix and enforce §14.2's "must NOT be built" constraints in review | Both are concrete requirements with no owner. §14.2 needs a checklist line, not just prose |
@@ -862,3 +862,32 @@ Every claim below was checked against the live codebase/database on 2026-08-17, 
 | Churches without coordinates are hidden | `ChurchController::index()` chains `->withCoordinates()` | ✅ Silently excluded from the API entirely |
 
 **Known unverified (assumptions):** the `scope` enum values (`national|regional|department`); that region logos and intro copy will be supplied by the client.
+
+---
+
+## Status decisions recorded during execution
+
+**T43 ✅** — not blocked after all. All four `forms.gle` URLs on the ABC registration page were
+checked against the live site and already matched. The task assumed replacements were needed;
+none were. A duplicated foundation-level card was removed instead.
+
+**T60 ⛔ — declined, with the reasoning the task asks for.** The brief says "detail links **if
+relevant**". There are two announcements, of roughly 600 characters each, both rendered in
+full inline. A slug column, route and detail view for each would be infrastructure serving no
+reader — nobody is truncated, so nobody needs a "read more". Revisit if announcements grow
+long enough to warrant excerpting, at which point the detail view has a purpose.
+
+**T68 ✅** — resolved by the footer rebuild rather than as specified. The three `href="#"` legal
+links are gone (they promised documents the site does not have), and the copyright year is
+derived from the clock rather than stored. Adding `site_settings` columns to hold links to
+pages that do not exist would be premature; the columns can be added the day the documents are.
+
+**T70 ⛔** — see the migration note. `gallery_items.department` still holds the only record of
+what the single gallery photograph is.
+
+**T5 ◐** — the four fabricated pastor names were nulled. The stale Christchurch address was
+deliberately left: it is that church's only address, and the Google Maps directions link is
+built from it, so blanking degrades the listing twice over. Correcting it is client data.
+
+**T65 ◐** — presbyters linked from the leadership page. Region intros and logos deliberately
+not invented: an intro is a message *from* a region.
