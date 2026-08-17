@@ -362,3 +362,47 @@ are present and distinct. Two (Matika, Lloyd) are landscape/square originals, wh
 #### Next
 Requirement 6 (announcements) is the last untouched requirement. Then T39, T42, and the
 Direction B rollout (T32, T45–T49, spikes).
+
+### Iteration 8 — 2026-08-17
+
+#### Completed
+- **Requirement 6 — announcements** (`e83e24e`). This was the last untouched requirement.
+
+#### Validation
+Lint PASS · Build PASS · Tests **91 passed (218 assertions)** · browser-verified
+
+#### The real defect
+`published_at` gated nothing. `scopePublished()` checked only `is_published`, so an
+announcement dated a year out went live on save. Proven by creating a 2027-dated row and
+watching it appear on the public API. Null is treated as "no schedule", which preserves
+existing rows.
+
+#### What I got wrong, and how it surfaced
+I also claimed `sort_order` was ignored and changed the controller. **It was never ignored** —
+`Department::announcements()` applies `orderBy('sort_order')` at the RELATION level. The
+revert test could not be made to fail, which is what exposed the false claim. Redundant
+change reverted; the test kept as characterisation with a corrected comment.
+
+**This is the second time in two iterations that the failability check caught something.**
+Once a shipped regression, once a false claim. Reverting a fix and confirming the test breaks
+is not ceremony — it is the only thing separating a real test from a decorative one.
+
+#### Learnings
+- **Check the relation before blaming the controller.** Eloquent relations can carry
+  `orderBy`/`where` that make controller-level clauses redundant. `grep "function <relation>"`
+  on the model first.
+- A test that passes with the fix reverted is not evidence of anything. Treat an unfailing
+  revert as a signal the diagnosis is wrong, not that the test is fine.
+- Attribute console errors before claiming them. The one on department pages is Facebook's
+  SDK from an embedded `plugins/post.php` iframe — it is absent on pages with no iframes.
+- Broad DOM selectors overcount: `document.querySelectorAll('article')` returned 4 on a page
+  with one announcement. Scope to the section.
+
+#### Requirement status — all 11 now addressed
+1 ✅ · 2 ✅ · 3 ✅ · 4 ✅ · 5 ✅ · 6 ✅ · 7 ✅ · 8 ✅ · 9 ✅ backend (data is T55) · 10 ✅ · 11 ✅
+
+#### Next
+Remaining work is refinement, not requirements: T39 (rebuild `GetInvolved.vue` from
+`/api/departments`), T42 (meta/title on route change), T26–T31 (CMS block library), then the
+Direction B rollout (T32, T45–T49) and spikes T50/T51. **T46 also fixes the nine-item navbar
+crowding.**
