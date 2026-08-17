@@ -396,7 +396,7 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 
 | # | Task | Notes / hazards |
 |---|---|---|
-| T44 | Seed `location='footer'` menu rows, **then** the menu migration (all nav changes at once, renumber the `sort_order` collision), **then** the footer rebuild — social links, remove both Twitter variants + Pinterest, delete dead components (keep `GeneralSuperintendent.vue`) | ⚠️ Order within this task matters: seeding must precede wiring or the footer renders empty (G1) |
+| T44 ✅ | Seed `location='footer'` menu rows, **then** the menu migration (all nav changes at once, renumber the `sort_order` collision), **then** the footer rebuild — social links, remove both Twitter variants + Pinterest, delete dead components (keep `GeneralSuperintendent.vue`) | ⚠️ Order within this task matters: seeding must precede wiring or the footer renders empty (G1) |
 
 ### Block F — Design system (was gated; resolved by D11–D13)
 

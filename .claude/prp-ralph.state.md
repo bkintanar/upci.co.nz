@@ -223,3 +223,48 @@ T35 (`Modal.vue` + refactor the locator modal onto it, finishing T36), T39 (rebu
 `GetInvolved.vue` from `/api/departments`), T41 (portrait leadership + modal — requirement 3),
 T44 (all navigation changes at once: Gallery, Regions, SBQ/JBQ, remove General Superintendent,
 remove Twitter/X — requirements 7, 8, 10).
+
+### Iteration 5 — 2026-08-17
+
+#### Completed
+- **T44** (`9cec55c`) — the whole navigation pass: requirements **7, 8 and 10** in one commit,
+  plus the footer rebuild
+
+#### Validation
+Lint PASS · Build PASS · Tests **85 passed (208 assertions)** · migration up/down clean on a
+scratch DB · full suite unchanged at 16 pre-existing failures
+
+#### What was actually wrong
+- **Gallery** was a child of About pointing at `/departments#gallery` — an anchor on a
+  different page, not a gallery.
+- **sort_order collided**: Find a Church and Apostolic Bible College were both `3`, so the
+  order depended on insertion, not intent. Renumbered 10..90.
+- **Zero `location='footer'` rows existed.** Seeding had to precede wiring or the footer
+  would render empty (the plan's G1 warning, confirmed).
+- **Requirement 8 had no Twitter link to delete.** The footer's three social icons were
+  hard-coded with `href="#"` — two Twitter bird variants and a Pinterest, none live. Fixed at
+  the settings level as the requirement asks, so there is no Twitter entry to render.
+- Privacy Policy / Terms / Cookie Policy were three more `href="#"` dead ends for pages that
+  do not exist. Removed.
+- **SBQ and JBQ existed nowhere** — only inside event NAMES in the 2026 calendar seeder. Both
+  now have a menu position, route and page, with explicitly placeholder copy.
+
+#### Learnings
+- **A test asserting on seeder-created rows passes vacuously under `RefreshDatabase`.** The
+  "moved not duplicated" test found 0 rows, not 2, because department menu rows come from a
+  seeder that does not run in tests. Rewritten as "no URL appears twice in the header", which
+  holds on an empty table AND catches any future duplicate. Verified the real move separately
+  on the dev DB.
+- The menu endpoints are **`/api/menu/header`** and **`/api/menu/footer`** — not a
+  `?location=` filter. I assumed the latter and it silently returned the SPA HTML shell.
+
+#### Known consequence, flagged not hidden
+The header is now **nine top-level items**, up from six. This worsens the pre-existing navbar
+crowding (measured at 169px back at `010186e`, with the ORIGINAL logo — it was never
+self-inflicted). **T46's two-row header is the fix.** Withholding items requirement 7 asks
+for would not have been the right trade.
+
+#### Next
+T35 (`Modal.vue`, finishing T36) then T41 — together these are requirement 3, the leadership
+modal and portrait images. Then T39 (rebuild `GetInvolved.vue` from `/api/departments`),
+T42 (meta/title on route change), and requirement 6 (announcements).
