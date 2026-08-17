@@ -24,11 +24,11 @@
              itself at the root, and the title band only appears when the page
              has no hero of its own, so neither duplicates existing content. -->
         <Breadcrumb v-if="page" :current="page.title" />
-        <PageHeader v-if="page && !hasHero" :title="pageTitle" :lede="page.meta_description" />
+        <PageHeader v-if="page && !hasHero && !isHome" :title="pageTitle" :lede="page.meta_description" />
 
         <!-- Only on pages long enough to need it: a two-section page does not
              benefit from an index of itself. -->
-        <div v-if="contentsItems.length >= 3" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div v-if="contentsItems.length >= 3 && !isHome" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Contents :items="contentsItems" />
         </div>
 
@@ -262,6 +262,11 @@ export default defineComponent({
         const page = ref(null)
         // A page with its own hero already states what it is; adding the
         // title band on top would say it twice.
+        // The homepage is a TASK page in Direction B — its hero is the church
+        // finder, not a title. A title band and a table of contents both belong
+        // to documents, and neither suits the front door.
+        const isHome = computed(() => route.path === '/')
+
         const hasHero = computed(() => (page.value?.content || []).some((b) => b.type === 'hero'))
 
         // The CMS titles carry a site-name suffix for the browser tab; the
@@ -503,6 +508,7 @@ export default defineComponent({
 
         return {
             hasHero,
+            isHome,
             contentsItems,
             sectionId,
             pageTitle,
