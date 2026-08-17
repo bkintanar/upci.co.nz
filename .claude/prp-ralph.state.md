@@ -796,3 +796,42 @@ exists. T45 waits on both.
 T62 (announcement content carries raw `<iframe>` through `v-html`), T67 (calendar year is
 hard-coded and goes stale on 1 Jan 2027), T66 (`/about` is live, routed and fully hard-coded),
 T70 (drop the orphaned `gallery_items.department` column), T50/T51 spikes.
+
+### Iterations 21–22 — 2026-08-17
+
+#### The user's question, answered with a measurement
+*"I'm still not seeing frontend ui changes."* Measured: **666 old-palette class uses against
+105 brand-token uses.** The tokens landed in T33 but were only ever USED in components built
+after it, so every existing page still rendered in Tailwind's default blue. Plenty had changed
+structurally; nothing had changed chromatically. That gap was mine to have flagged.
+
+#### Completed
+- **Leadership modal** (`4ce47bc`) — the detail view was **60%** the width of the card that
+  opened it (192px against 318px) from 1224×1804 sources. Now 132%. The panel widens only when
+  a bio exists, because none do, and a wide panel otherwise reserves an empty column.
+- **Palette rollout** (`99b58a4`) — 188 replacements across 19 files. Blue/indigo → fern green.
+  **Now 37 blue/indigo against 286 brand tokens.**
+
+#### Deliberately not migrated
+- `eventStatus.js` — its blue/green/amber are **semantic** (past/live/soon/future). Mapping
+  blue onto green would make "upcoming" and "happening now" identical.
+- The department theme map — six departments must stay distinguishable; collapsing `blue` into
+  green made Prayer and Men's look like the same page. My blanket pass hit it and I reverted
+  that one key. Spreading the six is **T49** and needs a hue-per-department decision.
+- Neutrals (`slate`, `gray`) — legitimate greys, not an arbitrary accent.
+
+#### Learnings
+- **A design token that nothing consumes is invisible.** Wiring the palette and rolling it out
+  are two different pieces of work, and only the second one is visible to the client. Say which
+  one has happened.
+- A blanket find-and-replace across a palette will hit semantic colour maps that happen to use
+  the same names. Check every lookup table the pass touched.
+
+#### Still blocked on the user
+1. Homepage direction — D1 / D2 / D3
+2. **Do conference or congregation photographs exist?** This now also affects the leadership
+   modal: no bios and no photography are the content gaps thinning several surfaces.
+
+#### Next unblocked
+T49 (department hues, type scale), T67 (calendar year hard-coded to 2026), T66 (`/about` live
+and fully hard-coded), T70 (drop the orphaned `gallery_items.department` column).
