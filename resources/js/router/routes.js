@@ -64,6 +64,11 @@ const routes = [
         component: () => import('../views/CmsPage.vue')
     },
     {
+        path: '/gallery',
+        name: 'Gallery',
+        component: () => import('../views/Gallery.vue')
+    },
+    {
         path: '/regions',
         name: 'Regions',
         component: () => import('../views/Regions.vue')
