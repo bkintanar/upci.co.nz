@@ -356,3 +356,37 @@ test('site settings expose two independently editable logos', function () {
     expect(SiteSetting::current()->header_logo_path)->toBe('site/header.png')
         ->and(SiteSetting::current()->footer_logo_path)->toBe('site/footer.png');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Church locator coverage
+|--------------------------------------------------------------------------
+| index() used to chain ->withCoordinates(), which silently hid every church
+| without lat/lng — half of them, including both of Central Region's, so that
+| region showed nothing at all. They belong in the list and the region filter;
+| only the map needs to skip them.
+*/
+
+test('churches without coordinates are still listed and filterable', function () {
+    $unmapped = Church::create([
+        'name' => 'Unmapped Church',
+        'region_id' => $this->region->id,
+        'is_active' => true,
+    ]);
+
+    $payload = $this->getJson('/api/churches')->assertOk()->json('data');
+    $names = collect($payload)->pluck('name');
+
+    expect($names)->toContain('Unmapped Church')
+        ->and($names)->toContain('Regression Church');
+
+    // and it must be honest about not being plottable
+    $row = collect($payload)->firstWhere('name', 'Unmapped Church');
+    expect($row['has_coordinates'])->toBeFalse();
+
+    // the region filter must count it too
+    $filtered = $this->getJson('/api/churches?organizational_region='.$this->region->slug)
+        ->assertOk()->json('data');
+
+    expect(collect($filtered)->pluck('id'))->toContain($unmapped->id);
+});

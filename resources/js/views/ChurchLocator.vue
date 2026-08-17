@@ -210,12 +210,18 @@
                                     </div>
 
                                     <div class="flex items-center justify-between">
-                                        <div class="flex items-center text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded-full">
+                                        <div v-if="formatDistance(church.distance)" class="flex items-center text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded-full">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             </svg>
                                             {{ formatDistance(church.distance) }}
+                                        </div>
+                                        <div v-else-if="!isMappable(church)" class="flex items-center text-sm text-slate-500 bg-slate-100 px-3 py-2 rounded-full" title="This church has no map location on file yet">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Not on the map yet
                                         </div>
                                         <div class="flex items-center text-sm text-emerald-600 bg-emerald-50 px-3 py-2 rounded-full">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,7 +275,8 @@
                                     </svg>
                                 </button>
                             </div>
-                            <div class="text-sm text-gray-500 mt-1">{{ formatDistance(selectedChurch.distance) }}</div>
+                            <div v-if="formatDistance(selectedChurch.distance)" class="text-sm text-gray-500 mt-1">{{ formatDistance(selectedChurch.distance) }}</div>
+                            <div v-else-if="!isMappable(selectedChurch)" class="text-sm text-slate-500 mt-1">No map location on file</div>
                         </div>
 
                         <!-- Content -->
@@ -446,17 +453,30 @@ L.Icon.Default.mergeOptions({
 
                     churches.value = churches.value.map(church => ({
                         ...church,
-                        distance: calculateDistance(
-                            userLocation.value.lat,
-                            userLocation.value.lng,
-                            church.lat,
-                            church.lng
-                        )
+                        // null, not 0 — an unmappable church has no distance, and
+                        // 0 would render as "0m away" and sort to the top
+                        distance: isMappable(church)
+                            ? calculateDistance(
+                                userLocation.value.lat,
+                                userLocation.value.lng,
+                                church.lat,
+                                church.lng
+                            )
+                            : null
                     }))
                 }
 
-                // Format distance for display
+                // A church is mappable only if the API gave us usable coordinates.
+                const isMappable = (church) =>
+                    church && church.has_coordinates && Number.isFinite(church.lat) && Number.isFinite(church.lng)
+
+                // Format distance for display. Returns null when there is nothing
+                // meaningful to show, so the template can omit the chip entirely
+                // rather than printing "NaNkm away".
                 const formatDistance = (distance) => {
+                    if (distance === null || distance === undefined || !Number.isFinite(distance)) {
+                        return null
+                    }
                     if (distance < 1) {
                         return `${Math.round(distance * 1000)}m away`
                     } else {
@@ -487,7 +507,7 @@ L.Icon.Default.mergeOptions({
                                 lng: parseFloat(church.longitude),
                                 pastor: church.pastor_name,
                                 services: church.service_times || [],
-                                distance: 0 // Will be calculated after user location is obtained
+                                distance: null // set once we have the user's location, and only if mappable
                             }))
 
                             // Calculate distances if user location is available
@@ -644,8 +664,10 @@ L.Icon.Default.mergeOptions({
             markers.forEach(marker => map.removeLayer(marker))
             markers = []
 
-            // Add markers for filtered churches
-            filteredChurches.value.forEach(church => {
+            // Add markers for filtered churches. Churches without coordinates
+            // still appear in the list and the region filter — they just cannot
+            // be plotted, so they are skipped here rather than excluded upstream.
+            filteredChurches.value.filter(isMappable).forEach(church => {
 
                 const marker = L.marker([church.lat, church.lng])
                     .addTo(map)
@@ -747,7 +769,8 @@ L.Icon.Default.mergeOptions({
             selectChurch,
             clearFilters,
             formatDayName,
-            formatDistance
+            formatDistance,
+            isMappable
         }
     }
 })

@@ -15,7 +15,11 @@ class ChurchController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Church::active()->withCoordinates()->with('organizationalRegion');
+        // Deliberately NOT ->withCoordinates(): a church without lat/lng still
+        // belongs in the list and the region filter. It simply cannot be plotted,
+        // which the frontend handles via has_coordinates. Filtering here hid half
+        // the churches, including both of Central Region's.
+        $query = Church::active()->with('organizationalRegion');
 
         // Filter by address region (NZ geographic)
         if ($request->has('region') && $request->region) {
