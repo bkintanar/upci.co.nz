@@ -225,7 +225,22 @@ class ChurchController extends Controller
     public function organizationalRegions(): JsonResponse
     {
         // slug is the wire format the filter accepts; name is for display
-        $regions = Region::orderBy('sort_order')->get(['slug', 'name']);
+        //
+        // Deliberately NOT a bare ->published(). This endpoint feeds the church
+        // locator's region filter, and `is_published` describes whether a
+        // region's LANDING PAGE is ready — a different question. Hiding a
+        // draft region here would hide its churches from the filter, which is
+        // the same defect as filtering the church list on has-coordinates.
+        //
+        // So: a region appears if it is published, or if it has churches to
+        // filter for. A draft region with no churches is the only thing held
+        // back, which is exactly the leak §12.6 asks about.
+        $regions = Region::query()
+            ->where(fn ($query) => $query
+                ->where('is_published', true)
+                ->orWhereHas('churches', fn ($church) => $church->where('is_active', true)))
+            ->orderBy('sort_order')
+            ->get(['slug', 'name']);
 
         return response()->json([
             'success' => true,
