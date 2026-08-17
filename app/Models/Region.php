@@ -36,6 +36,15 @@ class Region extends Model
         return $this->hasMany(Church::class, 'region_id');
     }
 
+    /**
+     * Events scoped to this region. Callers should also filter on
+     * scope=regional; see Event::forRegion().
+     */
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class, 'region_id');
+    }
+
     public function users(): HasMany
     {
         return $this->hasMany(User::class);

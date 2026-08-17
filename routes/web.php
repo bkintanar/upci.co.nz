@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\ChurchController;
+use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\GalleryController;
 use App\Http\Controllers\Api\MenuItemController;
@@ -25,6 +26,10 @@ Route::prefix('api')->middleware('throttle:60,1')->group(function () {
 
     // Additional church-related endpoints
     Route::get('/churches-regions', [ChurchController::class, 'regions']);
+    // Region landing pages (requirement 11). Public, read-only.
+    Route::get('/regions', [RegionController::class, 'index']);
+    Route::get('/regions/{slug}', [RegionController::class, 'show']);
+
     Route::get('/churches-organizational-regions', [ChurchController::class, 'organizationalRegions']);
     Route::get('/churches-service-days', [ChurchController::class, 'serviceDays']);
     // Each call makes two sequential blocking file_get_contents to NZ Post

@@ -59,6 +59,11 @@ const routes = [
         component: () => import('../views/CmsPage.vue')
     },
     {
+        path: '/apostolic-bible-college/connect',
+        name: 'AbcConnect',
+        component: () => import('../views/CmsPage.vue')
+    },
+    {
         path: '/find-church',
         name: 'ChurchLocator',
         component: () => import('../views/ChurchLocator.vue')
