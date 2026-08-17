@@ -6,24 +6,24 @@
                             <router-link to="/" class="flex-shrink-0 flex items-center group">
                                 <img :src="upciLogo"
                                      alt="UPCI New Zealand"
-                                     class="h-24 w-auto group-hover:scale-105 transition-transform duration-300">
+                                     class="h-28 w-auto group-hover:scale-105 transition-transform duration-300">
                             </router-link>
                         </div>
 
-                <div v-if="!loading" class="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
+                <div v-if="!loading" class="hidden md:flex flex-1 min-w-0 justify-end items-center gap-x-3 lg:gap-x-5 xl:gap-x-7">
                     <template v-for="item in menuItems" :key="item.id">
                         <!-- Menu item with dropdown -->
                         <div v-if="item.children && item.children.length > 0" class="relative group">
                             <router-link
                                 v-if="item.url && item.url !== '#' && !item.url.startsWith('http')"
                                 :to="item.url"
-                                class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
+                                class="text-white hover:text-blue-300 px-1 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
                                 {{ item.label }}
                                 <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </router-link>
-                            <button v-else class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
+                            <button v-else class="text-white hover:text-blue-300 px-1 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
                                 {{ item.label }}
                                 <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -57,13 +57,13 @@
                             v-else-if="item.url && (item.url.startsWith('http') || item.url === '#')"
                             :href="item.url"
                             :target="item.open_in_new_tab ? '_blank' : '_self'"
-                            class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
+                            class="text-white hover:text-blue-300 px-1 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
                             {{ item.label }}
                         </a>
                         <router-link
                             v-else-if="item.url"
                             :to="item.url"
-                            class="text-white hover:text-blue-300 px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
+                            class="text-white hover:text-blue-300 px-1 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
                             {{ item.label }}
                         </router-link>
                     </template>
@@ -140,7 +140,13 @@
 <script>
 import axios from 'axios';
 import { defineComponent, onMounted, ref } from 'vue';
-import upciLogo from '../../images/upci-nz-logo.png';
+// New UPCI NZ mark from the 2026 logo pack, white variant — both the
+// navbar and footer sit on dark surfaces, and the standard mark sets its
+// wordmark in black. PNG rather than SVG deliberately: the SVG export
+// carries an unclassed full-canvas <rect> that renders as a black plate
+// behind the mark. The PNGs are transparent. Still a build-time import —
+// making this CMS-editable is the site-settings work (T9-T11).
+import upciLogo from '../../images/logos/general/UPCINZ-MINISTRIES-01-WHITE.png';
 
 export default defineComponent({
     name: 'Navbar',

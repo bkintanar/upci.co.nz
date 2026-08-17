@@ -42,6 +42,15 @@ class DepartmentForm
                         MarkdownEditor::make('description')
                             ->toolbarButtons(['bold', 'italic', 'link', 'heading', 'bulletList', 'orderedList', 'blockquote'])
                             ->columnSpanFull(),
+                        FileUpload::make('logo_path')
+                            ->label('Department Logo')
+                            ->helperText('Shown in listings and on the department page. Falls back to the UPCI NZ mark when empty.')
+                            ->image()
+                            ->disk('public')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/svg+xml', 'image/png', 'image/webp'])
+                            ->directory('department-logos')
+                            ->maxSize(2048),
                         FileUpload::make('hero_image')
                             ->label('Hero Image')
                             ->image()

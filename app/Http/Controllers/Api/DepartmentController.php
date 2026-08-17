@@ -21,6 +21,7 @@ class DepartmentController extends Controller
                 'name' => $d->name,
                 'slug' => $d->slug,
                 'hero_image' => $d->hero_image,
+                'logo_path' => $d->logo_path,
                 'color_theme' => $d->color_theme,
             ]);
 
@@ -72,6 +73,7 @@ class DepartmentController extends Controller
                 'slug' => $department->slug,
                 'description' => $department->description,
                 'hero_image' => $department->hero_image,
+                'logo_path' => $department->logo_path,
                 'color_theme' => $department->color_theme,
                 'scripture_quote' => $department->scripture_quote,
                 'announcements' => $announcements,

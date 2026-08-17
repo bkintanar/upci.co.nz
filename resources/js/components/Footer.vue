@@ -86,7 +86,13 @@
 
 <script>
 import { defineComponent, computed } from 'vue'
-import upciLogo from '../../images/upci-nz-logo.png'
+// New UPCI NZ mark from the 2026 logo pack, white variant — both the
+// navbar and footer sit on dark surfaces, and the standard mark sets its
+// wordmark in black. PNG rather than SVG deliberately: the SVG export
+// carries an unclassed full-canvas <rect> that renders as a black plate
+// behind the mark. The PNGs are transparent. Still a build-time import —
+// making this CMS-editable is the site-settings work (T9-T11).
+import upciLogo from '../../images/logos/general/UPCINZ-MINISTRIES-01-WHITE.png'
 
 export default defineComponent({
     name: 'Footer',

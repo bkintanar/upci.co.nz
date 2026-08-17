@@ -22,6 +22,12 @@
                 ></div>
                 <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
                     <div class="text-center">
+                        <img
+                            v-if="department.logo_path"
+                            :src="imageUrl(department.logo_path)"
+                            :alt="`${department.name} logo`"
+                            class="h-24 md:h-32 w-auto mx-auto mb-8 drop-shadow-lg"
+                        />
                         <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                             {{ department.name }}
                         </h1>
