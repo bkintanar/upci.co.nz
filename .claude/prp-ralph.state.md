@@ -619,3 +619,41 @@ block, not global.
 T30 — six data-bound blocks (`events_feed`, `department_list`, `region_list`, `gallery`, plus
 the remaining two), each with an authored empty-state message, now that the state handling
 exists. Then Direction B (T32, T45, T47–T49) and spikes T50/T51.
+
+### Iteration 14 — 2026-08-17
+
+#### Completed
+- **T30** (`f1ab078`) — six data-bound CMS blocks. **Block C is now finished** (T26–T31).
+
+#### Validation
+Lint PASS · Build PASS · Tests **98 passed (239 assertions)** · all six blocks
+browser-verified against live data
+
+#### What changed conceptually
+Every block before these rendered authored content. These render live data — the author sets
+configuration, and the page stays current on its own. Adding a church or publishing an event
+now updates the page with nobody editing it. That is what makes requirement 11's "reusable
+region template" achievable without bespoke views per region.
+
+#### ⚠️ Environment issue found, NOT fixed — worth raising
+A block's first render intermittently 500s with **`SQLSTATE[HY000]: database is locked`** on the
+`cache` table. The rate limiter increments a counter per API request, the cache store is the
+SQLite database, and several concurrent block fetches on one page collide.
+
+curl succeeds while the browser fails, because the browser issues the requests concurrently.
+It is intermittent and looks exactly like a broken endpoint. **Likely fix: move `CACHE_STORE`
+off `database` (file or redis).** That is environment config, so it is flagged rather than
+changed unilaterally — and it will get worse now that a page can hold six data-bound blocks.
+
+#### Learnings
+- **A 500 that curl cannot reproduce is a concurrency symptom.** Capture `response` events in
+  Playwright to find which request failed; the page-level error said nothing useful.
+- Apply a presentation-only `limit` client-side rather than inventing an API parameter for it —
+  otherwise layout config leaks into the endpoint contract.
+- Filter server-side where the endpoint already supports it (`from` for upcoming events), or
+  the page downloads a whole calendar to discard most of it.
+
+#### Next
+Direction B rollout: **T48 first** — it is marked 🔴 prerequisite, because B cannot render any
+non-homepage page until `.breadcrumb`, `.page-header` and `.contents` are ported. Then T32
+(re-author home), T45 (hero), T47 (error hue), T49 (craft fixes), and spikes T50/T51.
