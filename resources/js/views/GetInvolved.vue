@@ -249,7 +249,11 @@ export default defineComponent({
 
         onMounted(async () => {
             try {
-                const res = await fetch('/api/gallery?department=general')
+                // Was `?department=general`, which asked for a department
+                // literally named "general" and so always matched nothing —
+                // this section has been showing its empty state since launch.
+                // The general gallery is now an owner, not a department.
+                const res = await fetch('/api/gallery?owner=general')
                 const data = await res.json()
                 if (data.success && data.data) {
                     galleryItems.value = data.data

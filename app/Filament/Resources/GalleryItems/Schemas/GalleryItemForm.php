@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources\GalleryItems\Schemas;
 
+use App\Models\Region;
+use App\Models\Department;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\MorphToSelect;
 
 class GalleryItemForm
 {
@@ -31,7 +35,24 @@ class GalleryItemForm
                             ->maxSize(5120)
                             ->directory('gallery')
                             ->required(),
-                        TextInput::make('department')->default('general')->maxLength(255),
+                        // Replaces a free-text `department` box that defaulted
+                        // to the string "general". One gallery, three owners:
+                        // leaving this blank IS the general gallery, which is
+                        // why there is no "general" option to pick.
+                        MorphToSelect::make('galleryable')
+                            ->label('Belongs to')
+                            ->types([
+                                MorphToSelect\Type::make(Department::class)->titleAttribute('name'),
+                                MorphToSelect\Type::make(Region::class)->titleAttribute('name'),
+                            ])
+                            ->nullable()
+                            ->searchable()
+                            ->preload(),
+
+                        Toggle::make('is_published')
+                            ->default(true)
+                            ->helperText('Unpublished items stay out of every gallery.'),
+
                         TextInput::make('sort_order')->numeric()->default(0),
                     ]),
             ]);

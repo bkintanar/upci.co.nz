@@ -350,14 +350,14 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 | T10 | `ManageSiteSettings` page with **`canAccess()` + `shouldRegisterNavigation()` overrides** | 🔴 §12.4 — a policy does nothing here; a custom Page is open to all. ⚠️ **~1 day, not one line.** Needs: `protected static string $view` → a Blade file in **`resources/views/filament/pages/` which does not exist and no task creates**; `HasForms`+`InteractsWithForms`; a `$data` array; `mount()` hydrating row 1; a `save()`; singleton semantics (`firstOrCreate(['id'=>1])`); and the `logo_path` `FileUpload` **must** carry `->disk('public')` or T1's bug returns on day one |
 | T11 | `GET /api/site-settings`; wire `Navbar.vue` to `header_logo_path` and `Footer.vue` to `footer_logo_path`, each keeping its bundled import as the `v-else` fallback | |
 | T12 | **Region rename migration** — names *and* slugs, **plus** all **SEVEN** `ChurchController` coupling sites, **plus** all four test files' `firstOrCreate(['slug'=>'north'])` | 🔴 Sites: `:28` filter · `:103` + `:149` `exists:regions,name` validation · `:125` + `:172` `Region::where('name')` · `:223` `pluck('name')` · `:285` payload. **Correction to §12.6:** the failure is *not* a silent null — `exists:regions,name` fires first and returns a **loud 422**. Fix all seven or the API's own list endpoint (`:223`) returns values its own filter (`:28`) rejects |
-| T13 | Region enrichment migration (`logo_path`, `intro`, `presbyter_name`, `is_published`) + update `Region::$fillable` + casts | §12.11 |
-| T14 | Filter `/api/churches-organizational-regions` by `is_published` | §12.6 — currently leaks |
-| T15 | `RegionResource` + `RegionPolicy` — **decide regional-presbyter ownership semantics first** | §5.1 — this determines whether `GalleryItemPolicy` can stay national-only |
-| T16 | `departments.logo_path` migration + form field + site-logo fallback | Req 1b |
-| T17 | `DepartmentController` — return `logo_path` on both methods | §12.5 |
-| T18 | `events.region_id` + `scope` migration + backfill 49 rows | ⚠️ `down()` must `dropIndex(['region_id'])` **before** `dropConstrainedForeignId()` (§12.3) |
-| T19 | Fix the same latent bug in `2026_04_19_000003_add_department_id_to_events_table.php` | Its `down()` has never been exercised |
-| T20 | `EventController` — add `?scope=` / `?region=` filters and both fields to the payload | §12.5 |
+| T13 ✅ | Region enrichment migration (`logo_path`, `intro`, `presbyter_name`, `is_published`) + update `Region::$fillable` + casts | §12.11 |
+| T14 ✅ | Filter `/api/churches-organizational-regions` by `is_published` | §12.6 — currently leaks |
+| T15 ✅ | `RegionResource` + `RegionPolicy` — **decide regional-presbyter ownership semantics first** | §5.1 — this determines whether `GalleryItemPolicy` can stay national-only |
+| T16 ✅ | `departments.logo_path` migration + form field + site-logo fallback | Req 1b |
+| T17 ✅ | `DepartmentController` — return `logo_path` on both methods | §12.5 |
+| T18 ✅ | `events.region_id` + `scope` migration + backfill 49 rows | ⚠️ `down()` must `dropIndex(['region_id'])` **before** `dropConstrainedForeignId()` (§12.3) |
+| T19 ✅ | Fix the same latent bug in `2026_04_19_000003_add_department_id_to_events_table.php` | Its `down()` has never been exercised |
+| T20 ✅ | `EventController` — add `?scope=` / `?region=` filters and both fields to the payload | §12.5 |
 | T21 | `gallery_items`: **`nullableMorphs('galleryable')`** + **`is_published`** + `enforceMorphMap` + backfill | 🔴 `morphs()` aborts on SQLite (§12.2); no visibility column exists (§3.5) |
 | T22 | `GalleryController` — owner filtering, `is_published` filter, drop the free-text `department` scope | §12.5 + §4.2 |
 | T23 | Update `GalleryItemResource` form/table for the new owner fields | §5.2 — otherwise admin-created items are invisible |
