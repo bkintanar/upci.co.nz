@@ -1021,3 +1021,41 @@ attributed speech.** That is the line.
 
 The feature and security work is substantially complete. Further grinding without the three
 outstanding decisions produces churn rather than progress.
+
+### Iteration 31 — 2026-08-17
+
+#### A full-route sweep found two things
+Swept all 32 real routes (static routes + published pages + every department and region) for
+404s, failed sections, thin bodies, missing h1, horizontal overflow and JS errors.
+
+#### 🔴 The rejected homepage was live again — my failure
+Switched in `981a379`, rejected on sight, rolled back with `migrate:rollback`. **That was not
+enough.** `migrate:rollback` removes the migration's ROW, returning the file to "not yet run",
+so the next `php artisan migrate` for unrelated work re-applied it. It went back silently and
+stayed for several iterations. The sweep caught it only because the B homepage has no `h1`.
+
+**Rolling back a migration undoes the DATA; it does not withdraw the INSTRUCTION.** A migration
+whose change has been rejected must be emptied, not merely rolled back. Restored from the
+`home-previous` archive; migration is now a documented no-op, proven by running `migrate`
+three times and on a fresh database.
+
+#### 🔴 The cache lock was worse than flagged — now fixed, not just reported
+`/gallery` reported a failed section. Repeating five times: the **user-visible check passed
+every time**, but **three of five page loads returned 500s** on `/api/departments`,
+`/api/menu/header`, `/api/site-settings`. The site only looked healthy because the navbar
+fallback and settings degradation were absorbing them.
+
+`CACHE_STORE=database` on SQLite: the rate limiter writes a counter per API request and
+concurrent calls collide. **148 lock errors in the log against 4 cache rows** — contention,
+not volume. Changed to `file` in `.env` **and `.env.example`** — the example is the durable
+half, tracked, carrying the same default, and would have propagated the fault to every deploy.
+Zero 500s after.
+
+#### Learnings
+- **A green user-visible check can sit on top of a 60% server error rate.** Watch `response`
+  events, not just rendered output — good fallbacks hide the fault they are compensating for.
+- Reverting a decision expressed as a migration takes two steps: undo the data AND empty the
+  file. One without the other silently re-applies.
+- `.env.example` is tracked; a bad default there outlives any local fix.
+
+#### Sweep now clean across all 32 routes.
