@@ -187,3 +187,39 @@ axes, not a bug. Both now exist; the locator uses the structural one.
 T38 (`Regions.vue` + `Region.vue` + routes) — `/api/regions` exists, so the region landing
 pages are unblocked. Then T53 (`Department.vue` logo + gallery rendering), T35 (`Modal.vue`),
 T39–T41. Requirements 3, 6, 7, 8, 10 still untouched.
+
+### Iteration 4 — 2026-08-17
+
+#### Completed
+- **T38** (`c1bdada`) — `Regions.vue` + `Region.vue` + routes; 4 API-contract tests
+- **T53** (`b88a034`) — site-logo fallback on `Department.vue`; shared `GalleryGrid.vue` on
+  department and region pages
+- **T40** (`826b286`) — `Gallery.vue` + `/gallery`, tabs built from the live department and
+  region lists
+
+#### Validation
+Lint PASS · Build PASS · Tests **76 passed (189 assertions)** · full suite unchanged at 16
+pre-existing failures
+
+#### Notes
+- `Department.vue` **already rendered `logo_path`** — what T53 was actually missing was the
+  requirement-1b fallback to the site logo, plus the gallery section.
+- `GalleryGrid.vue` is now the single grid for all three surfaces (department, region,
+  standalone). It takes `preloaded` items so `Region.vue`, which already has them in its own
+  payload, does not refetch.
+- The grid renders **nothing** when there are no items and nothing failed, so pages can
+  include it unconditionally without leaving an empty heading behind.
+
+#### Learnings
+- **Date-only strings must not go through `new Date()`.** `"2026-09-01"` parses as UTC
+  midnight and renders as 31 August in NZ. Split the string instead.
+- A filter-tab grid must be **keyed on the active filter**, or the previous tab's images sit
+  under the new label until the request resolves.
+- `useSiteSettings()` exposes `header_logo_url` / `footer_logo_url` (absolute URLs), not raw
+  paths — no `imageUrl()` wrapper needed on those.
+
+#### Next
+T35 (`Modal.vue` + refactor the locator modal onto it, finishing T36), T39 (rebuild
+`GetInvolved.vue` from `/api/departments`), T41 (portrait leadership + modal — requirement 3),
+T44 (all navigation changes at once: Gallery, Regions, SBQ/JBQ, remove General Superintendent,
+remove Twitter/X — requirements 7, 8, 10).

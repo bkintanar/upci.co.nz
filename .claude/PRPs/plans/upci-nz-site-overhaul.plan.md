@@ -387,7 +387,7 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 | T37 | Events national/regional split | ⚠️ Must precede T38 or region pages ship with permanently empty feeds |
 | T38 ✅ | `Regions.vue` + `Region.vue` + routes | |
 | T39 | Rebuild `GetInvolved.vue` from `/api/departments` | G6 — largest hard-coded surface |
-| T40 | `Gallery.vue` + `/gallery` + `GalleryGrid.vue` | |
+| T40 ✅ | `Gallery.vue` + `/gallery` + `GalleryGrid.vue` | |
 | T41 | Portrait leadership + labelled Peter Lloyd placeholder; **decide the role/name field mapping** | §12.11 — `title` holds the role, `description` the name |
 | T42 | Apply `meta_description` + `document.title` on route change | G14 |
 | T43 | ABC enrolment: placeholder the two ambiguous links | ⚠️ **BLOCKED on client** for the real URLs (§15) |
