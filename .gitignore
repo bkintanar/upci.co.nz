@@ -24,3 +24,6 @@ yarn-error.log
 
 # Local SQLite database — contains user data, must never be committed
 upci
+
+# Illustrator design sources for the logo pack — kept on disk, not versioned
+resources/images/logos/**/*.ai
