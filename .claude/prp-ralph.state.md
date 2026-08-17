@@ -1125,3 +1125,25 @@ unauthenticated endpoint, mobile overflow on the ABC pages, a rejected homepage 
 re-applying itself, and a cache misconfiguration returning 500s on roughly 60% of page loads.
 
 **No further progress is available without those three decisions.** Continuing would be churn.
+
+#### 🔴 The sweep's `/gallery` failure was the sweep's fault, not the site's
+The full-route sweep kept flagging `/gallery` as "section failed to load", and it reproduced
+consistently — so it looked like a real defect. It was not.
+
+Measured: **one sweep fires 132 API requests, 47 of them rate-limited, with the first 429 at
+route #15.** The site rate-limits at 60/minute and each page makes roughly six API calls, so an
+unpaced sweep blows through the limit a third of the way in. `/gallery` sits late enough in the
+route order to take the hit, and `BlockState` correctly showed its error state for a 429.
+
+So the site was behaving correctly — refusing an abusive request rate — and my harness reported
+that correct behaviour as a page failure. Sweep now paced.
+
+**This is the third time this session my own verification tooling produced a misleading
+result**, and the pattern is worth naming:
+1. A test that could not fail (Pest's `risky` flag caught it)
+2. A check that finished before the thing it measured existed (false pass on a dead link)
+3. A check whose own load broke what it was measuring (this one)
+
+All three manufactured confidence rather than earning it, and two of them pointed at
+non-existent defects while the first hid a real one. **Verification code deserves the same
+scepticism as the code it verifies.**
