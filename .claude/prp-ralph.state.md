@@ -540,3 +540,41 @@ lift the limit — do not quietly ship the workaround as the answer.**
 #### Next
 T27 (replace the four presentation heuristics), T28 (`two_column` ratio), T29 (per-block async
 loader), T30 (six data-bound blocks), then Direction B (T32, T45, T47–T49) and spikes T50/T51.
+
+### Iteration 12 — 2026-08-17
+
+#### Completed
+- **T27** (`02d674e`) — the five presentation heuristics replaced with authored fields
+
+#### Validation
+Lint PASS · Build PASS · Tests **98 passed (239 assertions)** · migration up/down clean ·
+browser-verified against the old rules' output
+
+#### The pattern that made this safe
+Removing an inference rule restyles every page that relied on it. The fix is **backfill first,
+then delete**: compute what each rule produces today, store it as data, and only then let the
+renderer read the stored value. Both must land in one commit — a deploy between them would
+show every page unstyled.
+
+The plan named four rules; there were **five**. `getCardsSectionClasses` alternated a cards
+section's background on its ordinal among cards blocks, which is the same defect and was not
+listed.
+
+#### Left alone, deliberately
+`getCardIconClass()` still picks a colour by matching the substring `'16.707 5.293'` inside an
+SVG path — same class of defect, narrower blast radius. Unpicking it needs an icon decision
+that belongs with Direction B, so it is flagged rather than half-changed.
+
+#### Learnings
+- **Column/grid classes must be a literal lookup**, never `lg:grid-cols-${n}`. Tailwind reads
+  source as text; an interpolated class is never emitted and the grid silently collapses to
+  one column.
+- When replacing inference with data, the test worth writing is "every block carries the field
+  explicitly" — it catches anything that writes blocks outside the form.
+- Check a data-driven test is not vacuous before trusting it: confirm the fixture actually
+  contains the block types being asserted on (four text blocks here).
+
+#### Next
+T28 (`two_column` ratio + drop the forced grey box), T29 (per-block async loader with
+loading/error/empty states), T30 (six data-bound blocks). Then Direction B (T32, T45, T47–T49)
+and spikes T50/T51.
