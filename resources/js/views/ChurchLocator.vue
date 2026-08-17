@@ -33,7 +33,9 @@
                             <div class="text-blue-200 text-sm">Churches</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-3xl font-bold text-white mb-1">6</div>
+                            <!-- Was a hard-coded 6. There are three organisational regions,
+                                 and hard-coding the count is how it came to be wrong. -->
+                            <div class="text-3xl font-bold text-white mb-1">{{ regions.length ? regions.length - 1 : '—' }}</div>
                             <div class="text-blue-200 text-sm">Regions</div>
                         </div>
                         <div class="text-center">
@@ -183,9 +185,16 @@
                                         <p class="text-slate-500">Please wait while we fetch the latest church information</p>
                                     </div>
 
-                                    <div v-else-if="filteredChurches.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div v-else-if="filteredChurches.length > 0">
+                                        <!-- Requirement 5: grouped by region, from the data model. -->
+                                        <div v-for="group in groupedChurches" :key="group.slug" class="mb-10 last:mb-0">
+                                            <div class="flex items-baseline justify-between mb-4 pb-2 border-b border-slate-200">
+                                                <h3 class="text-lg font-bold text-slate-900">{{ group.name }}</h3>
+                                                <span class="text-sm text-slate-500">{{ group.churches.length }} {{ group.churches.length === 1 ? 'church' : 'churches' }}</span>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div
-                                    v-for="church in filteredChurches"
+                                    v-for="church in group.churches"
                                     :key="church.id"
                                     @click="selectChurch(church)"
                                     class="group bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 cursor-pointer hover:border-blue-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
@@ -232,6 +241,8 @@
                                     </div>
                                 </div>
                             </div>
+                                        </div>
+                                    </div>
 
                             <div v-else class="text-center py-16">
                                 <div class="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -490,7 +501,9 @@ L.Icon.Default.mergeOptions({
                     try {
                         const params = new URLSearchParams()
                         if (searchQuery.value) params.append('search', searchQuery.value)
-                        if (selectedRegion.value) params.append('region', selectedRegion.value)
+                        // organizational_region, not region: the latter filters the
+                        // free-text geographic column and would never match a slug.
+                        if (selectedRegion.value) params.append('organizational_region', selectedRegion.value)
                         if (selectedServiceDays.value.length > 0) {
                             selectedServiceDays.value.forEach(day => {
                                 params.append('service_day', day)
@@ -525,15 +538,21 @@ L.Icon.Default.mergeOptions({
                 // Fetch regions from API
                 const fetchRegions = async () => {
                     try {
-                        const response = await fetch(`/api/churches-regions?_t=${Date.now()}`)
+                        // Requirement 5: region comes from the data model, not
+                        // from display text. This used to read /api/churches-regions,
+                        // the free-text `churches.region` column, which offered
+                        // eight values including Rangiora and Rolleston — towns,
+                        // not regions — and had no relationship to the Northern /
+                        // Central / Southern structure the organisation uses.
+                        const response = await fetch(`/api/churches-organizational-regions?_t=${Date.now()}`)
                         const data = await response.json()
 
                         if (data.success) {
                             regions.value = [
                                 { value: '', label: 'All Regions' },
                                 ...data.data.map(region => ({
-                                    value: region.toLowerCase(),
-                                    label: region
+                                    value: region.slug,
+                                    label: region.name
                                 }))
                             ]
                         }
@@ -563,6 +582,40 @@ L.Icon.Default.mergeOptions({
                     return churches.value
                 })
 
+                // Requirement 5: churches grouped by region. Ordered by the
+                // region list from the API (which carries sort_order) rather
+                // than alphabetically, so the grouping matches the filter above
+                // it and the organisation's own ordering.
+                const groupedChurches = computed(() => {
+                    const order = regions.value
+                        .filter(r => r.value)
+                        .map(r => r.value)
+
+                    const groups = new Map()
+
+                    filteredChurches.value.forEach(church => {
+                        const slug = church.organizational_region || 'unassigned'
+                        if (!groups.has(slug)) {
+                            groups.set(slug, {
+                                slug,
+                                // A church with no region still has to appear —
+                                // dropping it here would hide it from the page
+                                // entirely, which is the defect fixed in d1e0b0c.
+                                name: church.organizational_region_name || 'Not yet assigned to a region',
+                                churches: []
+                            })
+                        }
+                        groups.get(slug).churches.push(church)
+                    })
+
+                    return [...groups.values()].sort((a, b) => {
+                        const ai = order.indexOf(a.slug)
+                        const bi = order.indexOf(b.slug)
+                        // Unknown/unassigned sorts last rather than first.
+                        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi)
+                    })
+                })
+
                 const clearFilters = () => {
                     searchQuery.value = ''
                     selectedRegion.value = ''
@@ -572,7 +625,10 @@ L.Icon.Default.mergeOptions({
 
                 const selectChurch = (church) => {
                     selectedChurch.value = church
-                    if (map) {
+                    // isMappable, not just `map`: five churches have no
+                    // coordinates, and setView([null, null]) throws inside
+                    // Leaflet and takes the click handler down with it.
+                    if (map && isMappable(church)) {
                         // Zoom to a level that shows the area around the church without the popup covering everything
                         map.setView([church.lat, church.lng], 12)
                     }
@@ -639,10 +695,20 @@ L.Icon.Default.mergeOptions({
             setTimeout(() => {
                 if (!mapContainer.value) return
 
-                // Initialize map centered on New Zealand
+                // Requirement 5: New Zealand only. These have to be set at
+                // construction, before any fitBounds call — applying them
+                // afterwards lets the first fit escape the bounds and the map
+                // then snaps back, which reads as a glitch.
+                //
+                // Viscosity 1.0 makes the edge hard rather than elastic, so a
+                // drag cannot leave NZ at all. minZoom 5 stops the user zooming
+                // out to the whole Pacific.
                 map = L.map(mapContainer.value, {
                     center: [-40.9006, 174.8860],
                     zoom: 6,
+                    minZoom: 5,
+                    maxBounds: L.latLngBounds([-47.35, 166.3], [-34.1, 178.6]),
+                    maxBoundsViscosity: 1.0,
                     zoomControl: true,
                     attributionControl: true
                 })
@@ -676,9 +742,9 @@ L.Icon.Default.mergeOptions({
                             <h3 class="font-bold text-slate-900 mb-1 text-sm">${church.name}</h3>
                             <p class="text-xs text-slate-600 mb-1">${church.address}</p>
                             <p class="text-xs text-slate-500 mb-2">${church.city}, ${church.region}</p>
-                            <button onclick="selectChurchFromMap(${church.id})"
-                                    class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors">
-                                View Details
+                            <button data-church-id="${church.id}"
+                                    class="js-more-info bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors">
+                                More info
                             </button>
                         </div>
                     `, {
@@ -686,13 +752,25 @@ L.Icon.Default.mergeOptions({
                         className: 'custom-popup'
                     })
 
+                // Wire the popup button per-popup instead of through a global.
+                // Leaflet builds the popup DOM only when it opens, so the
+                // listener has to be attached here rather than at bind time.
+                marker.on('popupopen', (event) => {
+                    const button = event.popup.getElement()?.querySelector('.js-more-info')
+                    button?.addEventListener('click', () => selectChurch(church), { once: true })
+                })
+
                 markers.push(marker)
             })
 
             // Fit map to show all markers if there are any
             if (markers.length > 0) {
                 const group = new L.featureGroup(markers)
-                map.fitBounds(group.getBounds().pad(0.1))
+                // maxZoom caps the fit: filtering to a region with one mappable
+                // church would otherwise zoom to street level, which loses all
+                // sense of where in the country you are. padding keeps pins off
+                // the panel edges.
+                map.fitBounds(group.getBounds(), { maxZoom: 12, padding: [40, 40] })
             }
         }
 
@@ -732,13 +810,10 @@ L.Icon.Default.mergeOptions({
             markers = []
         })
 
-        // Make selectChurch available globally for popup buttons
-        window.selectChurchFromMap = (churchId) => {
-            const church = churches.value.find(c => c.id === churchId)
-            if (church) {
-                selectChurch(church)
-            }
-        }
+        // The popup's button used to call a window.selectChurchFromMap global,
+        // which leaked onto window for the life of the tab, survived unmount,
+        // and captured this component's scope. It is now wired per-popup in
+        // updateMarkers() via Leaflet's popupopen event.
 
         // Format day names for display
         const formatDayName = (day) => {
