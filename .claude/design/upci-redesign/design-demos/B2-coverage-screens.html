@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPCI New Zealand — Direction B coverage screens</title>
+<!--
+  ============================================================================
+  B2 — COVERAGE SCREENS
+  Extends Direction B (design-demos/B-benchmark-transfer.html, approved
+  2026-08-17) from a homepage-only design onto five further page archetypes.
+
+  THIS IS NOT A SECOND DESIGN. Every token, type size, spacing step, list
+  treatment, tag treatment and grid below is lifted verbatim from B. Where a
+  component genuinely did not exist in B, it is marked with a comment
+  beginning "NEW —" that states why B's vocabulary was insufficient. Those
+  comments are the deliverable; search the file for "NEW —" to find them all.
+
+  SCREENS, in document order:
+    1. REGION DETAIL      /regions/northern
+    2. CHURCH LOCATOR     /find-church      (list + filters + map + detail modal)
+    3. DEPARTMENT DETAIL  /departments/mens
+    4. LEADERSHIP         /about/leadership (grid + open modal)
+    5. GALLERY            /gallery
+    A. APPENDIX — shared states (loading / empty / error / 404)
+
+  CONTENT: every church, region, department, event, leader, address, service
+  time and announcement below is read from the live `upci` SQLite database or
+  from spec.md. Nothing is invented. Where real content does not yet exist
+  (region intro copy, leader biographies, regional photography) an honest
+  labelled placeholder is shown, per brand-spec.md §1.
+  ============================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     TOKENS — copied verbatim from B-benchmark-transfer.html.
+     Do not diverge. Two chromatic hues only (green 143°, clay 55°).
+     ============================================================ */
+  :root{
+    --ink:        oklch(0.18 0.01 150);
+    --green-900:  oklch(0.34 0.07 143);
+    --green-700:  oklch(0.47 0.09 143);
+    --green-100:  oklch(0.93 0.03 143);
+    --clay-600:   oklch(0.62 0.12 55);
+    --clay-100:   oklch(0.94 0.03 55);
+    --paper:      oklch(0.98 0.005 95);
+    --grey-600:   oklch(0.55 0 0);
+    --grey-400:   oklch(0.72 0 0);
+    --grey-200:   oklch(0.90 0 0);
+
+    --dept-men:      var(--green-700);
+    --dept-ladies:   var(--clay-600);
+    --dept-missions: var(--green-900);
+    --dept-youth:    oklch(0.74 0.08 90);
+    --dept-children: oklch(0.40 0.06 143);
+    --dept-prayer:   var(--ink);
+
+    --serif-line: 1.5;
+
+    /* --------------------------------------------------------
+       NEW — three token additions, forced by interior pages.
+       B's homepage never needed a fill lighter than --green-100,
+       never needed a neutral fill between --paper and --grey-200
+       (skeletons, placeholder tiles, map chrome), and never needed
+       a scrim (it had no overlay of any kind). All three stay
+       inside the approved two-hue system — no new hue is introduced.
+       -------------------------------------------------------- */
+    --green-050: oklch(0.968 0.012 143);
+    --grey-100:  oklch(0.955 0 0);
+    --scrim:     oklch(0.18 0.01 150 / 0.62);
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    font-family:'Poppins',ui-sans-serif,system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    font-size:16px;
+    line-height:var(--serif-line);
+  }
+  img{max-width:100%;display:block;}
+  a{color:var(--green-700);}
+  a:hover{color:var(--green-900);}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 32px;}
+  h1,h2,h3{font-weight:700;margin:0 0 .5em;color:var(--ink);}
+  p{margin:0 0 1em;}
+  ul{margin:0;padding:0;list-style:none;}
+
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--green-900);
+  }
+  .visually-hidden{
+    position:absolute;width:1px;height:1px;overflow:hidden;
+    clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;
+  }
+
+  /* ============================================================
+     DEMO SCAFFOLD — the labelled band before each screen.
+     Not part of the design system; it exists so the five screens
+     can be read and screenshotted from one file.
+     ============================================================ */
+  .screen-divider{
+    background:var(--ink);
+    color:var(--paper);
+    border-top:8px solid var(--green-700);
+    margin-top:80px;
+  }
+  .screen-divider:first-of-type{margin-top:0;}
+  .screen-divider .wrap{
+    display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;
+    padding-top:22px;padding-bottom:22px;
+  }
+  .screen-divider strong{
+    font-size:20px;letter-spacing:.02em;text-transform:uppercase;
+  }
+  .screen-divider code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:14px;color:var(--green-100);
+  }
+  .screen-divider span.note{
+    font-size:13px;color:var(--grey-400);flex:1 1 100%;max-width:80ch;
+  }
+
+  /* ============================================================
+     SITE CHROME — identity bar + header, verbatim from B, with
+     ONE structural change described below.
+     ============================================================ */
+  .identity-bar{background:var(--ink);color:var(--paper);}
+  .identity-bar .wrap{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-top:8px;padding-bottom:8px;
+    font-size:12px;letter-spacing:.03em;
+  }
+  .identity-bar a{color:var(--paper);text-decoration:none;opacity:.85;}
+  .identity-bar a:hover{opacity:1;text-decoration:underline;}
+
+  header.site-header{background:var(--paper);}
+  .header-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 0;gap:24px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:14px;text-decoration:none;}
+  .brand img{height:52px;width:auto;}
+  .brand-text{line-height:1.15;}
+  .brand-text strong{display:block;font-size:19px;color:var(--ink);}
+  .brand-text span{display:block;font-size:12px;color:var(--grey-600);letter-spacing:.02em;}
+
+  /* --------------------------------------------------------
+     NEW — SERVICE NAVIGATION BAR (two-row header).
+     WHY B WAS INSUFFICIENT: B put six nav items on the same row
+     as the wordmark. The plan's target IA (§5) is NINE top-level
+     items — About, Departments, Youth & Children's, Regions,
+     Gallery, Find a Church, Bible College, Calendar, Connect.
+     Nine items do not fit beside a 300px wordmark inside a
+     1200px wrap; B's header wraps to a ragged second line.
+     Resolved by transfer, not invention: GOV.UK itself carries a
+     full-width service navigation bar below the masthead. The
+     5px green rule that closed B's header now closes this bar.
+     -------------------------------------------------------- */
+  .service-nav{
+    background:var(--paper);
+    border-top:1px solid var(--grey-200);
+    border-bottom:5px solid var(--green-700);
+  }
+  .service-nav ul{display:flex;gap:28px;flex-wrap:wrap;}
+  .service-nav a{
+    color:var(--ink);text-decoration:none;font-size:14px;font-weight:600;
+    padding:13px 0;display:block;border-bottom:3px solid transparent;
+    margin-bottom:-3px;
+  }
+  .service-nav a:hover{border-bottom-color:var(--green-700);}
+  .service-nav a[aria-current="page"]{border-bottom-color:var(--ink);}
+
+  #nav-toggle-1,#nav-toggle-2,#nav-toggle-3,#nav-toggle-4,#nav-toggle-5{display:none;}
+  .nav-toggle-label{display:none;cursor:pointer;font-size:14px;font-weight:600;}
+
+  /* --------------------------------------------------------
+     NEW — BREADCRUMB.
+     WHY B WAS INSUFFICIENT: B is a homepage. It has no concept of
+     "where am I in the hierarchy". Every screen below sits two or
+     three levels deep and the site is explicitly organised as a
+     register (region → church, department → announcement), so
+     position must be stated. GOV.UK pattern, ink text, no chrome.
+     -------------------------------------------------------- */
+  .breadcrumb{border-bottom:1px solid var(--grey-200);}
+  .breadcrumb .wrap{padding-top:14px;padding-bottom:14px;}
+  .breadcrumb ol{
+    display:flex;flex-wrap:wrap;gap:0 10px;margin:0;padding:0;
+    list-style:none;font-size:14px;color:var(--grey-600);
+  }
+  .breadcrumb a{color:var(--ink);text-decoration:underline;text-underline-offset:2px;}
+  .breadcrumb a:hover{color:var(--green-700);}
+  .breadcrumb li + li::before{content:"\203A";margin-right:10px;color:var(--grey-400);}
+  .breadcrumb li[aria-current]{color:var(--grey-600);}
+
+  /* --------------------------------------------------------
+     NEW — INTERIOR PAGE HEADER.
+     WHY B WAS INSUFFICIENT: B's hero IS the church finder — a
+     task, not a title. Interior pages need a title band. Built
+     from B's existing hero measurements (44px h1, 18px lede,
+     50ch measure, 1px grey rule) so it reads as the same system
+     with the form control removed.
+     -------------------------------------------------------- */
+  .page-header{padding:52px 0 40px;border-bottom:1px solid var(--grey-200);}
+  .page-header h1{font-size:44px;line-height:1.1;letter-spacing:-.01em;max-width:18ch;margin-top:6px;}
+  .page-header p.lede{font-size:18px;color:var(--grey-600);max-width:52ch;margin-bottom:0;}
+  .page-meta{
+    display:flex;flex-wrap:wrap;gap:0 22px;margin-top:22px;padding-top:18px;
+    border-top:1px solid var(--grey-200);font-size:14px;color:var(--grey-600);
+    max-width:760px;
+  }
+  .page-meta b{color:var(--ink);font-weight:600;}
+
+  section{padding:56px 0;border-bottom:1px solid var(--grey-200);}
+  .section-head{margin-bottom:32px;max-width:70ch;}
+  .section-head h2{font-size:28px;}
+  .section-head p{color:var(--grey-600);font-size:15px;}
+
+  .content-grid{display:grid;grid-template-columns:2fr 1fr;gap:56px;}
+  .content-grid .lede-col p{font-size:16px;max-width:62ch;}
+  .related{border-top:4px solid var(--green-700);padding-top:16px;}
+  .related .eyebrow{margin-bottom:14px;display:block;}
+  .related li{padding:10px 0;border-top:1px solid var(--grey-200);font-size:14px;}
+  .related li:first-child{border-top:none;}
+  .related a{color:var(--ink);text-decoration:none;font-weight:600;}
+  .related a:hover{color:var(--green-700);}
+
+  /* tags — verbatim from B */
+  .tag{
+    display:inline-block;background:var(--green-900);color:var(--paper);
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 8px;
+  }
+  .dept-tag{
+    display:inline-block;padding:7px 14px;font-size:12px;font-weight:700;
+    letter-spacing:.06em;text-transform:uppercase;
+  }
+  .dept-men{background:var(--dept-men);color:var(--paper);}
+  .dept-ladies{background:var(--dept-ladies);color:var(--ink);}
+  .dept-missions{background:var(--dept-missions);color:var(--paper);}
+  .dept-youth{background:var(--dept-youth);color:var(--ink);}
+  .dept-children{background:var(--dept-children);color:var(--paper);}
+  .dept-prayer{background:var(--dept-prayer);color:var(--paper);}
+
+  /* --------------------------------------------------------
+     NEW — REGION TAG (outlined, not filled).
+     WHY B WAS INSUFFICIENT: B spent the entire two-hue budget on
+     six department tags. Regions are a SECOND taxonomy that must
+     be distinguishable from departments at a glance — and there
+     are no hues left. Resolved by changing TREATMENT rather than
+     hue: departments are filled, regions are outlined. The
+     category is legible without spending colour.
+     -------------------------------------------------------- */
+  .region-tag{
+    display:inline-block;padding:6px 13px;font-size:12px;font-weight:700;
+    letter-spacing:.06em;text-transform:uppercase;
+    border:2px solid var(--ink);color:var(--ink);background:transparent;
+  }
+  .region-tag.is-current{background:var(--ink);color:var(--paper);}
+
+  /* --------------------------------------------------------
+     NEW — CONTENTS LIST (in-page anchor nav).
+     WHY B WAS INSUFFICIENT: B's homepage sections are scanned by
+     scrolling. Region and department detail pages each carry four
+     distinct content zones (message / churches / events / gallery)
+     and users arrive wanting one of them. GOV.UK "Contents"
+     component, transferred: green left rule, plain links.
+     -------------------------------------------------------- */
+  .contents{border-left:4px solid var(--green-700);padding:2px 0 2px 18px;margin:28px 0 0;}
+  .contents .eyebrow{display:block;margin-bottom:8px;}
+  .contents ol{margin:0;padding:0;list-style:none;counter-reset:c;}
+  .contents li{font-size:15px;padding:5px 0;counter-increment:c;}
+  .contents li::before{content:counter(c) ".";color:var(--grey-600);margin-right:8px;font-variant-numeric:tabular-nums;}
+  .contents a{color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:2px;}
+  .contents a:hover{color:var(--green-700);}
+
+  /* lists — verbatim from B */
+  .church-list li{padding:10px 0;border-top:1px solid var(--grey-200);font-size:15px;}
+  .church-list li:first-child{border-top:none;}
+  .church-list a{color:var(--ink);text-decoration:none;}
+  .church-list a:hover{color:var(--green-700);text-decoration:underline;}
+
+  .event-list{border-top:1px solid var(--grey-200);}
+  .event-row{
+    display:grid;grid-template-columns:110px 1fr;gap:24px;align-items:baseline;
+    padding:18px 0;border-bottom:1px solid var(--grey-200);
+  }
+  .event-date{
+    font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;
+    color:var(--green-900);white-space:nowrap;
+  }
+  .event-name{font-size:16px;font-weight:500;}
+  .event-name small{display:block;font-size:13px;color:var(--grey-600);font-weight:400;margin-top:2px;}
+  .view-all{display:inline-block;margin-top:22px;font-weight:700;font-size:14px;}
+  .view-all::after{content:" \2192";}
+
+  .btn{
+    display:inline-block;background:var(--ink);color:var(--paper);
+    text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;
+    border:2px solid var(--ink);cursor:pointer;font-family:inherit;
+  }
+  .btn:hover{background:var(--green-900);border-color:var(--green-900);color:var(--paper);}
+  /* NEW — SECONDARY BUTTON. B had exactly one button style (solid ink)
+     because its homepage had exactly one call to action per section.
+     Interior screens pair actions ("Apply filters" / "Clear all",
+     "Directions" / "Close"), which needs a second weight. Outline of
+     the same ink — no new colour. */
+  .btn-secondary{background:transparent;color:var(--ink);border:2px solid var(--ink);}
+  .btn-secondary:hover{background:var(--ink);color:var(--paper);}
+
+  /* --------------------------------------------------------
+     NEW — SUMMARY LIST (key/value rows).
+     WHY B WAS INSUFFICIENT: B's lists are single-line
+     (heading + one-line description). A church record is
+     structured data — address, service times, phone, email,
+     website, region — and flattening it into prose loses the
+     scannability that is the whole point of the register motif.
+     GOV.UK "Summary list", transferred literally.
+     -------------------------------------------------------- */
+  .summary-list{border-top:1px solid var(--grey-200);}
+  .summary-list div{
+    display:grid;grid-template-columns:190px 1fr;gap:24px;
+    padding:14px 0;border-bottom:1px solid var(--grey-200);font-size:15px;
+  }
+  .summary-list dt{color:var(--grey-600);font-size:14px;}
+  .summary-list dd{margin:0;}
+  .summary-list dd ul li{padding:1px 0;}
+
+  /* --------------------------------------------------------
+     NEW — PROSE BLOCK.
+     WHY B WAS INSUFFICIENT: B's only body copy is two paragraphs
+     of intro. Real department copy in the CMS carries H3-level
+     subheads ("Who we are", "Our Mission", "Our Focus"). B never
+     defined an h3 inside running text.
+     -------------------------------------------------------- */
+  .prose{max-width:62ch;}
+  .prose h3{font-size:17px;margin:28px 0 8px;}
+  .prose h3:first-child{margin-top:0;}
+  .prose p{font-size:16px;}
+
+  /* --------------------------------------------------------
+     NEW — SCRIPTURE QUOTE.
+     WHY B WAS INSUFFICIENT: every department row in the database
+     carries a `scripture_quote` and B has no blockquote at all.
+     Deliberately NOT decorated with quotation marks or an icon
+     (brand-spec §4 forbids decorative icons) — a green rule and
+     an italic, which is the one italic weight loaded from Poppins.
+     -------------------------------------------------------- */
+  .scripture{
+    border-left:4px solid var(--green-700);padding:4px 0 4px 20px;margin:0 0 32px;
+    max-width:60ch;
+  }
+  .scripture p{font-style:italic;font-weight:500;font-size:17px;margin:0 0 8px;}
+  .scripture cite{font-style:normal;font-size:13px;color:var(--grey-600);letter-spacing:.02em;}
+
+  /* --------------------------------------------------------
+     NEW — FILTER PANEL.
+     WHY B WAS INSUFFICIENT: B's only control is the finder input.
+     The locator needs facets (region, service day, features).
+     Square checkboxes, 2px ink borders, no rounding — matching the
+     2px ink border already on B's .finder.
+     -------------------------------------------------------- */
+  .filter-panel{border-top:4px solid var(--ink);padding-top:18px;}
+  .filter-panel h2{font-size:19px;margin-bottom:4px;}
+  .filter-group{padding:18px 0;border-bottom:1px solid var(--grey-200);}
+  .filter-group:first-of-type{border-top:1px solid var(--grey-200);}
+  .filter-group legend,.filter-group .legend{
+    font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;
+    color:var(--green-900);margin-bottom:10px;display:block;
+  }
+  .check{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:15px;cursor:pointer;}
+  .check input{
+    appearance:none;-webkit-appearance:none;width:20px;height:20px;flex:0 0 20px;
+    border:2px solid var(--ink);background:var(--paper);margin:0;position:relative;
+  }
+  .check input:checked{background:var(--green-700);border-color:var(--green-700);}
+  .check input:checked::after{
+    content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;
+    border:solid var(--paper);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);
+  }
+  .check .count{margin-left:auto;color:var(--grey-600);font-size:13px;font-variant-numeric:tabular-nums;}
+  .filter-actions{display:flex;gap:12px;padding-top:18px;flex-wrap:wrap;}
+
+  /* the finder, verbatim from B, reused as the locator's keyword input */
+  .finder{display:flex;gap:0;max-width:560px;border:2px solid var(--ink);}
+  .finder input{
+    flex:1;border:none;padding:14px 16px;font-size:16px;font-family:inherit;
+    background:var(--paper);color:var(--ink);
+  }
+  .finder input:focus{outline:3px solid var(--clay-600);outline-offset:-3px;}
+  .finder button{
+    border:none;background:var(--green-700);color:var(--paper);
+    font-family:inherit;font-weight:700;font-size:15px;
+    padding:0 26px;cursor:pointer;display:flex;align-items:center;gap:8px;
+  }
+  .finder button:hover{background:var(--green-900);}
+
+  /* --------------------------------------------------------
+     NEW — APPLIED-FILTER CHIPS + RESULT COUNT.
+     WHY B WAS INSUFFICIENT: no filtered view existed, so there was
+     no way to state "what am I currently looking at". Chips reuse
+     the .region-tag outline treatment at a smaller size.
+     -------------------------------------------------------- */
+  .results-bar{
+    display:flex;align-items:baseline;justify-content:space-between;gap:18px;
+    flex-wrap:wrap;padding-bottom:16px;border-bottom:4px solid var(--ink);
+  }
+  .results-count{font-size:19px;font-weight:700;}
+  .results-count b{font-variant-numeric:tabular-nums;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;border:2px solid var(--ink);
+    padding:4px 10px;color:var(--ink);text-decoration:none;background:var(--paper);
+  }
+  .chip:hover{background:var(--ink);color:var(--paper);}
+  .chip.is-on{background:var(--ink);color:var(--paper);}
+  .chip .x{font-weight:700;}
+
+  /* --------------------------------------------------------
+     NEW — MAP PANEL.
+     WHY B WAS INSUFFICIENT: this is the largest genuine gap.
+     Direction B has NO geographic vocabulary whatsoever — it
+     deliberately rejects imagery, and a slippy map is an
+     uncontrollable full-bleed image that arrives from a tile
+     server. The only honest resolution inside B's language is to
+     frame it like a form control rather than like a picture:
+     2px ink border, an ink caption bar above it stating what it
+     is and what it is bounded to, square zoom controls in the
+     same 2px ink, and a plain-text attribution line beneath.
+     The map is a TOOL in a register, not a hero photograph.
+     (Static file: no tiles are loaded. The panel shows the frame,
+     the controls and the honest "loads here" state.)
+     -------------------------------------------------------- */
+  .map-panel{border:2px solid var(--ink);background:var(--paper);}
+  .map-caption{
+    background:var(--ink);color:var(--paper);padding:9px 16px;
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    font-size:12px;letter-spacing:.04em;
+  }
+  .map-caption span:last-child{color:var(--grey-400);}
+  .map-canvas{
+    height:420px;background:var(--grey-100);position:relative;
+    display:flex;align-items:center;justify-content:center;
+    background-image:linear-gradient(var(--grey-200) 1px,transparent 1px),
+                     linear-gradient(90deg,var(--grey-200) 1px,transparent 1px);
+    background-size:48px 48px;
+  }
+  .map-placeholder{text-align:center;max-width:44ch;padding:0 24px;}
+  .map-placeholder .eyebrow{display:block;margin-bottom:8px;}
+  .map-placeholder p{font-size:14px;color:var(--grey-600);margin:0;}
+  .map-zoom{position:absolute;top:14px;left:14px;display:flex;flex-direction:column;}
+  .map-zoom button{
+    width:34px;height:34px;border:2px solid var(--ink);background:var(--paper);
+    font-family:inherit;font-size:17px;font-weight:700;line-height:1;cursor:pointer;
+    color:var(--ink);
+  }
+  .map-zoom button + button{border-top-width:0;}
+  .map-reset{
+    position:absolute;top:14px;right:14px;background:var(--paper);
+    border:2px solid var(--ink);font-family:inherit;font-size:12px;font-weight:700;
+    letter-spacing:.05em;text-transform:uppercase;padding:8px 12px;cursor:pointer;color:var(--ink);
+  }
+  .map-attrib{font-size:12px;color:var(--grey-600);padding:8px 16px;border-top:1px solid var(--grey-200);}
+
+  /* --------------------------------------------------------
+     NEW — RESULT ROW (the church record).
+     Extends B's .event-row grid to three columns. Same rule
+     weights, same paddings, same "no card chrome" rule.
+     -------------------------------------------------------- */
+  .result-group{margin-bottom:44px;}
+  .result-group > h3{
+    font-size:15px;letter-spacing:.06em;text-transform:uppercase;
+    padding-bottom:10px;margin-bottom:0;border-bottom:2px solid var(--ink);
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  }
+  .result-group > h3 span{font-size:13px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--grey-600);}
+  .result-row{
+    display:grid;grid-template-columns:1fr 240px 130px;gap:28px;align-items:start;
+    padding:20px 0;border-bottom:1px solid var(--grey-200);
+  }
+  .result-row h4{font-size:17px;font-weight:700;margin:0 0 4px;}
+  .result-row h4 a{color:var(--ink);text-decoration:none;}
+  .result-row h4 a:hover{color:var(--green-700);text-decoration:underline;}
+  .result-row .addr{font-size:14px;color:var(--grey-600);margin:0;}
+  .result-row .times{font-size:14px;margin:0;}
+  .result-row .times li{padding:1px 0;}
+  .result-row .times b{font-weight:600;}
+  .result-row .more{
+    font-size:14px;font-weight:700;text-decoration:none;color:var(--green-700);
+    border-bottom:2px solid var(--green-700);padding-bottom:2px;justify-self:start;
+  }
+  .result-row .more:hover{color:var(--green-900);border-color:var(--green-900);}
+  .result-row .more::after{content:" \2192";}
+
+  /* --------------------------------------------------------
+     NEW — MODAL (native <dialog>) + demo stage.
+     WHY B WAS INSUFFICIENT: B has no overlay vocabulary at all —
+     no scrim, no elevated surface, no close affordance. Since the
+     whole direction refuses shadow and rounding, the modal is
+     defined by a heavy 4px green top rule and a square 2px ink
+     border on paper: the same "bold rule in brand colour closes a
+     surface" move the header and footer already make.
+     .modal-stage is DEMO-ONLY scaffolding — it fakes the scrim so
+     an open <dialog> can be screenshotted in a static file. In
+     production this is Modal.vue calling showModal().
+     -------------------------------------------------------- */
+  .modal-stage{
+    position:relative;background:var(--scrim);
+    padding:64px 32px;display:flex;justify-content:center;
+  }
+  dialog.modal{
+    position:static;margin:0;padding:0;max-width:660px;width:100%;
+    border:2px solid var(--ink);border-top:6px solid var(--green-700);
+    background:var(--paper);color:var(--ink);
+  }
+  dialog.modal::backdrop{background:var(--scrim);}
+  .modal-head{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:20px;
+    padding:26px 28px 18px;border-bottom:1px solid var(--grey-200);
+  }
+  .modal-head h2{font-size:24px;margin:6px 0 2px;}
+  .modal-head .role{font-size:14px;color:var(--grey-600);}
+  .modal-close{
+    background:transparent;border:2px solid var(--ink);color:var(--ink);
+    font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;padding:7px 12px;cursor:pointer;flex:0 0 auto;
+  }
+  .modal-close:hover{background:var(--ink);color:var(--paper);}
+  .modal-body{padding:24px 28px;}
+  .modal-body .portrait{
+    display:grid;grid-template-columns:180px 1fr;gap:26px;align-items:start;
+  }
+  .modal-body .portrait img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top center;}
+  .modal-foot{
+    padding:18px 28px 24px;border-top:1px solid var(--grey-200);
+    display:flex;gap:12px;flex-wrap:wrap;
+  }
+
+  /* --------------------------------------------------------
+     NEW — PLACEHOLDER / EMPTY / SKELETON / NOTICE.
+     WHY B WAS INSUFFICIENT: B is a fully-populated marketing page.
+     Every screen below hits real content that does not exist yet
+     (region intro copy, regional photography, leader biographies,
+     regional events). brand-spec §1 forbids substituting stock
+     imagery, so the placeholder has to be a designed component.
+     -------------------------------------------------------- */
+  .placeholder-tile{
+    aspect-ratio:4/3;background:var(--grey-100);
+    border:1px dashed var(--grey-400);
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:16px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    font-weight:600;color:var(--grey-600);
+  }
+  .empty-state{
+    border:1px solid var(--grey-200);background:var(--green-050);
+    padding:32px;max-width:70ch;
+  }
+  .empty-state h3{font-size:18px;margin-bottom:6px;}
+  .empty-state p{font-size:15px;color:var(--grey-600);margin:0 0 14px;}
+  .empty-state p:last-child{margin-bottom:0;}
+
+  /* NEW — NOTICE. A single-line inset used for honest "this content
+     is CMS-editable and not yet supplied" statements. Clay is the
+     only warm accent in the palette and is reserved for this. */
+  .notice{
+    border-left:4px solid var(--clay-600);background:var(--clay-100);
+    padding:16px 20px;font-size:14px;max-width:70ch;
+  }
+  .notice strong{display:block;font-size:12px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:4px;}
+  .notice p{margin:0;}
+
+  .skeleton{background:var(--grey-100);display:block;}
+  .skeleton-row{
+    display:grid;grid-template-columns:110px 1fr;gap:24px;align-items:center;
+    padding:18px 0;border-bottom:1px solid var(--grey-200);
+  }
+
+  /* NEW — ERROR SUMMARY. See gap list: the approved palette has NO
+     error hue. Signalling failure is therefore carried by WEIGHT
+     (4px ink border, ink heading) rather than by red, with clay as
+     the only accent. This is the one place the two-hue rule visibly
+     costs the design something. */
+  .error-summary{border:4px solid var(--ink);padding:22px 24px;max-width:70ch;}
+  .error-summary h3{font-size:19px;margin-bottom:8px;}
+  .error-summary ul li{padding:4px 0;font-size:15px;}
+  .error-summary a{color:var(--ink);font-weight:600;}
+
+  /* ---------- leadership grid — B's, at a larger step ---------- */
+  /* Three across, capped, because both leadership groups are groups of
+     three — the executive and the three regional presbyters. B's homepage
+     used six across because it showed all six in one row. */
+  .leader-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:940px;}
+  .leader{font-size:14px;}
+  .leader img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top center;margin-bottom:12px;}
+  .leader .initials-tile{
+    width:100%;aspect-ratio:3/4;background:var(--green-100);
+    color:var(--green-900);display:flex;align-items:center;justify-content:center;
+    font-size:44px;font-weight:700;margin-bottom:12px;
+  }
+  .leader strong{display:block;font-size:16px;}
+  .leader span{display:block;color:var(--grey-600);font-size:13.5px;margin-top:2px;}
+  .leader .open-link{
+    display:inline-block;margin-top:8px;font-size:13px;font-weight:700;
+    color:var(--green-700);text-decoration:none;border-bottom:2px solid var(--green-700);
+    padding-bottom:1px;background:none;border-width:0 0 2px;cursor:pointer;font-family:inherit;
+  }
+  .leader .open-link:hover{color:var(--green-900);border-color:var(--green-900);}
+
+  /* --------------------------------------------------------
+     NEW — GALLERY GRID.
+     WHY B WAS INSUFFICIENT — and this is a real tension, not a
+     convenience: Direction B's stated rule is "undecorated lists
+     over cards". A photo gallery is inherently a grid of framed
+     objects. Resolved by stripping the card to nothing: no border,
+     no radius, no shadow, no padding — image, then a caption in
+     the same 14px/grey-600 used for every other secondary line in
+     B. The grid gutters do the work the card chrome would have.
+     -------------------------------------------------------- */
+  .gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px 24px;}
+  .gallery-grid.is-wide{grid-template-columns:repeat(3,1fr);}
+  .gallery-item figure{margin:0;}
+  .gallery-item img{width:100%;aspect-ratio:4/3;object-fit:cover;}
+  .gallery-item figcaption{padding-top:10px;}
+  .gallery-item figcaption strong{display:block;font-size:15px;font-weight:600;line-height:1.35;}
+  .gallery-item figcaption span{display:block;font-size:13px;color:var(--grey-600);margin-top:4px;}
+  .gallery-item figcaption .src{
+    display:inline-block;margin-top:8px;font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;font-weight:600;color:var(--green-900);
+  }
+
+  /* ---------- region detail: churches with addresses ---------- */
+  .church-rows{border-top:1px solid var(--grey-200);}
+  .church-rows .row{
+    display:grid;grid-template-columns:1fr 260px 150px;gap:28px;align-items:start;
+    padding:18px 0;border-bottom:1px solid var(--grey-200);
+  }
+  .church-rows h3{font-size:17px;margin:0 0 3px;}
+  .church-rows h3 a{color:var(--ink);text-decoration:none;}
+  .church-rows h3 a:hover{color:var(--green-700);text-decoration:underline;}
+  .church-rows .addr{font-size:14px;color:var(--grey-600);margin:0;}
+  .church-rows .svc{font-size:14px;margin:0;}
+
+  /* ---------- department: full-bleed colour bar ---------- */
+  /* NEW — the department colour bar promoted from a 12px inline tag
+     to an 8px full-bleed page rule. Same token, same meaning, one
+     step up in scale: on a department page the department IS the page. */
+  .dept-bar{height:8px;}
+
+  /* ---------- 404 ---------- */
+  .notfound{padding:80px 0;}
+  .notfound h1{font-size:44px;max-width:20ch;}
+  .notfound p{font-size:18px;color:var(--grey-600);max-width:52ch;}
+
+  /* ============================================================
+     FOOTER — verbatim from B
+     ============================================================ */
+  footer{background:var(--ink);color:var(--paper);border-top:6px solid var(--green-700);}
+  footer .wrap{padding:48px 32px 28px;}
+  .footer-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+    padding-bottom:32px;border-bottom:1px solid oklch(0.34 0.01 150);
+  }
+  .footer-grid h4{
+    font-size:12px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--grey-400);margin:0 0 14px;
+  }
+  .footer-grid li{padding:6px 0;font-size:14px;}
+  .footer-grid a{color:var(--paper);text-decoration:none;opacity:.9;}
+  .footer-grid a:hover{opacity:1;text-decoration:underline;}
+  .footer-legal{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-top:20px;font-size:12.5px;color:var(--grey-400);flex-wrap:wrap;gap:10px;
+  }
+  .footer-legal .brand{opacity:.9;}
+  .footer-legal .brand strong{color:var(--paper);font-size:14px;}
+  .footer-legal .brand span{color:var(--grey-400);}
+
+  /* ============================================================
+     RESPONSIVE — every screen must survive 390px
+     ============================================================ */
+  @media (max-width:1080px){
+    .locator-grid{grid-template-columns:1fr !important;gap:40px !important;}
+    .result-row{grid-template-columns:1fr 220px;gap:20px;}
+    .result-row .more{grid-column:1 / -1;}
+    .church-rows .row{grid-template-columns:1fr 240px;}
+    .church-rows .svc{grid-column:1 / -1;}
+  }
+
+  @media (max-width:900px){
+    .content-grid{grid-template-columns:1fr;gap:32px;}
+    .related{border-top:none;border-left:4px solid var(--green-700);padding-left:16px;padding-top:0;}
+    .leader-grid{grid-template-columns:repeat(3,1fr);gap:24px;}
+    .gallery-grid,.gallery-grid.is-wide{grid-template-columns:repeat(2,1fr);}
+    .footer-grid{grid-template-columns:repeat(2,1fr);}
+    .modal-body .portrait{grid-template-columns:140px 1fr;gap:20px;}
+    .page-header h1{font-size:36px;}
+  }
+
+  @media (max-width:640px){
+    .wrap{padding:0 20px;}
+    .identity-bar .wrap{padding:0 20px;font-size:11px;}
+    .screen-divider .wrap{padding:18px 20px;}
+    .screen-divider strong{font-size:16px;}
+    .nav-toggle-label{
+      display:flex;align-items:center;gap:8px;border:2px solid var(--ink);
+      padding:8px 14px;
+    }
+    .service-nav{border-top:none;}
+    .service-nav .wrap{padding:0 20px;}
+    .service-nav ul{display:none;flex-direction:column;gap:0;}
+    .header-row:has(input[type=checkbox]:checked) ~ .service-nav ul{display:flex;}
+    .service-nav a{padding:12px 0;border-bottom:1px solid var(--grey-200);margin-bottom:0;}
+    .page-header{padding:34px 0 28px;}
+    .page-header h1{font-size:30px;max-width:100%;}
+    .page-header p.lede{font-size:16px;}
+    .page-meta{gap:4px 18px;}
+    section{padding:36px 0;}
+    .section-head h2{font-size:23px;}
+    .finder{flex-direction:column;}
+    .finder button{padding:14px;justify-content:center;}
+    .event-row{grid-template-columns:70px 1fr;gap:14px;}
+    .result-row,.church-rows .row{grid-template-columns:1fr;gap:8px;}
+    .result-row .more{grid-column:auto;margin-top:6px;}
+    .summary-list div{grid-template-columns:1fr;gap:2px;}
+    .leader-grid{grid-template-columns:repeat(2,1fr);gap:20px;}
+    .gallery-grid,.gallery-grid.is-wide{grid-template-columns:1fr;}
+    .footer-grid{grid-template-columns:1fr 1fr;gap:24px;}
+    .footer-legal{flex-direction:column;align-items:flex-start;}
+    .modal-stage{padding:28px 16px;}
+    .modal-body .portrait{grid-template-columns:1fr;}
+    .modal-body .portrait img{max-width:200px;}
+    .map-canvas{height:300px;}
+    .notfound h1{font-size:30px;}
+    .results-bar{border-bottom-width:3px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ############################################################
+     SCREEN 1 — REGION DETAIL
+     ############################################################ -->
+<div class="screen-divider">
+  <div class="wrap">
+    <strong>Region detail</strong>
+    <code>/regions/northern</code>
+    <span class="note">Region message + churches + events + gallery. The archetype the plan calls "the reusable Regions section" (requirement 11). Two honest empty/placeholder states appear here because `regions.intro`, regional photography and `events.region_id` do not exist in the database yet.</span>
+  </div>
+</div>
+
+<div class="identity-bar">
+  <div class="wrap">
+    <span>United Pentecostal Church International — New Zealand</span>
+    <a href="#">Connect with Us</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#">
+      <img src="../assets/logo.png" alt="UPCI New Zealand logo">
+      <span class="brand-text">
+        <strong>UPCI New Zealand</strong>
+        <span>United Pentecostal Church International</span>
+      </span>
+    </a>
+    <input type="checkbox" id="nav-toggle-1">
+    <label class="nav-toggle-label" for="nav-toggle-1">Menu</label>
+  </div>
+  <nav class="service-nav" aria-label="Primary">
+    <div class="wrap">
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Departments</a></li>
+        <li><a href="#">Youth &amp; Children's</a></li>
+        <li><a href="#" aria-current="page">Regions</a></li>
+        <li><a href="#">Gallery</a></li>
+        <li><a href="#">Find a Church</a></li>
+        <li><a href="#">Bible College</a></li>
+        <li><a href="#">Calendar</a></li>
+        <li><a href="#">Connect</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="wrap">
+    <ol>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Regions</a></li>
+      <li aria-current="page">Northern Region</li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="wrap">
+      <span class="region-tag is-current">Region</span>
+      <h1>Northern Region</h1>
+      <p class="lede">Four affiliated churches across Whangarei, Auckland and Hamilton.</p>
+      <div class="page-meta">
+        <span><b>4</b> churches</span>
+        <span>Presbyter: <b>Rev. Brian Aubrey</b></span>
+        <span>Whangarei &middot; Auckland &middot; Hamilton</span>
+      </div>
+      <div class="contents">
+        <span class="eyebrow">Contents</span>
+        <ol>
+          <li><a href="#r-message">Message from the Presbyter</a></li>
+          <li><a href="#r-churches">Churches in this region</a></li>
+          <li><a href="#r-events">Regional events</a></li>
+          <li><a href="#r-gallery">Gallery</a></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1a. MESSAGE — two-thirds/one-third, B's content-grid verbatim -->
+  <section id="r-message" aria-label="Message from the Presbyter">
+    <div class="wrap content-grid">
+      <div class="lede-col">
+        <span class="eyebrow">Message</span>
+        <h2>From the Presbyter</h2>
+        <!-- HONEST PLACEHOLDER: `regions.intro` does not exist in the database.
+             The plan (§3.2) adds it as a nullable markdown column; the copy has
+             not been written. Nothing is invented here. -->
+        <div class="notice">
+          <strong>Content to be supplied</strong>
+          <p>The regional message is CMS-editable (<code>regions.intro</code>) and has not been written yet. Until it is supplied this section is hidden on the live page rather than filled with placeholder prose.</p>
+        </div>
+      </div>
+      <aside class="related">
+        <span class="eyebrow">Presbyter</span>
+        <img src="../assets/photo4.jpg" alt="Rev. Brian Aubrey" style="width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top center;margin-bottom:12px;">
+        <strong style="display:block;font-size:16px;">Rev. Brian Aubrey</strong>
+        <span style="display:block;color:var(--grey-600);font-size:13.5px;margin-bottom:18px;">Northern Region Presbyter</span>
+        <ul>
+          <li><a href="#">All three regions</a></li>
+          <li><a href="#">Central Region</a></li>
+          <li><a href="#">Southern Region</a></li>
+          <li><a href="#">National leadership</a></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 1b. CHURCHES — real data, region_id = 1 -->
+  <section id="r-churches" aria-label="Churches in this region">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Find a Church</span>
+        <h2>Churches in the Northern Region</h2>
+        <p>Four affiliated churches. Service times are maintained by each local church through the admin panel.</p>
+      </div>
+      <div class="church-rows">
+        <div class="row">
+          <div>
+            <h3><a href="#">Daystar Fellowship</a></h3>
+            <p class="addr">2A Deveron Street, Regent, Whangarei 0112</p>
+          </div>
+          <p class="addr">darynthompson13@gmail.com<br>+64 27 834 8349</p>
+          <p class="svc">Sunday 10:00am<br>Wednesday 7:00am</p>
+        </div>
+        <div class="row">
+          <div>
+            <h3><a href="#">Grace Fellowship</a></h3>
+            <p class="addr">33 Hare Puke Drive, Flagstaff, Hamilton 3210</p>
+          </div>
+          <p class="addr">gracefellowshipnz@gmail.com</p>
+          <p class="svc">Sunday 10:00am</p>
+        </div>
+        <div class="row">
+          <div>
+            <h3><a href="#">New Zealand Family in Christ Church</a></h3>
+            <p class="addr">372 Don Buck Road, Massey, Auckland 0614</p>
+          </div>
+          <p class="addr">sa.greenpacific@gmail.com</p>
+          <p class="svc">Sunday 10:30am</p>
+        </div>
+        <div class="row">
+          <div>
+            <h3><a href="#">Southside Pentecostal Fellowship</a></h3>
+            <p class="addr">Drury Street, New Lynn, Auckland 0600</p>
+          </div>
+          <p class="addr">contact@southsidepentecostals.com<br>+64 27 442 0921</p>
+          <p class="svc">Sunday 9:00am<br>Saturday 8:00am (online)</p>
+        </div>
+      </div>
+      <a class="view-all" href="#">Open all four on the church map</a>
+    </div>
+  </section>
+
+  <!-- 1c. EVENTS — genuine EMPTY STATE. All 49 events in the database are
+       national (events.region_id does not exist yet; the plan backfills every
+       row to scope='national'). Showing national events here would misattribute
+       them, so the honest design is the empty state. -->
+  <section id="r-events" aria-label="Regional events">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Calendar</span>
+        <h2>Regional events</h2>
+      </div>
+      <div class="empty-state">
+        <h3>No regional events scheduled</h3>
+        <p>Nothing is currently listed for the Northern Region. All 2026 events published so far are on the national calendar.</p>
+        <a class="btn" href="#">View the national calendar</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1d. GALLERY — labelled placeholders. brand-spec §1 forbids substituting
+       stock photography for regional imagery we do not hold. -->
+  <section id="r-gallery" aria-label="Region gallery">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Gallery</span>
+        <h2>Northern Region gallery</h2>
+        <p>Photographs uploaded by the region through the admin panel. The same gallery component serves regions, departments and the main gallery.</p>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item"><div class="placeholder-tile">Photo to be supplied</div></div>
+        <div class="gallery-item"><div class="placeholder-tile">Photo to be supplied</div></div>
+        <div class="gallery-item"><div class="placeholder-tile">Photo to be supplied</div></div>
+        <div class="gallery-item"><div class="placeholder-tile">Photo to be supplied</div></div>
+      </div>
+      <a class="view-all" href="#">Go to the full gallery</a>
+    </div>
+  </section>
+</main>
+
+
+<!-- ############################################################
+     SCREEN 2 — CHURCH LOCATOR
+     ############################################################ -->
+<div class="screen-divider">
+  <div class="wrap">
+    <strong>Church locator</strong>
+    <code>/find-church</code>
+    <span class="note">List + filters + map + detail modal. The hardest test of Direction B: the direction refuses photography, and a slippy map is an uncontrollable full-bleed image. Filtering is by the organisational region FK (Northern / Central / Southern), not the legacy free-text column.</span>
+  </div>
+</div>
+
+<div class="identity-bar">
+  <div class="wrap">
+    <span>United Pentecostal Church International — New Zealand</span>
+    <a href="#">Connect with Us</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#">
+      <img src="../assets/logo.png" alt="UPCI New Zealand logo">
+      <span class="brand-text">
+        <strong>UPCI New Zealand</strong>
+        <span>United Pentecostal Church International</span>
+      </span>
+    </a>
+    <input type="checkbox" id="nav-toggle-2">
+    <label class="nav-toggle-label" for="nav-toggle-2">Menu</label>
+  </div>
+  <nav class="service-nav" aria-label="Primary">
+    <div class="wrap">
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Departments</a></li>
+        <li><a href="#">Youth &amp; Children's</a></li>
+        <li><a href="#">Regions</a></li>
+        <li><a href="#">Gallery</a></li>
+        <li><a href="#" aria-current="page">Find a Church</a></li>
+        <li><a href="#">Bible College</a></li>
+        <li><a href="#">Calendar</a></li>
+        <li><a href="#">Connect</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="wrap">
+    <ol>
+      <li><a href="#">Home</a></li>
+      <li aria-current="page">Find a church</li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="wrap">
+      <span class="eyebrow">Find a Church</span>
+      <h1>Find a UPCI church near you</h1>
+      <p class="lede" style="margin-bottom:26px;">Ten churches across the Northern, Central and Southern regions of New Zealand.</p>
+      <!-- The homepage hero's .finder is reused verbatim as this page's
+           keyword input. The task hero and the task page share one control. -->
+      <form class="finder" role="search" onsubmit="return false;">
+        <label for="find2" class="visually-hidden">Enter your town or region</label>
+        <input id="find2" type="text" placeholder="Enter your town or suburb — e.g. Hamilton">
+        <button type="submit">Search <span aria-hidden="true">&rarr;</span></button>
+      </form>
+    </div>
+  </div>
+
+  <section style="border-bottom:none;">
+    <div class="wrap">
+      <div class="locator-grid" style="display:grid;grid-template-columns:280px 1fr;gap:56px;align-items:start;">
+
+        <!-- FILTERS -->
+        <form class="filter-panel" onsubmit="return false;">
+          <h2>Filter</h2>
+          <fieldset class="filter-group" style="border:none;padding-inline:0;margin:0;">
+            <legend>Region</legend>
+            <label class="check"><input type="checkbox" checked> Northern <span class="count">4</span></label>
+            <label class="check"><input type="checkbox" checked> Central <span class="count">2</span></label>
+            <label class="check"><input type="checkbox" checked> Southern <span class="count">4</span></label>
+          </fieldset>
+          <fieldset class="filter-group" style="border:none;padding-inline:0;margin:0;">
+            <legend>Service day</legend>
+            <label class="check"><input type="checkbox"> Sunday <span class="count">9</span></label>
+            <label class="check"><input type="checkbox"> Wednesday <span class="count">3</span></label>
+            <label class="check"><input type="checkbox"> Saturday <span class="count">3</span></label>
+            <label class="check"><input type="checkbox"> Monday <span class="count">1</span></label>
+          </fieldset>
+          <fieldset class="filter-group" style="border:none;padding-inline:0;margin:0;">
+            <legend>Island</legend>
+            <label class="check"><input type="checkbox"> North Island <span class="count">7</span></label>
+            <label class="check"><input type="checkbox"> South Island <span class="count">3</span></label>
+          </fieldset>
+          <div class="filter-actions">
+            <button class="btn" type="submit">Apply filters</button>
+            <button class="btn btn-secondary" type="reset">Clear all</button>
+          </div>
+        </form>
+
+        <!-- MAP + RESULTS -->
+        <div>
+          <div class="map-panel">
+            <div class="map-caption">
+              <span>MAP OF ALL TEN CHURCHES</span>
+              <span>Bounded to New Zealand &mdash; 47.35&deg;S 166.3&deg;E to 34.1&deg;S 178.6&deg;E</span>
+            </div>
+            <div class="map-canvas">
+              <div class="map-zoom">
+                <button type="button" aria-label="Zoom in">+</button>
+                <button type="button" aria-label="Zoom out">&minus;</button>
+              </div>
+              <button type="button" class="map-reset">Reset view</button>
+              <div class="map-placeholder">
+                <span class="eyebrow">Interactive map</span>
+                <p>Leaflet tiles render here. The map is locked to New Zealand — panning beyond the bounds is not possible, and filtering to a single church will not zoom past street level.</p>
+              </div>
+            </div>
+            <p class="map-attrib" style="margin:0;">Map data &copy; OpenStreetMap contributors</p>
+          </div>
+
+          <div style="height:44px;"></div>
+
+          <div class="results-bar">
+            <span class="results-count">Showing <b>10</b> of <b>10</b> churches</span>
+            <div class="chips">
+              <a class="chip is-on" href="#">Northern <span class="x" aria-hidden="true">&times;</span><span class="visually-hidden">remove filter</span></a>
+              <a class="chip is-on" href="#">Central <span class="x" aria-hidden="true">&times;</span><span class="visually-hidden">remove filter</span></a>
+              <a class="chip is-on" href="#">Southern <span class="x" aria-hidden="true">&times;</span><span class="visually-hidden">remove filter</span></a>
+            </div>
+          </div>
+
+          <div style="height:36px;"></div>
+
+          <!-- NORTHERN -->
+          <div class="result-group">
+            <h3>Northern Region <span>Presbyter: Rev. Brian Aubrey &middot; 4 churches</span></h3>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">Daystar Fellowship</a></h4>
+                <p class="addr">2A Deveron Street, Regent, Whangarei 0112</p>
+              </div>
+              <ul class="times">
+                <li><b>Sunday</b> 10:00am</li>
+                <li><b>Monday</b> 7:00am — Prayer</li>
+                <li><b>Wednesday</b> 7:00am — Bible study</li>
+              </ul>
+              <a class="more" href="#">More info</a>
+            </div>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">Grace Fellowship</a></h4>
+                <p class="addr">33 Hare Puke Drive, Flagstaff, Hamilton 3210</p>
+              </div>
+              <ul class="times"><li><b>Sunday</b> 10:00am</li></ul>
+              <a class="more" href="#">More info</a>
+            </div>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">New Zealand Family in Christ Church</a></h4>
+                <p class="addr">372 Don Buck Road, Massey, Auckland 0614</p>
+              </div>
+              <ul class="times"><li><b>Sunday</b> 10:30am</li></ul>
+              <a class="more" href="#">More info</a>
+            </div>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">Southside Pentecostal Fellowship</a></h4>
+                <p class="addr">Drury Street, New Lynn, Auckland 0600</p>
+              </div>
+              <ul class="times">
+                <li><b>Sunday</b> 9:00am — Regular &amp; Fijian service</li>
+                <li><b>Saturday</b> 8:00am — Filipino bible study (online)</li>
+              </ul>
+              <a class="more" href="#">More info</a>
+            </div>
+          </div>
+
+          <!-- CENTRAL -->
+          <div class="result-group">
+            <h3>Central Region <span>Presbyter: Rev. Jules Matika &middot; 2 churches</span></h3>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">Apostolic Life Church</a></h4>
+                <p class="addr">169 Elizabeth Street, Tauranga 3110</p>
+              </div>
+              <ul class="times">
+                <li><b>Sunday</b> 2:00pm</li>
+                <li><b>Wednesday</b> 7:00pm — Bible study</li>
+              </ul>
+              <a class="more" href="#">More info</a>
+            </div>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">Storehouse Chapel</a></h4>
+                <p class="addr">Insoll Avenue, Enderley, Hamilton 3214</p>
+              </div>
+              <ul class="times"><li><b>Sunday</b> 4:00pm</li></ul>
+              <a class="more" href="#">More info</a>
+            </div>
+          </div>
+
+          <!-- SOUTHERN -->
+          <div class="result-group">
+            <h3>Southern Region <span>Presbyter: Rev. Peter Lloyd &middot; 4 churches</span></h3>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">Apostolics of Christchurch</a></h4>
+                <!-- The atomic street/suburb fields are empty for this record;
+                     only the legacy `address` column is populated and it has
+                     drifted. City only, rather than risk a wrong street. -->
+                <p class="addr">Christchurch</p>
+              </div>
+              <ul class="times"><li><b>Sunday</b> 3:00pm</li></ul>
+              <a class="more" href="#">More info</a>
+            </div>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">Church Triumphant Wellington</a></h4>
+                <p class="addr">181 Wakefield Street, Te Aro, Wellington 6011</p>
+              </div>
+              <ul class="times">
+                <li><b>Sunday</b> 3:00pm</li>
+                <li><b>Wednesday</b> 7:00pm — Bible study</li>
+                <li><b>Saturday</b> 5:00pm — Prayer</li>
+              </ul>
+              <a class="more" href="#">More info</a>
+            </div>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">Lighthouse of Jesus Christ Rolleston</a></h4>
+                <p class="addr">94 Rolleston Drive, Rolleston 7614</p>
+              </div>
+              <ul class="times"><li><b>Saturday</b> 4:30pm — Discipleship class</li></ul>
+              <a class="more" href="#">More info</a>
+            </div>
+            <div class="result-row">
+              <div>
+                <h4><a href="#">The Pentecostals of Rangiora</a></h4>
+                <p class="addr">Marshall Street, Rangiora 7400</p>
+              </div>
+              <ul class="times"><li><b>Sunday</b> 10:00am</li></ul>
+              <a class="more" href="#">More info</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHURCH DETAIL MODAL — shown open over a demo scrim.
+       Same Modal.vue component as the leadership modal below. -->
+  <div class="modal-stage">
+    <dialog class="modal" open aria-labelledby="church-modal-title">
+      <div class="modal-head">
+        <div>
+          <span class="region-tag">Northern Region</span>
+          <h2 id="church-modal-title">Southside Pentecostal Fellowship</h2>
+          <span class="role">Auckland</span>
+        </div>
+        <button class="modal-close" type="button">Close</button>
+      </div>
+      <div class="modal-body">
+        <dl class="summary-list">
+          <div>
+            <dt>Address</dt>
+            <dd>Drury Street, New Lynn, Auckland 0600</dd>
+          </div>
+          <div>
+            <dt>Service times</dt>
+            <dd>
+              <ul>
+                <li>Sunday 9:00am — Regular service</li>
+                <li>Sunday 9:00am — Fijian service</li>
+                <li>Saturday 8:00am — Filipino bible study (via Google Meet)</li>
+              </ul>
+            </dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>+64 27 442 0921</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd><a href="mailto:contact@southsidepentecostals.com">contact@southsidepentecostals.com</a></dd>
+          </div>
+          <div>
+            <dt>Website</dt>
+            <dd><a href="https://www.southsidepentecostals.com">southsidepentecostals.com</a></dd>
+          </div>
+          <div>
+            <dt>Region</dt>
+            <dd>Northern Region — Presbyter Rev. Brian Aubrey</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="modal-foot">
+        <a class="btn" href="#">Get directions</a>
+        <a class="btn btn-secondary" href="#">Visit website</a>
+      </div>
+    </dialog>
+  </div>
+</main>
+
+
+<!-- ############################################################
+     SCREEN 3 — DEPARTMENT DETAIL
+     ############################################################ -->
+<div class="screen-divider">
+  <div class="wrap">
+    <strong>Department detail</strong>
+    <code>/departments/mens</code>
+    <span class="note">Tests whether B's flat department colour-bar tag survives being scaled up to a whole page. All prose, the scripture quote and the announcement below are the real records from the `departments` and `department_announcements` tables.</span>
+  </div>
+</div>
+
+<div class="identity-bar">
+  <div class="wrap">
+    <span>United Pentecostal Church International — New Zealand</span>
+    <a href="#">Connect with Us</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#">
+      <img src="../assets/logo.png" alt="UPCI New Zealand logo">
+      <span class="brand-text">
+        <strong>UPCI New Zealand</strong>
+        <span>United Pentecostal Church International</span>
+      </span>
+    </a>
+    <input type="checkbox" id="nav-toggle-3">
+    <label class="nav-toggle-label" for="nav-toggle-3">Menu</label>
+  </div>
+  <nav class="service-nav" aria-label="Primary">
+    <div class="wrap">
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#" aria-current="page">Departments</a></li>
+        <li><a href="#">Youth &amp; Children's</a></li>
+        <li><a href="#">Regions</a></li>
+        <li><a href="#">Gallery</a></li>
+        <li><a href="#">Find a Church</a></li>
+        <li><a href="#">Bible College</a></li>
+        <li><a href="#">Calendar</a></li>
+        <li><a href="#">Connect</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<!-- The department's tag colour, promoted to a full-bleed page rule. -->
+<div class="dept-bar" style="background:var(--dept-men);"></div>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="wrap">
+    <ol>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Departments</a></li>
+      <li aria-current="page">National Men's Department</li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="wrap">
+      <span class="dept-tag dept-men">Men's Department</span>
+      <h1>National Men's Department</h1>
+      <p class="lede">Building strong, Spirit-led men grounded in Apostolic doctrine.</p>
+      <div class="page-meta">
+        <span><b>1</b> upcoming event</span>
+        <span><b>1</b> announcement</span>
+        <span>National — serving all three regions</span>
+      </div>
+      <div class="contents">
+        <span class="eyebrow">Contents</span>
+        <ol>
+          <li><a href="#d-about">About this department</a></li>
+          <li><a href="#d-news">Announcements</a></li>
+          <li><a href="#d-events">Events</a></li>
+          <li><a href="#d-gallery">Gallery</a></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <section id="d-about" aria-label="About this department">
+    <div class="wrap content-grid">
+      <div class="lede-col">
+        <blockquote class="scripture">
+          <p>Be strong and of a good courage; be not afraid, neither be thou dismayed: for the Lord thy God is with thee whithersoever thou goest.</p>
+          <cite>Joshua 1:9</cite>
+        </blockquote>
+        <div class="prose">
+          <h3>Who we are</h3>
+          <p>The Apostolic Men's Department of UPCI New Zealand is a ministry dedicated to building strong, Spirit-led men who are grounded in Apostolic doctrine and committed to living a life that honours God.</p>
+          <h3>Our mission</h3>
+          <p>Our mission is to equip men to lead with integrity in their homes, churches, and communities by fostering spiritual growth, discipleship, and servant leadership. Through regular gatherings, mentorship, and ministry opportunities, we encourage men to deepen their relationship with God, develop godly character, and stand firm in faith.</p>
+          <h3>Our focus</h3>
+          <p>We believe that men play a vital role in strengthening families and advancing the Kingdom of God. As such, the department provides a supportive brotherhood where men can be challenged, encouraged, and empowered to fulfil their calling. Whether through prayer, teaching, outreach, or fellowship, the Apostolic Men's Department exists to inspire men to be faithful, steadfast, and ready always to serve.</p>
+        </div>
+      </div>
+      <aside class="related">
+        <span class="eyebrow">Other departments</span>
+        <ul>
+          <li><a href="#">Ladies Ministries</a></li>
+          <li><a href="#">Home Missions Department</a></li>
+          <li><a href="#">Youth Ministry</a></li>
+          <li><a href="#">Children's Ministry</a></li>
+          <li><a href="#">Prayer Ministry</a></li>
+        </ul>
+        <div style="height:28px;"></div>
+        <span class="eyebrow" style="display:block;margin-bottom:10px;">Connect</span>
+        <p style="font-size:14px;margin:0;">For more information about the National Men's Ministries department, join the <a href="https://www.facebook.com/share/g/1FtiXSbBmH/">Facebook group</a>.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Announcements reuse B's dated .event-row exactly. -->
+  <section id="d-news" aria-label="Announcements">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Announcements</span>
+        <h2>Latest from the department</h2>
+      </div>
+      <div class="event-list">
+        <div class="event-row">
+          <span class="event-date">24 Apr</span>
+          <span class="event-name">
+            <a href="#" style="color:var(--ink);text-decoration:none;">Apostolic Men's Rally — Queenstown</a>
+            <small>Men of God, it's time to be renewed and strengthened. Join us for powerful preaching, worship, and fellowship.</small>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="d-events" aria-label="Department events">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Calendar</span>
+        <h2>Men's Department events in 2026</h2>
+      </div>
+      <div class="event-list">
+        <div class="event-row">
+          <span class="event-date">10–12 Apr</span>
+          <span class="event-name">Apostolic Men's Conference<small>Queenstown</small></span>
+        </div>
+        <div class="event-row">
+          <span class="event-date">7–9 Apr</span>
+          <span class="event-name">3 Day Prayer &amp; Fasting — ahead of the Men's Conference<small>Nationwide &middot; with the Prayer Ministry</small></span>
+        </div>
+      </div>
+      <a class="view-all" href="#">View the full 2026 calendar</a>
+    </div>
+  </section>
+
+  <section id="d-gallery" aria-label="Department gallery">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Gallery</span>
+        <h2>Men's Department gallery</h2>
+      </div>
+      <!-- No gallery_items rows are attached to this department. Honest
+           empty state rather than borrowed photography. -->
+      <div class="empty-state">
+        <h3>No photographs yet</h3>
+        <p>Department photographs are uploaded through the admin panel and appear here automatically.</p>
+        <a class="btn btn-secondary" href="#">Browse the main gallery</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<!-- ############################################################
+     SCREEN 4 — LEADERSHIP GRID + OPEN MODAL
+     ############################################################ -->
+<div class="screen-divider">
+  <div class="wrap">
+    <strong>Leadership</strong>
+    <code>/about/leadership</code>
+    <span class="note">Portrait grid with a native &lt;dialog&gt; detail modal, shown open. Rev. Peter Lloyd has no portrait; B's own initials tile is reused rather than a substitute photograph. No biographies exist in the CMS, so the modal shows an honest placeholder instead of invented copy.</span>
+  </div>
+</div>
+
+<div class="identity-bar">
+  <div class="wrap">
+    <span>United Pentecostal Church International — New Zealand</span>
+    <a href="#">Connect with Us</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#">
+      <img src="../assets/logo.png" alt="UPCI New Zealand logo">
+      <span class="brand-text">
+        <strong>UPCI New Zealand</strong>
+        <span>United Pentecostal Church International</span>
+      </span>
+    </a>
+    <input type="checkbox" id="nav-toggle-4">
+    <label class="nav-toggle-label" for="nav-toggle-4">Menu</label>
+  </div>
+  <nav class="service-nav" aria-label="Primary">
+    <div class="wrap">
+      <ul>
+        <li><a href="#" aria-current="page">About</a></li>
+        <li><a href="#">Departments</a></li>
+        <li><a href="#">Youth &amp; Children's</a></li>
+        <li><a href="#">Regions</a></li>
+        <li><a href="#">Gallery</a></li>
+        <li><a href="#">Find a Church</a></li>
+        <li><a href="#">Bible College</a></li>
+        <li><a href="#">Calendar</a></li>
+        <li><a href="#">Connect</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="wrap">
+    <ol>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About the UPCI NZ</a></li>
+      <li aria-current="page">Leadership</li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="wrap">
+      <span class="eyebrow">About the UPCI NZ</span>
+      <h1>Our national leadership</h1>
+      <p class="lede">The national executive and the three regional presbyters of UPCI New Zealand.</p>
+    </div>
+  </div>
+
+  <section aria-label="National executive" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">National Executive</span>
+        <h2>Executive board</h2>
+      </div>
+      <div class="leader-grid">
+        <div class="leader">
+          <img src="../assets/photo1.jpg" alt="Rev. Troy Wickette">
+          <strong>Rev. Troy Wickette</strong>
+          <span>General Superintendent</span>
+          <button class="open-link" type="button">View details</button>
+        </div>
+        <div class="leader">
+          <img src="../assets/photo2.jpg" alt="Rev. Wayne Goodare">
+          <strong>Rev. Wayne Goodare</strong>
+          <span>Assistant General Superintendent</span>
+          <button class="open-link" type="button">View details</button>
+        </div>
+        <div class="leader">
+          <img src="../assets/photo3.jpg" alt="Rev. Andrew Kintanar">
+          <strong>Rev. Andrew Kintanar</strong>
+          <span>General Secretary &amp; Treasurer</span>
+          <button class="open-link" type="button">View details</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Regional presbyters">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Regions</span>
+        <h2>Regional presbyters</h2>
+      </div>
+      <div class="leader-grid">
+        <div class="leader">
+          <img src="../assets/photo4.jpg" alt="Rev. Brian Aubrey">
+          <strong>Rev. Brian Aubrey</strong>
+          <span>Northern Region Presbyter</span>
+          <button class="open-link" type="button">View details</button>
+        </div>
+        <div class="leader">
+          <img src="../assets/photo5.jpg" alt="Rev. Jules Matika">
+          <strong>Rev. Jules Matika</strong>
+          <span>Central Region Presbyter</span>
+          <button class="open-link" type="button">View details</button>
+        </div>
+        <div class="leader">
+          <!-- No portrait exists for Rev. Peter Lloyd (brand-spec §1,
+               direction-approved "open items", plan D7). B's initials tile,
+               reused unchanged. Not a stock photograph, not a silhouette. -->
+          <div class="initials-tile" aria-hidden="true">PL</div>
+          <strong>Rev. Peter Lloyd</strong>
+          <span>Southern Region Presbyter</span>
+          <button class="open-link" type="button">View details</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEADERSHIP MODAL — native <dialog>, aria-labelledby, shown open. -->
+  <div class="modal-stage">
+    <dialog class="modal" open aria-labelledby="leader-modal-title">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">National Executive</span>
+          <h2 id="leader-modal-title">Rev. Troy Wickette</h2>
+          <span class="role">General Superintendent</span>
+        </div>
+        <button class="modal-close" type="button">Close</button>
+      </div>
+      <div class="modal-body">
+        <div class="portrait">
+          <img src="../assets/photo1.jpg" alt="Rev. Troy Wickette">
+          <div>
+            <!-- No biographies exist. spec.md §3 is explicit: do not invent
+                 them. The modal states the gap rather than filling it. -->
+            <div class="notice">
+              <strong>Biography to be supplied</strong>
+              <p>A biography for Rev. Troy Wickette has not been added yet. Biographies are CMS-editable and this panel will show one as soon as it is supplied.</p>
+            </div>
+            <dl class="summary-list" style="margin-top:22px;">
+              <div>
+                <dt>Role</dt>
+                <dd>General Superintendent</dd>
+              </div>
+              <div>
+                <dt>Body</dt>
+                <dd>National Executive, UPCI New Zealand</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <a class="btn" href="#">General Superintendent's page</a>
+        <a class="btn btn-secondary" href="#">AGS Updates</a>
+      </div>
+    </dialog>
+  </div>
+</main>
+
+
+<!-- ############################################################
+     SCREEN 5 — STANDALONE GALLERY
+     ############################################################ -->
+<div class="screen-divider">
+  <div class="wrap">
+    <strong>Gallery</strong>
+    <code>/gallery</code>
+    <span class="note">The hardest content test: exactly ONE row exists in `gallery_items`, and its image file is currently unservable in private storage (plan Phase 0). The screen is designed for the near-empty reality, not for a hypothetical full one.</span>
+  </div>
+</div>
+
+<div class="identity-bar">
+  <div class="wrap">
+    <span>United Pentecostal Church International — New Zealand</span>
+    <a href="#">Connect with Us</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#">
+      <img src="../assets/logo.png" alt="UPCI New Zealand logo">
+      <span class="brand-text">
+        <strong>UPCI New Zealand</strong>
+        <span>United Pentecostal Church International</span>
+      </span>
+    </a>
+    <input type="checkbox" id="nav-toggle-5">
+    <label class="nav-toggle-label" for="nav-toggle-5">Menu</label>
+  </div>
+  <nav class="service-nav" aria-label="Primary">
+    <div class="wrap">
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Departments</a></li>
+        <li><a href="#">Youth &amp; Children's</a></li>
+        <li><a href="#">Regions</a></li>
+        <li><a href="#" aria-current="page">Gallery</a></li>
+        <li><a href="#">Find a Church</a></li>
+        <li><a href="#">Bible College</a></li>
+        <li><a href="#">Calendar</a></li>
+        <li><a href="#">Connect</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="wrap">
+    <ol>
+      <li><a href="#">Home</a></li>
+      <li aria-current="page">Gallery</li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="wrap">
+      <span class="eyebrow">Gallery</span>
+      <h1>Photographs from across UPCI New Zealand</h1>
+      <p class="lede">One gallery, filtered by department or region. Every photograph is uploaded through the admin panel.</p>
+    </div>
+  </div>
+
+  <section style="padding-top:32px;">
+    <div class="wrap">
+      <!-- Filter chips carry the polymorphic filter (galleryable_type +
+           galleryable_id). Same .chip component as the locator's applied
+           filters, in its unselected state. -->
+      <div class="chips" style="margin-bottom:28px;">
+        <a class="chip is-on" href="#">All</a>
+        <a class="chip" href="#">Apostolic Bible College</a>
+        <a class="chip" href="#">Men's</a>
+        <a class="chip" href="#">Ladies</a>
+        <a class="chip" href="#">Missions</a>
+        <a class="chip" href="#">Youth</a>
+        <a class="chip" href="#">Children's</a>
+        <a class="chip" href="#">Prayer</a>
+        <a class="chip" href="#">Northern</a>
+        <a class="chip" href="#">Central</a>
+        <a class="chip" href="#">Southern</a>
+      </div>
+
+      <div class="results-bar" style="margin-bottom:32px;">
+        <span class="results-count">Showing <b>2</b> photographs</span>
+        <span style="font-size:14px;color:var(--grey-600);">Most recent first</span>
+      </div>
+
+      <div class="gallery-grid is-wide">
+        <div class="gallery-item">
+          <figure>
+            <img src="../assets/photo6.jpg" alt="Apostolic Bible College">
+            <figcaption>
+              <strong>Apostolic Bible College</strong>
+              <span>Supplied for the Apostolic Bible College landing page.</span>
+              <span class="src">Apostolic Bible College</span>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="gallery-item">
+          <figure>
+            <!-- REAL gallery_items row #1. Its image file currently sits in
+                 storage/app/private and is unservable — the P0 bug in Phase 0
+                 of the plan. Shown with the real title and caption over the
+                 honest placeholder rather than with a substituted photograph. -->
+            <div class="placeholder-tile">Photo to be supplied</div>
+            <figcaption>
+              <strong>Apostolic Bible College Teacher's Seminar with Rev. Kent Smith</strong>
+              <span>Our bible school teachers are being equipped and inspired through sound Apostolic teaching, practical insights, and a renewed passion for effective Bible instruction.</span>
+              <span class="src">Apostolic Bible College</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div style="height:44px;"></div>
+
+      <div class="empty-state">
+        <h3>The gallery is nearly empty</h3>
+        <p>Only one photograph has been published so far. Department and region administrators can add photographs through the admin panel, and they will appear here and on the relevant department or region page automatically.</p>
+        <a class="btn btn-secondary" href="#">How to add photographs</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<!-- ############################################################
+     APPENDIX — SHARED STATES
+     Not a sixth screen. These four states are reused by every
+     screen above and are shown once, compactly, so the language
+     can be checked against them.
+     ############################################################ -->
+<div class="screen-divider">
+  <div class="wrap">
+    <strong>Appendix — shared states</strong>
+    <code>loading &middot; empty &middot; error &middot; 404</code>
+    <span class="note">Direction B had none of these. The error state in particular exposes a real limit of the approved palette — see the gap list.</span>
+  </div>
+</div>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">State 1</span>
+        <h2>Loading</h2>
+        <p>Skeleton rows built from the same grid as <code>.event-row</code> — the layout does not shift when content arrives.</p>
+      </div>
+      <div class="event-list" aria-busy="true" aria-label="Loading events">
+        <div class="skeleton-row"><span class="skeleton" style="height:14px;width:66px;"></span><span class="skeleton" style="height:16px;width:46%;"></span></div>
+        <div class="skeleton-row"><span class="skeleton" style="height:14px;width:58px;"></span><span class="skeleton" style="height:16px;width:62%;"></span></div>
+        <div class="skeleton-row"><span class="skeleton" style="height:14px;width:72px;"></span><span class="skeleton" style="height:16px;width:38%;"></span></div>
+        <div class="skeleton-row"><span class="skeleton" style="height:14px;width:62px;"></span><span class="skeleton" style="height:16px;width:54%;"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">State 2</span>
+        <h2>No results</h2>
+        <p>Distinct from "nothing published yet": this one always offers a way back out of the filter.</p>
+      </div>
+      <div class="empty-state">
+        <h3>No churches match those filters</h3>
+        <p>No church in the Southern Region holds a Monday service. Try removing a filter, or browse all ten churches.</p>
+        <a class="btn" href="#">Clear all filters</a>
+        <a class="btn btn-secondary" href="#" style="margin-left:8px;">Browse all churches</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">State 3</span>
+        <h2>Error</h2>
+        <p>Failure is signalled by weight — a 4px ink border and ink heading — because the approved two-hue palette contains no red. See the gap list: this is the one place the colour rule visibly costs the design something.</p>
+      </div>
+      <div class="error-summary" role="alert">
+        <h3>There is a problem</h3>
+        <ul>
+          <li><a href="#">Enter a town or suburb to search</a></li>
+          <li><a href="#">Select at least one region</a></li>
+        </ul>
+      </div>
+      <div style="height:28px;"></div>
+      <div class="notice">
+        <strong>Could not load</strong>
+        <p>The church map is temporarily unavailable. All ten churches are still listed below.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">State 4</span>
+        <h2>Page not found</h2>
+        <p>Shown at full page scale below, inside the same chrome as every other screen.</p>
+      </div>
+    </div>
+    <div class="wrap notfound" style="border-top:1px solid var(--grey-200);">
+      <span class="eyebrow">Error 404</span>
+      <h1>This page cannot be found</h1>
+      <p>If you typed the web address, check it is correct. If you pasted it, check you copied the whole address.</p>
+      <div class="content-grid" style="margin-top:36px;">
+        <div class="lede-col">
+          <form class="finder" role="search" onsubmit="return false;">
+            <label for="find404" class="visually-hidden">Search the site</label>
+            <input id="find404" type="text" placeholder="Search UPCI New Zealand">
+            <button type="submit">Search <span aria-hidden="true">&rarr;</span></button>
+          </form>
+        </div>
+        <aside class="related">
+          <span class="eyebrow">Popular</span>
+          <ul>
+            <li><a href="#">Find a church</a></li>
+            <li><a href="#">Calendar of events</a></li>
+            <li><a href="#">Regions</a></li>
+            <li><a href="#">Connect with us</a></li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================
+     FOOTER — verbatim from B, with the plan's expanded IA.
+     Shown once; identical on every screen above.
+     ============================================================ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>About</h4>
+        <ul>
+          <li><a href="#">About the UPCI NZ</a></li>
+          <li><a href="#">Oneness Pentecostalism</a></li>
+          <li><a href="#">Our Beliefs</a></li>
+          <li><a href="#">Leadership</a></li>
+          <li><a href="#">AGS Updates</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Regions</h4>
+        <ul>
+          <li><a href="#">Northern Region</a></li>
+          <li><a href="#">Central Region</a></li>
+          <li><a href="#">Southern Region</a></li>
+          <li><a href="#">Find a Church</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ministry</h4>
+        <ul>
+          <li><a href="#">Departments</a></li>
+          <li><a href="#">Youth &amp; Children's</a></li>
+          <li><a href="#">Apostolic Bible College</a></li>
+          <li><a href="#">Calendar of Events</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#">Connect with Us</a></li>
+          <li><a href="#">Gallery</a></li>
+          <li><a href="#">office@upci.co.nz</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-legal">
+      <div class="brand"><strong>UPCI New Zealand</strong> <span>&mdash; United Pentecostal Church International</span></div>
+      <span>&copy; 2026 UPCI New Zealand. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -12,8 +12,13 @@ use App\Http\Controllers\Api\DepartmentController;
 
 // API routes (must come before catch-all route)
 Route::prefix('api')->group(function () {
-    // RESTful church routes
-    Route::apiResource('churches', ChurchController::class);
+    // Public, read-only. Church writes are managed exclusively through the
+    // Filament admin (ChurchResource + ChurchPolicy). Registering the full
+    // apiResource here exposed unauthenticated POST/PUT/PATCH/DELETE — and
+    // `api/*` is CSRF-exempt in bootstrap/app.php, so anyone could have run
+    // `curl -X DELETE /api/churches/{id}`. Nothing consumes the write routes:
+    // the SPA only ever GETs (ChurchLocator.vue:474,508,528).
+    Route::apiResource('churches', ChurchController::class)->only(['index', 'show']);
 
     // Additional church-related endpoints
     Route::get('/churches-regions', [ChurchController::class, 'regions']);

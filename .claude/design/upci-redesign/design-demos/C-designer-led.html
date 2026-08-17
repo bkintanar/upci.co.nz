@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- FORM COMES FROM: the fern frond in our own mark — a single stem (rachis) opening into paired leaflets (pinnae) — read as one national body opening into local congregations. It is built once as a real diagram (national body → 3 regions → 10 churches) and reused structurally as the region tree, the department tree and the events timeline — never as a decorative icon bolted onto a heading. -->
+<!-- DESIGNER: Johnson Banks — London's leading NFP/charity identity specialists (Christian Aid, Cancer Research UK, Comic Relief). Their whole method is built for exactly this brief's hardest problem: one plain, sayable idea that has to hold together a headquarters plus many independent branches without decoration. That is structurally what UPCI NZ is — one national body, 3 regions, 10 churches, 6 departments, 1 college — so a studio built for "one idea, many parts" charity systems fits better here than a purely typographic, editorial or futurist studio would. -->
+<head>
+<title>UPCI New Zealand</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: oklch(0.18 0.01 150);
+    --green-900: oklch(0.34 0.07 143);
+    --green-700: oklch(0.47 0.09 143);
+    --green-500: oklch(0.62 0.08 143);
+    --green-100: oklch(0.93 0.03 143);
+    --clay-700: oklch(0.48 0.11 55);
+    --clay-600: oklch(0.62 0.12 55);
+    --clay-300: oklch(0.84 0.06 55);
+    --paper: oklch(0.98 0.005 95);
+    --paper-dim: oklch(0.955 0.008 95);
+    --grey-600: oklch(0.55 0.01 150);
+    --grey-400: oklch(0.72 0.01 150);
+    --grey-200: oklch(0.90 0.01 150);
+
+    --dept-1: var(--green-700);
+    --dept-2: var(--green-500);
+    --dept-3: var(--green-900);
+    --dept-4: var(--clay-600);
+    --dept-5: var(--clay-300);
+    --dept-6: var(--clay-700);
+  }
+
+  *,*::before,*::after{ box-sizing: border-box; }
+  html{ -webkit-text-size-adjust: 100%; }
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.55;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  img{ max-width:100%; display:block; }
+  a{ color: inherit; }
+  ul{ margin:0; padding:0; list-style:none; }
+  h1,h2,h3,p{ margin:0; }
+
+  .wrap{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---------- eyebrow / heading rhythm ---------- */
+  .eyebrow{
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--green-900);
+    margin: 0 0 10px;
+  }
+  .section-head{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .section-head h2{
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    max-width: 34ch;
+  }
+  .section-head .lede{
+    max-width: 40ch;
+    color: var(--grey-600);
+    font-size: 15px;
+    padding-bottom: 3px;
+  }
+  section{ padding: 84px 0; border-bottom: 1px solid var(--grey-200); }
+  section:last-of-type{ border-bottom:none; }
+
+  /* ============ HEADER ============ */
+  header.site{
+    position: sticky; top:0; z-index: 40;
+    background: var(--paper);
+    border-bottom: 1px solid var(--grey-200);
+  }
+  .site-header-inner{
+    max-width:1200px; margin:0 auto; padding: 14px 28px;
+    display:flex; align-items:center; justify-content:space-between; gap: 20px;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; text-decoration:none; }
+  .brand img{ height: 40px; width:auto; }
+  .brand-name{ font-weight:600; font-size:15px; line-height:1.2; color: var(--ink); }
+  .brand-name small{ display:block; font-weight:400; font-size:11px; color: var(--grey-600); letter-spacing:.04em; }
+
+  nav.main{ display:flex; align-items:center; gap: 4px; }
+  nav.main a{
+    text-decoration:none; font-size: 14px; font-weight:500; color: var(--ink);
+    padding: 10px 14px; border-radius: 3px;
+  }
+  nav.main a:hover{ color: var(--green-900); }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    font-weight:600; font-size:14px; text-decoration:none;
+    padding: 11px 20px; border-radius: 2px; white-space:nowrap;
+    border: 1.5px solid transparent;
+  }
+  .btn-clay{ background: var(--clay-600); color: var(--paper); }
+  .btn-clay:hover{ background: var(--clay-700); }
+  .btn-line{ border-color: var(--ink); color: var(--ink); background:transparent; }
+  .btn-line:hover{ border-color: var(--green-900); color: var(--green-900); }
+  .nav-cta{ margin-left: 8px; }
+
+  .nav-toggle{ display:none; }
+  .nav-toggle-label{ display:none; }
+
+  /* ============ HERO ============ */
+  .hero{
+    padding: 64px 0 88px;
+    border-bottom: 1px solid var(--grey-200);
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items:center;
+  }
+  .hero h1{
+    font-size: clamp(32px, 4.4vw, 50px);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 22px;
+  }
+  .hero h1 em{ font-style:normal; color: var(--green-700); }
+  .hero p.intro{
+    font-size: 17px;
+    color: var(--grey-600);
+    max-width: 46ch;
+    margin-bottom: 30px;
+  }
+  .hero-ctas{ display:flex; gap:14px; flex-wrap:wrap; }
+
+  /* the frond diagram: one stem, branching into 3 regions, into 10 leaves */
+  .frond{ position:relative; padding-top: 6px; }
+  .frond-stem{
+    position:relative;
+    height: 2px;
+    background: var(--green-700);
+    margin: 0 6%;
+  }
+  .frond-regions{
+    display:flex; justify-content:space-between;
+    padding-top: 34px; margin: 0 2%;
+  }
+  .frond-region{ position:relative; flex:1; text-align:center; padding: 0 6px; }
+  .frond-region::before{
+    content:''; position:absolute; top:-34px; left:50%;
+    width:2px; height:34px; background: var(--green-700);
+    transform: translateX(-50%);
+  }
+  .frond-region .count{
+    display:block; font-size: 26px; font-weight:600; color: var(--green-900);
+  }
+  .frond-region .label{
+    display:block; font-size: 12px; color: var(--grey-600); margin-top:2px;
+  }
+  .frond-leaves{
+    display:flex; justify-content:center; gap:5px; margin-top:12px;
+  }
+  .frond-leaves i{
+    display:block; width:6px; height:6px; border-radius:50%;
+    background: var(--clay-600);
+  }
+  .frond-caption{
+    display:flex; justify-content:space-between; gap:16px;
+    margin-top: 40px; padding-top: 20px; border-top:1px solid var(--grey-200);
+  }
+  .frond-caption div{ text-align:center; flex:1; }
+  .frond-caption strong{ display:block; font-size:22px; font-weight:600; color:var(--ink); }
+  .frond-caption span{ font-size: 12px; color: var(--grey-600); }
+
+  /* ============ ABOUT ============ */
+  .about-grid{
+    display:grid; grid-template-columns: 1.2fr 0.8fr; gap: 56px;
+  }
+  .about-grid p{ color: var(--grey-600); font-size: 15.5px; max-width: 58ch; }
+  .about-grid p + p{ margin-top: 16px; }
+
+  /* ============ FIND A CHURCH (tree) ============ */
+  .tree-row{
+    position:relative;
+    display:flex;
+    justify-content:space-between;
+    padding-top: 40px;
+    margin: 0 4%;
+    gap: 20px;
+  }
+  .tree-row::before{
+    content:''; position:absolute; top:0; left:16%; right:16%;
+    height:2px; background: var(--green-700);
+  }
+  .tree-node{ position:relative; flex:1; text-align:center; }
+  .tree-node::before{
+    content:''; position:absolute; top:-40px; left:50%;
+    width:2px; height:40px; background: var(--green-700); transform: translateX(-50%);
+  }
+  .tree-node h3{ font-size:19px; font-weight:600; margin-bottom:4px; }
+  .tree-node .n{ font-size:13px; color: var(--grey-600); }
+
+  .church-directory{
+    margin-top: 64px;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--grey-200);
+  }
+  .church-directory a{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px 4px;
+    border-bottom: 1px solid var(--grey-200);
+    text-decoration:none;
+    font-size: 15px; font-weight:500;
+  }
+  .church-directory a:nth-child(odd){ border-right: 1px solid var(--grey-200); padding-right: 24px; }
+  .church-directory a:nth-child(even){ padding-left: 24px; }
+  .church-directory a:hover .arrow{ transform: translateX(3px); }
+  .church-directory .arrow{ color: var(--clay-600); font-size:16px; transition: transform .15s ease; }
+  .directory-note{ margin-top:18px; font-size:13px; color: var(--grey-600); }
+
+  /* ============ DEPARTMENTS ============ */
+  .dept-tree{
+    display:flex; justify-content:space-between; padding-top:40px; margin: 0 2%; gap:8px;
+  }
+  .dept-tree::before{ display:none; }
+  .dept-node{ position:relative; flex:1; text-align:center; padding: 0 4px; }
+  .dept-node::before{
+    content:''; position:absolute; top:-40px; left:50%; width:2px; height:40px;
+    background: var(--grey-400); transform: translateX(-50%);
+  }
+  .dept-chip{
+    width: 34px; height: 34px; border-radius: 50%;
+    margin: 0 auto 12px;
+  }
+  .dept-node h3{ font-size:14.5px; font-weight:600; line-height:1.3; }
+
+  /* central stem above dept tree */
+  .dept-stem-wrap{ position:relative; margin: 0 24%; }
+  .dept-stem-wrap .stem{ height:2px; background: var(--green-700); }
+  .dept-stem-wrap .stem-drop{
+    position:absolute; top:0; left:50%; width:2px; height:0; background: var(--green-700);
+  }
+
+  /* ============ CALENDAR ============ */
+  .timeline{
+    position:relative;
+    margin-top: 20px;
+    padding-top: 28px;
+  }
+  .timeline::before{
+    content:''; position:absolute; top:28px; left:0; right:0; height:2px;
+    background: var(--grey-200);
+  }
+  .timeline-track{
+    display:flex; overflow-x:auto; gap: 0; padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+  .t-event{
+    position:relative; flex: 0 0 auto; width: 200px; padding: 0 18px 0 0;
+  }
+  .t-event::before{
+    content:''; position:absolute; top:-28px; left:0; width:2px; height:28px;
+    background: var(--clay-600);
+  }
+  .t-event::after{
+    content:''; position:absolute; top:-30px; left:-3px; width:8px; height:8px;
+    border-radius:50%; background: var(--clay-600);
+  }
+  .t-event .date{ font-size:12px; font-weight:600; letter-spacing:.06em; color: var(--green-900); text-transform:uppercase; }
+  .t-event h3{ font-size:16px; font-weight:600; margin-top:6px; line-height:1.3; }
+  .calendar-note{ margin-top: 34px; font-size: 14px; color: var(--grey-600); display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+
+  /* ============ ABC ============ */
+  .abc-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items:center;
+  }
+  .abc-photo{ aspect-ratio: 16/11; overflow:hidden; }
+  .abc-photo img{ width:100%; height:100%; object-fit:cover; }
+  .abc-copy p{ color: var(--grey-600); font-size:15.5px; max-width:48ch; }
+  .abc-copy p + p{ margin-top:14px; }
+  .abc-copy .btn{ margin-top: 22px; }
+
+  /* ============ LEADERSHIP ============ */
+  .leader-grid{
+    display:grid; grid-template-columns: repeat(6, 1fr); gap: 20px;
+  }
+  .leader{ text-align:left; }
+  .leader-photo{ aspect-ratio: 3/4; overflow:hidden; background: var(--green-100); }
+  .leader-photo img{ width:100%; height:100%; object-fit:cover; }
+  .leader-photo.placeholder{
+    display:flex; align-items:center; justify-content:center;
+    font-size: 30px; font-weight:600; color: var(--green-900);
+  }
+  .leader h3{ font-size:14.5px; font-weight:600; margin-top:12px; line-height:1.3; }
+  .leader .role{ font-size:12.5px; color: var(--grey-600); margin-top:2px; }
+
+  /* ============ FOOTER ============ */
+  footer.site{ background: var(--ink); color: var(--paper-dim); padding: 72px 0 28px; }
+  .footer-grid{
+    display:grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px;
+    padding-bottom: 48px; border-bottom: 1px solid oklch(1 0 0 / 0.12);
+  }
+  .footer-brand img{ height: 34px; filter: brightness(0) invert(1); margin-bottom: 16px; }
+  .footer-brand p{ font-size: 13.5px; color: oklch(1 0 0 / 0.6); max-width: 32ch; }
+  .footer-col h4{ font-size:12px; text-transform:uppercase; letter-spacing:.1em; color: oklch(1 0 0 / 0.5); margin-bottom:16px; font-weight:600; }
+  .footer-col ul li{ margin-bottom:10px; }
+  .footer-col a{ font-size:14px; color: oklch(1 0 0 / 0.85); text-decoration:none; }
+  .footer-col a:hover{ color: var(--clay-300); }
+  .footer-bottom{
+    padding-top: 24px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    font-size: 12.5px; color: oklch(1 0 0 / 0.45);
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 980px){
+    .hero-grid{ grid-template-columns: 1fr; }
+    .about-grid{ grid-template-columns: 1fr; }
+    .abc-grid{ grid-template-columns: 1fr; }
+    .abc-grid .abc-photo{ order:-1; }
+    .leader-grid{ grid-template-columns: repeat(3, 1fr); }
+    .footer-grid{ grid-template-columns: 1fr 1fr; }
+    nav.main a:not(.nav-cta){ display:none; }
+  }
+
+  @media (max-width: 700px){
+    .wrap{ padding: 0 20px; }
+    section{ padding: 56px 0; }
+    .site-header-inner{ padding: 12px 20px; }
+
+    .nav-toggle-label{
+      display:flex; align-items:center; justify-content:center;
+      width: 40px; height:40px; cursor:pointer; order: 3;
+    }
+    .nav-toggle-label span, .nav-toggle-label span::before, .nav-toggle-label span::after{
+      content:''; display:block; width:20px; height:2px; background: var(--ink); position:relative;
+    }
+    .nav-toggle-label span::before{ position:absolute; top:-6px; }
+    .nav-toggle-label span::after{ position:absolute; top:6px; }
+
+    nav.main{
+      order:4; flex-basis:100%;
+      flex-direction:column; align-items:stretch;
+      max-height:0; overflow:hidden;
+      transition: max-height .2s ease;
+    }
+    nav.main a:not(.nav-cta){ display:block; padding:12px 4px; border-top:1px solid var(--grey-200); }
+    .nav-cta{ margin: 14px 0 0; }
+    .nav-toggle:checked ~ nav.main{ max-height: 480px; padding-bottom: 16px; }
+    .site-header-inner{ flex-wrap:wrap; }
+
+    .frond-caption{ flex-wrap:wrap; }
+    .frond-caption div{ flex: 1 1 40%; margin-bottom: 12px; }
+
+    .tree-row{ flex-direction:column; gap: 32px; }
+    .tree-row::before{ display:none; }
+    .tree-node::before{ display:none; }
+
+    .dept-tree{ flex-wrap:wrap; row-gap: 28px; }
+    .dept-node{ flex: 1 1 45%; }
+    .dept-node::before{ display:none; }
+    .dept-stem-wrap{ display:none; }
+
+    .church-directory{ grid-template-columns: 1fr; }
+    .church-directory a:nth-child(odd){ border-right:none; padding-right:4px; }
+    .church-directory a:nth-child(even){ padding-left:4px; }
+
+    .leader-grid{ grid-template-columns: repeat(2, 1fr); }
+
+    .footer-grid{ grid-template-columns: 1fr; gap: 28px; }
+  }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="site-header-inner">
+    <a class="brand" href="#top">
+      <img src="../assets/logo.png" alt="UPCI New Zealand logo">
+      <span class="brand-name">UPCI New Zealand<small>United Pentecostal Church International</small></span>
+    </a>
+    <input class="nav-toggle" type="checkbox" id="nav-toggle">
+    <nav class="main">
+      <a href="#about">About the UPCI NZ</a>
+      <a href="#departments">Departments</a>
+      <a href="#find-a-church">Find a Church</a>
+      <a href="#college">Apostolic Bible College</a>
+      <a href="#calendar">Calendar of Events</a>
+      <a href="#connect">Connect with Us</a>
+      <a class="btn btn-clay nav-cta" href="#find-a-church">Find a Church</a>
+    </nav>
+    <label class="nav-toggle-label" for="nav-toggle" aria-label="Open menu"><span></span></label>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">United Pentecostal Church International — New Zealand</p>
+        <h1>One national body.<br>Many <em>local</em> places to belong.</h1>
+        <p class="intro">UPCI New Zealand is the national body connecting churches across three regions of the country. Wherever you are, there is a local congregation and a leadership structure standing behind it.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-clay" href="#find-a-church">Find a church near you</a>
+          <a class="btn btn-line" href="#calendar">See what's on in 2026</a>
+        </div>
+      </div>
+
+      <div class="frond" aria-hidden="false">
+        <div class="frond-stem"></div>
+        <div class="frond-regions">
+          <div class="frond-region">
+            <span class="count">4</span>
+            <span class="label">Northern Region</span>
+            <div class="frond-leaves"><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="frond-region">
+            <span class="count">2</span>
+            <span class="label">Central Region</span>
+            <div class="frond-leaves"><i></i><i></i></div>
+          </div>
+          <div class="frond-region">
+            <span class="count">4</span>
+            <span class="label">Southern Region</span>
+            <div class="frond-leaves"><i></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+        <div class="frond-caption">
+          <div><strong>10</strong><span>Churches</span></div>
+          <div><strong>3</strong><span>Regions</span></div>
+          <div><strong>6</strong><span>Departments</span></div>
+          <div><strong>1</strong><span>Bible College</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">About the UPCI NZ</p>
+          <h2>An established denomination, organised around real, local churches.</h2>
+        </div>
+      </div>
+      <div class="about-grid">
+        <p>United Pentecostal Church International New Zealand is the national body for UPCI congregations across the country. It exists to hold three regions, ten local churches, six national departments and a Bible college together as one connected family — while keeping every congregation local, pastored, and reachable.</p>
+        <p>The structure is simple by design: one national leadership, three regional presbyters, and departments that serve every church equally, regardless of size or location.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FIND A CHURCH ============ -->
+  <section id="find-a-church">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Find a Church</p>
+          <h2>Ten churches, organised into three regions.</h2>
+        </div>
+        <p class="lede">Every church below is a full member congregation of UPCI New Zealand.</p>
+      </div>
+
+      <div class="tree-row">
+        <div class="tree-node"><h3>Northern Region</h3><div class="n">4 churches</div></div>
+        <div class="tree-node"><h3>Central Region</h3><div class="n">2 churches</div></div>
+        <div class="tree-node"><h3>Southern Region</h3><div class="n">4 churches</div></div>
+      </div>
+
+      <div class="church-directory">
+        <a href="#"><span>Apostolic Life Church</span><span class="arrow">→</span></a>
+        <a href="#"><span>Church Triumphant Wellington</span><span class="arrow">→</span></a>
+        <a href="#"><span>Southside Pentecostal Fellowship</span><span class="arrow">→</span></a>
+        <a href="#"><span>Apostolics of Christchurch</span><span class="arrow">→</span></a>
+        <a href="#"><span>Grace Fellowship</span><span class="arrow">→</span></a>
+        <a href="#"><span>Daystar Fellowship</span><span class="arrow">→</span></a>
+        <a href="#"><span>Storehouse Chapel</span><span class="arrow">→</span></a>
+        <a href="#"><span>Pentecostals of Rangiora</span><span class="arrow">→</span></a>
+        <a href="#"><span>Lighthouse of Jesus Christ Rolleston</span><span class="arrow">→</span></a>
+        <a href="#"><span>New Zealand Family in Christ Church</span><span class="arrow">→</span></a>
+      </div>
+      <p class="directory-note">All 10 UPCI New Zealand churches, in directory order. Select a church to view its service details and location.</p>
+    </div>
+  </section>
+
+  <!-- ============ DEPARTMENTS ============ -->
+  <section id="departments">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Departments</p>
+          <h2>Six national departments, one family.</h2>
+        </div>
+        <p class="lede">Each department serves every region and every church equally.</p>
+      </div>
+
+      <div class="dept-stem-wrap"><div class="stem"></div></div>
+      <div class="dept-tree">
+        <div class="dept-node"><span class="dept-chip" style="background:var(--dept-1)"></span><h3>National Men's Department</h3></div>
+        <div class="dept-node"><span class="dept-chip" style="background:var(--dept-2)"></span><h3>Ladies Ministries</h3></div>
+        <div class="dept-node"><span class="dept-chip" style="background:var(--dept-3)"></span><h3>Home Missions Department</h3></div>
+        <div class="dept-node"><span class="dept-chip" style="background:var(--dept-4)"></span><h3>Youth Ministry</h3></div>
+        <div class="dept-node"><span class="dept-chip" style="background:var(--dept-5)"></span><h3>Children's Ministry</h3></div>
+        <div class="dept-node"><span class="dept-chip" style="background:var(--dept-6)"></span><h3>Prayer Ministry</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CALENDAR ============ -->
+  <section id="calendar">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Calendar of Events</p>
+          <h2>Key national dates for 2026.</h2>
+        </div>
+        <p class="lede">Scroll to see every headline date this year.</p>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-track">
+          <div class="t-event"><span class="date">15 Jan 2026</span><h3>General Conference</h3></div>
+          <div class="t-event"><span class="date">26 Jan 2026</span><h3>National 7 Day Prayer &amp; Fasting</h3></div>
+          <div class="t-event"><span class="date">6 Feb 2026</span><h3>ABC Teachers Training Seminar</h3></div>
+          <div class="t-event"><span class="date">21 Feb 2026</span><h3>Annual Ministers Meeting</h3></div>
+          <div class="t-event"><span class="date">10 Apr 2026</span><h3>Apostolic Men's Conference</h3></div>
+          <div class="t-event"><span class="date">4 Jul 2026</span><h3>JBQ Mini-tourney</h3></div>
+        </div>
+      </div>
+      <div class="calendar-note">
+        <span>Showing 6 of 49 dates on the 2026 national calendar.</span>
+        <a class="btn btn-line" href="#calendar">View the full calendar</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ APOSTOLIC BIBLE COLLEGE ============ -->
+  <section id="college">
+    <div class="wrap abc-grid">
+      <div class="abc-copy">
+        <p class="eyebrow">Apostolic Bible College</p>
+        <h2 style="font-size:clamp(24px,3vw,32px); font-weight:600; margin-bottom:18px;">Training leaders for the local church.</h2>
+        <p>The Apostolic Bible College equips ministers and lay leaders for service across UPCI New Zealand's churches and departments.</p>
+        <p>Its training is part of how the national body invests directly back into local congregations.</p>
+        <a class="btn btn-clay" href="#college">Learn about ABC</a>
+      </div>
+      <div class="abc-photo">
+        <img src="../assets/photo6.jpg" alt="Apostolic Bible College">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEADERSHIP ============ -->
+  <section id="leadership">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Who Leads Us</p>
+          <h2>National executive &amp; regional presbyters.</h2>
+        </div>
+      </div>
+      <div class="leader-grid">
+        <div class="leader">
+          <div class="leader-photo"><img src="../assets/photo1.jpg" alt="Rev. Troy Wickette"></div>
+          <h3>Rev. Troy Wickette</h3><p class="role">General Superintendent</p>
+        </div>
+        <div class="leader">
+          <div class="leader-photo"><img src="../assets/photo2.jpg" alt="Rev. Wayne Goodare"></div>
+          <h3>Rev. Wayne Goodare</h3><p class="role">Assistant General Superintendent</p>
+        </div>
+        <div class="leader">
+          <div class="leader-photo"><img src="../assets/photo3.jpg" alt="Rev. Andrew Kintanar"></div>
+          <h3>Rev. Andrew Kintanar</h3><p class="role">General Secretary &amp; Treasurer</p>
+        </div>
+        <div class="leader">
+          <div class="leader-photo"><img src="../assets/photo4.jpg" alt="Rev. Brian Aubrey"></div>
+          <h3>Rev. Brian Aubrey</h3><p class="role">Northern Region Presbyter</p>
+        </div>
+        <div class="leader">
+          <div class="leader-photo"><img src="../assets/photo5.jpg" alt="Rev. Jules Matika"></div>
+          <h3>Rev. Jules Matika</h3><p class="role">Central Region Presbyter</p>
+        </div>
+        <div class="leader">
+          <div class="leader-photo placeholder">PL</div>
+          <h3>Rev. Peter Lloyd</h3><p class="role">Southern Region Presbyter</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER / CONNECT ============ -->
+<footer class="site" id="connect">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="../assets/logo.png" alt="UPCI New Zealand logo">
+        <p>United Pentecostal Church International — New Zealand. One national body, ten local churches, three regions.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#about">About the UPCI NZ</a></li>
+          <li><a href="#departments">Departments</a></li>
+          <li><a href="#find-a-church">Find a Church</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>More</h4>
+        <ul>
+          <li><a href="#college">Apostolic Bible College</a></li>
+          <li><a href="#calendar">Calendar of Events</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect with Us</h4>
+        <ul>
+          <li><a href="#connect">Get in touch</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 United Pentecostal Church International — New Zealand.</span>
+      <span>Northern · Central · Southern Region</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

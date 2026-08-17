@@ -1,0 +1,690 @@
+<!-- FORM COMES FROM: the national body as a plain directory of local places — a task-first finder for "a church near you," organised like a civil register: flat lists, dated rows, top-colour-bar tags for departments, and no decoration standing between the visitor and the answer. -->
+<!-- BENCHMARK: GOV.UK (https://www.gov.uk/) — winner, Design Museum London "Designs of the Year" 2013 (overall winner, beating 98 contenders); design system maintained by the UK Government Digital Service. Verified via WebSearch (Dezeen, GDS blog, DesignCurial coverage of the 2013 award) and WebFetch of gov.uk's current homepage structure: task-first search hero (no hero photography), a two-thirds/one-third content+"related content" sidebar grid, undecorated topic lists (heading + one-line description, no icons/cards), and per-organisation flat colour tags used across GOV.UK's publishing system. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPCI New Zealand — United Pentecostal Church International</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     TOKENS — converged per brand-spec.md. Two chromatic hues only
+     (green 143°, clay 55°); department tags are tints/shades WITHIN
+     that same arc (90°, plus ink/neutral) — never new hues.
+     ============================================================ */
+  :root{
+    --ink:        oklch(0.18 0.01 150);
+    --green-900:  oklch(0.34 0.07 143);
+    --green-700:  oklch(0.47 0.09 143);
+    --green-100:  oklch(0.93 0.03 143);
+    --clay-600:   oklch(0.62 0.12 55);
+    --clay-100:   oklch(0.94 0.03 55);
+    --paper:      oklch(0.98 0.005 95);
+    --grey-600:   oklch(0.44 0.01 150);
+    --grey-400:   oklch(0.72 0 0);
+    --grey-200:   oklch(0.90 0 0);
+
+    /* department family — tints/shades of the two approved hues only */
+    --dept-men:      var(--green-700);   /* L .47 -> white text */
+    --dept-ladies:   var(--clay-600);    /* L .62 -> ink text   */
+    --dept-missions: var(--green-900);   /* L .34 -> white text */
+    --dept-youth:    oklch(0.74 0.08 90);/* olive, midway 55-143 -> ink text */
+    --dept-children: oklch(0.40 0.06 143);/* deep muted green -> white text */
+    --dept-prayer:   var(--ink);         /* L .18 -> paper text */
+
+    --serif-line: 1.5;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    font-family:'Poppins',ui-sans-serif,system-ui,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    font-size:16px;
+    line-height:var(--serif-line);
+  }
+  img{max-width:100%;display:block;}
+  a{color:var(--green-700);}
+  a:hover{color:var(--green-900);}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 32px;}
+  h1,h2,h3{font-weight:700;margin:0 0 .5em;color:var(--ink);}
+  p{margin:0 0 1em;}
+  ul{margin:0;padding:0;list-style:none;}
+
+  /* ---------- utility: eyebrow / small-caps label ---------- */
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    font-weight:600;
+    color:var(--green-900);
+  }
+
+  /* ============================================================
+     HEADER — GOV.UK transfer: thin identity bar, then a header row
+     with logo+wordmark and primary nav, closed off by a bold rule
+     in the brand colour (GOV.UK uses black; we use fern green).
+     ============================================================ */
+  .identity-bar{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .identity-bar .wrap{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-top:8px;padding-bottom:8px;
+    font-size:12px;letter-spacing:.03em;
+  }
+  .identity-bar a{color:var(--paper);text-decoration:none;opacity:.85;}
+  .identity-bar a:hover{opacity:1;text-decoration:underline;}
+
+  header.site-header{
+    border-bottom:5px solid var(--green-700);
+    background:var(--paper);
+  }
+  .header-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding-top:18px;padding-bottom:18px;gap:24px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:14px;text-decoration:none;}
+  .brand img{height:52px;width:auto;}
+  .brand-text{line-height:1.15;}
+  .brand-text strong{display:block;font-size:19px;color:var(--ink);}
+  .brand-text span{display:block;font-size:12px;color:var(--grey-600);letter-spacing:.02em;}
+
+  nav.primary-nav{flex:1 1 auto;display:flex;justify-content:flex-end;}
+  nav.primary-nav ul{display:flex;gap:28px;flex-wrap:wrap;}
+  nav.primary-nav a{
+    color:var(--ink);text-decoration:none;font-size:14px;font-weight:600;
+    padding:6px 0;border-bottom:3px solid transparent;
+  }
+  nav.primary-nav a:hover{border-bottom-color:var(--green-700);}
+
+  /* mobile nav toggle (checkbox hack — no JS/build step needed) */
+  #nav-toggle{display:none;}
+  .nav-toggle-label{display:none;cursor:pointer;font-size:14px;font-weight:600;}
+
+  /* ============================================================
+     PHASE BANNER — GOV.UK's "BETA" strip, repurposed as an honest
+     factual strip using only real counts already stated in spec.
+     ============================================================ */
+  .phase-banner{
+    background:var(--green-100);
+    border-bottom:1px solid var(--grey-200);
+  }
+  .phase-banner .wrap{
+    display:flex;align-items:center;gap:14px;padding:10px 32px;
+    font-size:13px;flex-wrap:wrap;
+  }
+  .tag{
+    display:inline-block;
+    background:var(--green-900);
+    color:var(--paper);
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 8px;
+  }
+  .phase-banner span.facts{color:var(--ink);}
+
+  /* ============================================================
+     HERO — task-first, no photography. The visitor's actual job
+     ("find a church near you") IS the hero, exactly as GOV.UK
+     leads with "find government services" rather than imagery.
+     ============================================================ */
+  .hero{
+    padding:64px 0 48px;
+    border-bottom:1px solid var(--grey-200);
+  }
+  .hero h1{
+    font-size:44px;line-height:1.1;letter-spacing:-.01em;
+    max-width:16ch;
+  }
+  .hero p.lede{
+    font-size:18px;color:var(--grey-600);max-width:50ch;margin-bottom:28px;
+  }
+  .finder{
+    display:flex;gap:0;max-width:560px;border:2px solid var(--ink);
+  }
+  .finder input{
+    flex:1;border:none;padding:14px 16px;font-size:16px;font-family:inherit;
+    background:var(--paper);color:var(--ink);
+  }
+  .finder input:focus{outline:3px solid var(--clay-600);outline-offset:-3px;}
+  .finder button{
+    border:none;background:var(--green-700);color:var(--paper);
+    font-family:inherit;font-weight:700;font-size:15px;
+    padding:0 26px;cursor:pointer;display:flex;align-items:center;gap:8px;
+  }
+  .finder button:hover{background:var(--green-900);}
+  .quick-links{margin-top:16px;font-size:14px;color:var(--grey-600);}
+  .quick-links a{margin-right:4px;}
+  .quick-links .sep{margin:0 8px;color:var(--grey-400);}
+
+  /* ============================================================
+     SECTION SCAFFOLD
+     ============================================================ */
+  section{padding:56px 0;border-bottom:1px solid var(--grey-200);}
+  section:last-of-type{border-bottom:none;}
+  .section-head{margin-bottom:32px;max-width:70ch;}
+  .section-head h2{font-size:28px;}
+  .section-head p{color:var(--grey-600);font-size:15px;}
+
+  /* ---------- REGIONS (the true "find a church" directory) ---------- */
+  .regions-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+    border-top:1px solid var(--grey-200);
+  }
+  .region{
+    padding:28px 32px 28px 0;
+    border-right:1px solid var(--grey-200);
+  }
+  .region:last-child{border-right:none;}
+  .region-count{font-size:13px;color:var(--grey-600);margin-bottom:16px;}
+  .region h3{font-size:19px;margin-bottom:2px;}
+  .church-list li{
+    padding:10px 0;border-top:1px solid var(--grey-200);font-size:15px;
+  }
+  .church-list li:first-child{border-top:none;}
+  .church-list a{color:var(--ink);text-decoration:none;}
+  .church-list a:hover{color:var(--green-700);text-decoration:underline;}
+  .church-list a span{display:block;font-size:13px;color:var(--grey-600);font-weight:400;text-decoration:none;}
+
+  /* ---------- honest placeholders: content that does not exist yet ----------
+     Rule (brand-spec §1): never substitute stock or invented content. Mark the
+     gap so an editor can see what is outstanding, and a visitor is not misled. */
+  .placeholder-note{
+    display:block;margin-top:4px;
+    font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;
+    color:var(--clay-600);
+  }
+  .placeholder-block{
+    border:2px dashed var(--grey-400);
+    padding:20px;margin:8px 0 20px;
+    color:var(--grey-600);font-size:14px;
+  }
+  .placeholder-block strong{
+    display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--clay-600);margin-bottom:6px;
+  }
+
+  /* ---------- WHO WE ARE — two-thirds / one-third content grid ---------- */
+  .content-grid{
+    display:grid;grid-template-columns:2fr 1fr;gap:56px;
+  }
+  .content-grid .lede-col p{font-size:16px;max-width:62ch;}
+  .related{border-top:4px solid var(--green-700);padding-top:16px;}
+  .related .eyebrow{margin-bottom:14px;display:block;}
+  .related li{padding:10px 0;border-top:1px solid var(--grey-200);font-size:14px;}
+  .related li:first-child{border-top:none;}
+  .related a{color:var(--ink);text-decoration:none;font-weight:600;}
+  .related a:hover{color:var(--green-700);}
+
+  /* ---------- DEPARTMENTS — top colour-bar tag, plain list, no cards ---------- */
+  .dept-list{border-top:1px solid var(--grey-200);}
+  .dept-row{
+    display:grid;grid-template-columns:220px 1fr;gap:24px;align-items:start;
+    padding:22px 0;border-bottom:1px solid var(--grey-200);
+  }
+  .dept-tag{
+    display:inline-block;padding:7px 14px;font-size:12px;font-weight:700;
+    letter-spacing:.06em;text-transform:uppercase;
+  }
+  .dept-row h3{font-size:17px;margin-bottom:4px;}
+  .dept-row p{font-size:14px;color:var(--grey-600);margin:0;max-width:60ch;}
+
+  .dept-men{background:var(--dept-men);color:var(--paper);}
+  .dept-ladies{background:var(--dept-ladies);color:var(--ink);}
+  .dept-missions{background:var(--dept-missions);color:var(--paper);}
+  .dept-youth{background:var(--dept-youth);color:var(--ink);}
+  .dept-children{background:var(--dept-children);color:var(--paper);}
+  .dept-prayer{background:var(--dept-prayer);color:var(--paper);}
+
+  /* ---------- CALENDAR — dated flat list ---------- */
+  .event-list{border-top:1px solid var(--grey-200);}
+  .event-row{
+    display:grid;grid-template-columns:110px 1fr;gap:24px;align-items:baseline;
+    padding:18px 0;border-bottom:1px solid var(--grey-200);
+  }
+  .event-date{
+    font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;
+    color:var(--green-900);white-space:nowrap;
+  }
+  .event-name{font-size:16px;font-weight:500;}
+  .view-all{display:inline-block;margin-top:22px;font-weight:700;font-size:14px;}
+  .view-all::after{content:" \2192";}
+
+  /* ---------- LEADERSHIP ---------- */
+  .leader-grid{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:24px;
+  }
+  .leader{font-size:14px;}
+  .leader img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top center;margin-bottom:10px;}
+  .leader .initials-tile{
+    width:100%;aspect-ratio:3/4;background:var(--green-100);
+    color:var(--green-900);display:flex;align-items:center;justify-content:center;
+    font-size:28px;font-weight:700;margin-bottom:10px;
+  }
+  .leader strong{display:block;font-size:14.5px;}
+  .leader span{display:block;color:var(--grey-600);font-size:13px;margin-top:2px;}
+
+  /* ---------- ABC FEATURE ---------- */
+  .abc-feature{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+  .abc-feature img{width:100%;height:320px;object-fit:cover;}
+  .abc-copy h2{font-size:26px;}
+  .abc-copy p{font-size:15px;color:var(--grey-600);max-width:48ch;}
+  .btn{
+    display:inline-block;background:var(--ink);color:var(--paper);
+    text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;
+  }
+  .btn:hover{background:var(--green-900);}
+
+  /* ---------- CONNECT ---------- */
+  .connect-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;}
+  .connect-item .eyebrow{display:block;margin-bottom:8px;}
+  .connect-item p{font-size:15px;margin:0;}
+  .connect-item a{font-weight:600;text-decoration:none;}
+
+  /* ============================================================
+     FOOTER — GOV.UK transfer: multi-column sitemap mirroring the
+     primary nav, thick top rule in brand colour, legal line.
+     ============================================================ */
+  footer{background:var(--ink);color:var(--paper);border-top:6px solid var(--green-700);}
+  footer .wrap{padding:48px 32px 28px;}
+  .footer-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+    padding-bottom:32px;border-bottom:1px solid oklch(0.34 0.01 150);
+  }
+  .footer-grid h4{
+    font-size:12px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--grey-400);margin:0 0 14px;
+  }
+  .footer-grid li{padding:6px 0;font-size:14px;}
+  .footer-grid a{color:var(--paper);text-decoration:none;opacity:.9;}
+  .footer-grid a:hover{opacity:1;text-decoration:underline;}
+  .footer-legal{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-top:20px;font-size:12.5px;color:var(--grey-400);flex-wrap:wrap;gap:10px;
+  }
+  .footer-legal .brand{opacity:.9;}
+  .footer-legal .brand strong{color:var(--paper);font-size:14px;}
+  .footer-legal .brand span{color:var(--grey-400);}
+
+  /* ============================================================
+     RESPONSIVE — must survive down to 390px
+     ============================================================ */
+  @media (max-width:900px){
+    .content-grid{grid-template-columns:1fr;gap:32px;}
+    .related{border-top:none;border-left:4px solid var(--green-700);padding-left:16px;padding-top:0;}
+    .regions-grid{grid-template-columns:1fr;}
+    .region{border-right:none;border-bottom:1px solid var(--grey-200);padding:24px 0;}
+    .region:last-child{border-bottom:none;}
+    .leader-grid{grid-template-columns:repeat(3,1fr);}
+    .abc-feature{grid-template-columns:1fr;}
+    .abc-feature img{height:220px;}
+    .connect-grid{grid-template-columns:1fr;gap:24px;}
+    .footer-grid{grid-template-columns:repeat(2,1fr);}
+  }
+
+  @media (max-width:640px){
+    .wrap{padding:0 20px;}
+    .identity-bar .wrap{padding:8px 20px;font-size:11px;}
+    .header-row{flex-wrap:wrap;gap:12px;padding-top:12px;padding-bottom:12px;}
+    .brand{flex:1 1 auto;}
+    .brand img{height:40px;}
+    .brand-text strong{font-size:16px;}
+    .brand-text span{display:none;}
+    .id-long{display:none;}
+    .nav-toggle-label{
+      display:flex;align-items:center;gap:8px;border:2px solid var(--ink);
+      padding:8px 14px;flex:0 0 auto;order:2;
+    }
+    nav.primary-nav{
+      order:3;flex:1 1 100%;display:none;
+    }
+    .header-row:has(#nav-toggle:checked) nav.primary-nav{display:block;}
+    nav.primary-nav ul{flex-direction:column;gap:0;padding-top:10px;border-top:1px solid var(--grey-200);}
+    nav.primary-nav a{display:block;padding:12px 0;}
+    .hero{padding:40px 0 32px;}
+    .hero h1{font-size:30px;max-width:100%;}
+    .finder{flex-direction:column;border-width:2px;}
+    .finder button{padding:14px;justify-content:center;}
+    .dept-row{grid-template-columns:1fr;gap:10px;}
+    .event-row{grid-template-columns:70px 1fr;gap:14px;}
+    .leader-grid{grid-template-columns:repeat(2,1fr);}
+    .footer-grid{grid-template-columns:1fr 1fr;gap:24px;}
+    .footer-legal{flex-direction:column;align-items:flex-start;}
+    section{padding:40px 0;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     IDENTITY BAR
+     ============================================================ -->
+<div class="identity-bar">
+  <div class="wrap">
+    <span><span class="id-long">United Pentecostal Church International — </span>New Zealand</span>
+    <a href="#connect">Connect</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="brand" href="#top">
+      <img src="../assets/logo.png" alt="UPCI New Zealand logo">
+      <span class="brand-text">
+        <strong>UPCI New Zealand</strong>
+        <span>United Pentecostal Church International</span>
+      </span>
+    </a>
+
+    <input type="checkbox" id="nav-toggle">
+    <label class="nav-toggle-label" for="nav-toggle">Menu</label>
+
+    <nav class="primary-nav" aria-label="Primary">
+      <ul>
+        <li><a href="#who-we-are">About the UPCI NZ</a></li>
+        <li><a href="#departments">Departments</a></li>
+        <li><a href="#regions">Find a Church</a></li>
+        <li><a href="#abc">Bible College</a></li>
+        <li><a href="#calendar">Calendar</a></li>
+        <li><a href="#connect">Connect</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ============================================================
+     PHASE BANNER — factual, real counts only
+     ============================================================ -->
+<main id="top">
+
+  <!-- ==========================================================
+       HERO — the visitor's actual task, not a photograph
+       ========================================================== -->
+  <section class="hero" aria-label="Find a church">
+    <div class="wrap">
+      <h1>Find a UPCI church near you</h1>
+      <p class="lede">Ten churches, organised into three regions — Northern, Central and Southern.</p>
+      <form class="finder" role="search" onsubmit="return false;">
+        <label for="find" style="position:absolute;left:-9999px;">Enter your town or region</label>
+        <input id="find" type="text" placeholder="Town or region">
+        <button type="submit">Search <span aria-hidden="true">&rarr;</span></button>
+      </form>
+      <p class="quick-links">
+        <a href="#regions">Browse by region</a><span class="sep">&middot;</span><a href="#regions">See all ten churches</a><span class="sep">&middot;</span><a href="#abc">Bible College</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       REGIONS — the network of local places, as a plain directory
+       ========================================================== -->
+  <section id="regions" aria-label="Regions and churches">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Find a Church</span>
+        <h2>A network of local churches</h2>
+        <p>UPCI New Zealand is not a single building — it is ten congregations, organised into three regions, each led by a regional presbyter.</p>
+      </div>
+
+      <div class="regions-grid">
+        <div class="region">
+          <h3>Northern Region</h3>
+          <p class="region-count">4 churches &middot; Presbyter: Rev. Brian Aubrey</p>
+          <ul class="church-list">
+            <li><a href="#">Daystar Fellowship <span>Whangarei</span></a></li>
+            <li><a href="#">Grace Fellowship <span>Hamilton</span></a></li>
+            <li><a href="#">New Zealand Family in Christ Church <span>Auckland</span></a></li>
+            <li><a href="#">Southside Pentecostal Fellowship <span>Auckland</span></a></li>
+          </ul>
+        </div>
+        <div class="region">
+          <h3>Central Region</h3>
+          <p class="region-count">2 churches &middot; Presbyter: Rev. Jules Matika</p>
+          <ul class="church-list">
+            <li><a href="#">Apostolic Life Church <span>Tauranga</span></a></li>
+            <li><a href="#">Storehouse Chapel <span>Hamilton</span></a></li>
+          </ul>
+        </div>
+        <div class="region">
+          <h3>Southern Region</h3>
+          <p class="region-count">4 churches &middot; Presbyter: Rev. Peter Lloyd</p>
+          <ul class="church-list">
+            <li><a href="#">Apostolics of Christchurch <span>Christchurch</span></a></li>
+            <li><a href="#">Church Triumphant Wellington <span>Wellington</span></a></li>
+            <li><a href="#">Lighthouse of Jesus Christ Rolleston <span>Rolleston</span></a></li>
+            <li><a href="#">The Pentecostals of Rangiora <span>Rangiora</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       WHO WE ARE — two-thirds content / one-third related links
+       ========================================================== -->
+  <section id="who-we-are" aria-label="About the UPCI NZ">
+    <div class="wrap content-grid">
+      <div class="lede-col">
+        <span class="eyebrow">About the UPCI NZ</span>
+        <h2>Who we are</h2>
+        <p>UPCI New Zealand is the national body of the United Pentecostal Church International in New Zealand — ten affiliated churches, organised into three regions, supported by six national departments and the Apostolic Bible College. Our work is coordinated nationally so that each local church can be resourced, connected and represented as part of one body.</p>
+        <p>The national executive is responsible for oversight across all three regions, for the departments that serve members nationwide, and for the calendar of conferences, trainings and gatherings that bring the churches together each year.</p>
+      </div>
+      <aside class="related">
+        <span class="eyebrow">Related</span>
+        <ul>
+          <li><a href="#">Our national leadership</a></li>
+          <li><a href="#abc">Bible College</a></li>
+          <li><a href="#departments">National departments</a></li>
+          <li><a href="#calendar">2026 calendar of events</a></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       DEPARTMENTS — one harmonised colour family, top tag, no icons
+       ========================================================== -->
+  <section id="departments" aria-label="National departments">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Departments</span>
+        <h2>Six national departments</h2>
+        <p>Each department is a national ministry serving members in every region.</p>
+      </div>
+
+      <div class="dept-list">
+        <div class="dept-row">
+          <span class="dept-tag dept-men">Men's Department</span>
+          <div><h3>National Men's Department</h3><p>National ministry serving the men of UPCI New Zealand's churches.</p></div>
+        </div>
+        <div class="dept-row">
+          <span class="dept-tag dept-ladies">Ladies Ministries</span>
+          <div><h3>Ladies Ministries</h3><p>National ministry serving the women of UPCI New Zealand's churches.</p></div>
+        </div>
+        <div class="dept-row">
+          <span class="dept-tag dept-missions">Home Missions</span>
+          <div><h3>Home Missions Department</h3><p>Supports the planting and strengthening of churches within New Zealand.</p></div>
+        </div>
+        <div class="dept-row">
+          <span class="dept-tag dept-youth">Youth Ministry</span>
+          <div><h3>Youth Ministry</h3><p>National ministry serving young people across all three regions.</p></div>
+        </div>
+        <div class="dept-row">
+          <span class="dept-tag dept-children">Children's Ministry</span>
+          <div><h3>Children's Ministry</h3><p>National ministry serving children and those who teach them.</p></div>
+        </div>
+        <div class="dept-row">
+          <span class="dept-tag dept-prayer">Prayer Ministry</span>
+          <div><h3>Prayer Ministry</h3><p>Coordinates national seasons of prayer, including the annual 7 Day Prayer &amp; Fasting.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       CALENDAR — dated flat list, real 2026 events only
+       ========================================================== -->
+  <section id="calendar" aria-label="Calendar of events">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Calendar</span>
+        <h2>What's on in 2026</h2>
+        <p>A selection from the full national calendar of 49 events.</p>
+      </div>
+
+      <div class="event-list">
+        <div class="event-row"><span class="event-date">15 Jan</span><span class="event-name">General Conference</span></div>
+        <div class="event-row"><span class="event-date">26 Jan</span><span class="event-name">National 7 Day Prayer &amp; Fasting</span></div>
+        <div class="event-row"><span class="event-date">6 Feb</span><span class="event-name">ABC Teachers Training Seminar</span></div>
+        <div class="event-row"><span class="event-date">21 Feb</span><span class="event-name">Annual Ministers Meeting</span></div>
+        <div class="event-row"><span class="event-date">10 Apr</span><span class="event-name">Apostolic Men's Conference</span></div>
+        <div class="event-row"><span class="event-date">4 Jul</span><span class="event-name">JBQ Mini-tourney</span></div>
+      </div>
+      <a class="view-all" href="#">View the full 2026 calendar</a>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       LEADERSHIP — real photos, name + role only, no invented bios
+       ========================================================== -->
+  <section aria-label="National leadership">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Leadership</span>
+        <h2>Our national leadership</h2>
+      </div>
+      <div class="leader-grid">
+        <div class="leader">
+          <img src="../assets/photo1.jpg" alt="Rev. Troy Wickette">
+          <strong>Rev. Troy Wickette</strong>
+          <span>General Superintendent</span>
+        </div>
+        <div class="leader">
+          <img src="../assets/photo2.jpg" alt="Rev. Wayne Goodare">
+          <strong>Rev. Wayne Goodare</strong>
+          <span>Assistant General Superintendent</span>
+        </div>
+        <div class="leader">
+          <img src="../assets/photo3.jpg" alt="Rev. Andrew Kintanar">
+          <strong>Rev. Andrew Kintanar</strong>
+          <span>General Secretary &amp; Treasurer</span>
+        </div>
+        <div class="leader">
+          <img src="../assets/photo4.jpg" alt="Rev. Brian Aubrey">
+          <strong>Rev. Brian Aubrey</strong>
+          <span>Northern Region Presbyter</span>
+        </div>
+        <div class="leader">
+          <img src="../assets/photo5.jpg" alt="Rev. Jules Matika">
+          <strong>Rev. Jules Matika</strong>
+          <span>Central Region Presbyter</span>
+        </div>
+        <div class="leader">
+          <div class="initials-tile" aria-hidden="true">PL</div>
+          <strong>Rev. Peter Lloyd</strong>
+          <span>Southern Region Presbyter</span>
+          <span class="placeholder-note">Photograph to be supplied</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       ABC FEATURE
+       ========================================================== -->
+  <section id="abc" aria-label="Apostolic Bible College">
+    <div class="wrap abc-feature">
+      <img src="../assets/photo6.jpg" alt="Apostolic Bible College">
+      <div class="abc-copy">
+        <span class="eyebrow">Bible College</span>
+        <h2>Training the next generation of ministry</h2>
+        <p>The Apostolic Bible College equips students from across New Zealand's churches for ministry and service.</p>
+        <a class="btn" href="#">Learn more about ABC</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       CONNECT
+       ========================================================== -->
+  <section id="connect" aria-label="Connect with us">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Connect</span>
+        <h2>Get in touch</h2>
+      </div>
+      <div class="connect-grid">
+        <div class="connect-item">
+          <span class="eyebrow">General enquiries</span>
+          <p><a href="#">office@upci.co.nz</a></p>
+        </div>
+        <div class="connect-item">
+          <span class="eyebrow">Find a church</span>
+          <p><a href="#regions">Browse all ten churches by region</a></p>
+        </div>
+        <div class="connect-item">
+          <span class="eyebrow">Ministers &amp; leaders</span>
+          <p><a href="#">National office contact details</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER — mirrors primary nav, GOV.UK-style sitemap
+     ============================================================ -->
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>About</h4>
+        <ul>
+          <li><a href="#who-we-are">About the UPCI NZ</a></li>
+          <li><a href="#">National leadership</a></li>
+          <li><a href="#departments">Departments</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Find a Church</h4>
+        <ul>
+          <li><a href="#regions">Northern Region</a></li>
+          <li><a href="#regions">Central Region</a></li>
+          <li><a href="#regions">Southern Region</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ministry</h4>
+        <ul>
+          <li><a href="#abc">Bible College</a></li>
+          <li><a href="#calendar">Calendar</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#connect">Connect</a></li>
+          <li><a href="#">office@upci.co.nz</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-legal">
+      <div class="brand"><strong>UPCI New Zealand</strong> <span>&mdash; United Pentecostal Church International</span></div>
+      <span>&copy; 2026 UPCI New Zealand. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

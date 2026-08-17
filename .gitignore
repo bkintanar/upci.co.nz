@@ -21,3 +21,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Local SQLite database — contains user data, must never be committed
+upci
