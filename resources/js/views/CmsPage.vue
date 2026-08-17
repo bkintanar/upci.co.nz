@@ -90,9 +90,15 @@
             <!-- Two Column Layout -->
             <section v-else-if="block.type === 'two_column'" class="py-16 bg-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-12">
-                        <div class="two-column-content" v-html="renderMarkdown(block.data.left_content)"></div>
-                        <div class="bg-gray-100 p-8 rounded-lg two-column-content" v-html="renderMarkdown(block.data.right_content)"></div>
+                    <div :class="['grid grid-cols-1 gap-12 items-center mb-12', twoColumnGrid(block)]">
+                        <div :class="['two-column-content', twoColumnSpan(block, 'left')]"
+                             v-html="renderMarkdown(block.data.left_content)"></div>
+                        <div :class="[
+                                 'two-column-content',
+                                 twoColumnSpan(block, 'right'),
+                                 block.data.right_panel === false ? '' : 'bg-gray-100 p-8 rounded-lg'
+                             ]"
+                             v-html="renderMarkdown(block.data.right_content)"></div>
                     </div>
                 </div>
             </section>
@@ -299,6 +305,24 @@ export default defineComponent({
             return `${spacing} ${background}`
         }
 
+        // two_column widths. Literal strings for the same reason as the card
+        // grids: Tailwind reads source as text, so `lg:grid-cols-${n}` is never
+        // emitted and the layout silently collapses to one column.
+        const TWO_COLUMN_GRIDS = {
+            '1-1': 'lg:grid-cols-2',
+            '2-1': 'lg:grid-cols-3',
+            '1-2': 'lg:grid-cols-3',
+        }
+
+        const TWO_COLUMN_SPANS = {
+            '2-1': { left: 'lg:col-span-2', right: '' },
+            '1-2': { left: '', right: 'lg:col-span-2' },
+        }
+
+        const twoColumnGrid = (block) => TWO_COLUMN_GRIDS[block.data.ratio] || TWO_COLUMN_GRIDS['1-1']
+
+        const twoColumnSpan = (block, side) => TWO_COLUMN_SPANS[block.data.ratio]?.[side] || ''
+
         const isStatsBlock = (block) => block.data.style === 'stats'
 
         const isRegistrationBlock = (block) => block.data.style === 'registration'
@@ -426,6 +450,8 @@ export default defineComponent({
             getCtaClasses,
             sectionBackground,
             isStatsBlock,
+            twoColumnGrid,
+            twoColumnSpan,
             getCardIconClass,
             getCardIconContainerClass,
             getMinistryCardClasses,

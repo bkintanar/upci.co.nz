@@ -175,6 +175,9 @@ test('text and card blocks carry explicit presentation, not inferred', function 
             $required = match ($block['type'] ?? null) {
                 'text' => ['background', 'style'],
                 'cards' => ['background', 'style', 'columns'],
+                // two_column hard-coded an even split and a forced grey panel;
+                // both are now the author's choice.
+                'two_column' => ['ratio', 'right_panel'],
                 default => [],
             };
 

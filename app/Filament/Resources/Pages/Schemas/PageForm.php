@@ -187,6 +187,25 @@ class PageForm
                                 Builder\Block::make('two_column')
                                     ->label('Two Column Layout')
                                     ->schema([
+                                        // The block hard-coded an even split and wrapped the
+                                        // right column in a grey panel unconditionally, so it
+                                        // could not express an uneven layout and long prose
+                                        // ended up boxed whether that suited it or not.
+                                        Select::make('ratio')
+                                            ->label('Column widths')
+                                            ->options([
+                                                '1-1' => 'Equal',
+                                                '2-1' => 'Wide left, narrow right',
+                                                '1-2' => 'Narrow left, wide right',
+                                            ])
+                                            ->default('1-1')
+                                            ->required(),
+
+                                        Toggle::make('right_panel')
+                                            ->label('Grey panel on the right column')
+                                            ->default(true)
+                                            ->helperText('Turn off for plain prose in both columns.'),
+
                                         MarkdownEditor::make('left_content')
                                             ->label('Left Column')
                                             ->required()
