@@ -1094,3 +1094,34 @@ The feature, security and correctness work is substantially complete: all 11 ori
 requirements addressed, gate at 106 passing, a clean sweep across all 32 routes, and the
 live-site defects found along the way fixed. What remains needs three decisions that are the
 client's to make. Continuing to generate commits without them would be churn.
+
+### Iteration 34 — 2026-08-17 — plan exhausted of unblocked work
+
+#### Completed
+- **T71 ✅** — both halves. §14.2 audit found shipped surfaces clean; §14.3 copy reworded.
+- **T64 ⛔** — obsolete. It asks to split T36, which is finished. Splitting a completed task is
+  bookkeeping, not work. The observation was sound when written and is recorded for the next
+  plan author.
+
+#### Final position
+**60 done · 2 partial · 3 declined with reasons · 7 remaining.**
+
+Every one of the 7 waits on a decision only the client can make:
+
+| Waiting on | Tasks |
+|---|---|
+| Homepage direction (D1 / D2 / D3) | T45, T50, T51, T54 |
+| Which hue each department owns | T49, T69 |
+| Whether the 49 events belong to regions | T55 |
+
+#### State of the work
+All 11 original requirements addressed. Gate 106 passing (254 assertions). Full-route sweep
+clean across 32 routes. Migration chain reverses cleanly. Full suite still at exactly the 16
+pre-existing Livewire starter-kit failures it began with — none added.
+
+Beyond the plan, this session also fixed live defects it did not contain: an unauthenticated
+church DELETE, a public database in a public repo, personal email addresses on an
+unauthenticated endpoint, mobile overflow on the ABC pages, a rejected homepage silently
+re-applying itself, and a cache misconfiguration returning 500s on roughly 60% of page loads.
+
+**No further progress is available without those three decisions.** Continuing would be churn.
