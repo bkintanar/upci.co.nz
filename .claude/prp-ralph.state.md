@@ -657,3 +657,48 @@ changed unilaterally — and it will get worse now that a page can hold six data
 Direction B rollout: **T48 first** — it is marked 🔴 prerequisite, because B cannot render any
 non-homepage page until `.breadcrumb`, `.page-header` and `.contents` are ported. Then T32
 (re-author home), T45 (hero), T47 (error hue), T49 (craft fixes), and spikes T50/T51.
+
+### Iteration 15 — 2026-08-17
+
+#### Completed
+- **T48** (`216ba89`) — `Breadcrumb`, `PageHeader`, `Contents` ported into the shared layout.
+  This was the 🔴 prerequisite gating the rest of the Direction B rollout.
+
+#### Validation
+Lint PASS · Build PASS · Tests **98 passed (239 assertions)** · all three components
+browser-verified
+
+#### Why these three came first
+B's hero states a TASK, which suits the homepage and nothing else. Without a breadcrumb, a
+title band and in-page navigation, B literally had nothing to put at the top of an interior
+page — so T32 and T45 could not land ahead of them.
+
+#### Design decisions
+- The breadcrumb **derives from the route**, so no author maintains it, and strips the
+  site-name suffix from the leaf (`"Leadership - UPCI New Zealand"` → `Leadership`).
+- `PageHeader` renders **only when a page has no hero**, so it never states the same thing
+  twice. Every current CMS page has a hero, so it is dormant until B replaces those.
+- `Contents` is **derived from the page's own headings** rather than authored, so the index
+  cannot drift from what it indexes. Shown only at 3+ sections.
+
+#### Applied the session's own lesson
+`Contents` had no data source. Rather than ship it as an unused component, I gave it a real
+one. **Twice this session an unconsumed abstraction turned out to be broken** (the
+`groupedChurches` computed, the `useBlockData` ref) — a component with no caller is unverified
+by construction, so the verification cost is paid later and looks like a different fault.
+
+#### Deviation recorded
+§13.2 prescribes B's two-row header for the nine-item nav. Built, then **reverted at the
+user's direction** in `5cbd9dd`; nine items now fit one row with the logo to its left. The
+constraint the section describes is met by other means.
+
+#### Learnings
+- `pl-4.5` / `pt-13` are **not** in Tailwind's default scale and emit nothing. Use arbitrary
+  values (`pl-[18px]`) when porting pixel values from a design file.
+- Constrain a title band's measure in `ch`, not `px` — it should break by measure, not
+  viewport.
+
+#### Next
+T32 (re-author home to B's block sequence — the six data-bound blocks now exist to express
+it), T45 (hero → "ten congregations, named"), T47 (error hue), T49 (craft fixes), then spikes
+T50 (`/calendar` month grid) and T51 (the cards block under B).

@@ -407,7 +407,7 @@ Do these **before** T32 (re-authoring the homepage) and T39–T41, which consume
 | T45 | Rework B's hero to the "ten congregations, named" motif (D11) — list above the fold under three region headings; demote search to a filter over the visible list | §14.1a. Reuses `.church-list` / `.regions-grid`; no new components |
 | T46 ✅ | Two-row header: masthead + full-width service-nav bar carrying all nine items; move the 5px green rule to close it (D12) | §13.2. Port from `B2-coverage-screens.html`, which already implements it |
 | T47 | Add the error hue token + `.error-summary` / field-validation treatment (D13) | Scoped to errors only; two-hue rule stands elsewhere |
-| T48 | Port `.breadcrumb`, `.page-header`, `.contents` from B2 into the shared layout | 🔴 §13.1 — **prerequisites**: B cannot render any non-homepage page without them |
+| T48 ✅ | Port `.breadcrumb`, `.page-header`, `.contents` from B2 into the shared layout | 🔴 §13.1 — **prerequisites**: B cannot render any non-homepage page without them |
 | T49 | Apply the deferred craft fixes: type scale (h2 → 40px, body → 17px), department greens spread by hue, symmetric region gutters, `filter:grayscale(1)` on the leadership row, ABC grid `5fr 7fr` | Critique F5–F9, F11. ~1hr; moves Craft 4 → ~7 |
 
 ### Block G — Spikes for the two un-de-risked archetypes
