@@ -105,3 +105,43 @@ would reproduce the previous run's iterations 36-40, which changed no code. **Th
 converged, not stalled.** Do not resume by re-reading the task list; get the direction.
 
 ---
+
+## Iteration 2 — the client answered; the residue is gone
+
+### Answers received (2026-08-17)
+1. **Homepage direction → D2, search-led.** Chosen from three built previews.
+2. **Photography → exists, will be supplied.** D2 was chosen partly because it needs none, so
+   nothing waits on delivery. Treat incoming images as enhancement, never dependency.
+3. **Department hues → respread to harmonise with brand green.**
+
+Recorded in `.claude/design/upci-redesign/direction-approved.md`.
+
+### Built
+- **T49② `dfd5c43`** — six department hues onto the brand family. Same L/C as the brand green,
+  hues 45-80° apart, each near its previous identity. All 12 classes verified present in the
+  built CSS and all 6 pages verified in a browser — because the last palette change shipped
+  tokens nothing consumed.
+- **T45 `0a4b743`** — the D2 homepage, plus a region-ordering fix at the API.
+- **T51 `f511c3c`** — cards go flat; colours onto brand tokens.
+
+### Defects found by building
+- **Homepage had no `h1`.** The finder's heading was an `h2` and `PageHeader` is suppressed at
+  the root. Same symptom that exposed the rejected Direction B homepage — reproduced by me,
+  caught by the sweep, fixed by promoting the first block's heading on home.
+- **`/api/churches` ignored `regions.sort_order`**, so the homepage showed Southern first.
+  `ChurchDirectoryBlock`'s comment asserted an API ordering that never existed.
+
+### My own tooling misled me again — fourth time
+The first sweep reported 429s across 10 routes. **That was my harness, not the site**: 700ms
+pacing against ~6 API calls per page is ~8 req/sec into a 60/min limiter. Re-run at 6.5s and
+all 21 routes came back clean. This is the *identical* mistake recorded in the previous run's
+learnings, repeated by someone who had read them. Pacing has to be computed from the limit,
+not guessed.
+
+### Validation
+Lint PASS · Build PASS · Tests **117 passed / 269 assertions**, 16 pre-existing failures
+unchanged · **21-route sweep clean** (the only flag is the deliberate 404 probe returning 404).
+
+### Position
+**All 72 tasks resolved: 65 done, 3 partial, 4 declined.** Nothing on the task list waits on
+anyone. Remaining work is follow-up this run made visible, not plan residue — see the report.

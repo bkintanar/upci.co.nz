@@ -4,13 +4,18 @@
 **Branch**: `main` — 90 commits (69 substantive, 21 ralph progress-tracking), all fast-forward,
 no merge commits
 **Date**: 2026-08-17
-**Status**: **PAUSED ON DECISIONS** — 63 done · 3 partial · 4 declined with reasons · **2 remaining**
+**Status**: **ALL 72 TASKS RESOLVED** — 65 done · 3 partial · 4 declined with reasons · **0 remaining**
 
-> **Revised after a resumed run.** The first close recorded "7 remaining, every one gated on a
-> client decision." That was **too broad**, and re-deriving each premise from the code
-> disproved it: three of the seven were already delivered or answerable from data, one rested
-> on a false premise, and one was five separate fixes bundled as a single blocked task. Only
-> **two** are genuinely waiting on a person. See "The residue, re-derived".
+> **Two revisions since the first close.**
+>
+> The first close recorded "7 remaining, every one gated on a client decision." That was **too
+> broad**: re-deriving each premise from the code showed three were already delivered or
+> answerable from data, one rested on a false premise, and one was five separate fixes bundled
+> as a single blocked task. Only **two** were genuinely waiting on a person.
+>
+> Those two then got their answer. The client chose **Direction D2 (search-led)**, confirmed
+> **photography is available**, and approved **respreading the department hues** — so T45, T51
+> and T49② were all built. Nothing on the task list is now waiting on anyone.
 
 ---
 
@@ -45,16 +50,38 @@ summary. Five dissolved.
 | **T69** SBQ/JBQ colours | blocked on hue choice | ⛔ **premise false.** SBQ/JBQ are **CMS pages**, not departments — they never touch the palette. And colour lives in **one** file now, not the three the hazard warns about |
 | **T49** craft fixes | blocked on hue choice | ◐ **five fixes, not one.** Two already satisfied, one superseded, one a defect, one genuinely a taste call |
 
-**Genuinely waiting on a person — two tasks:**
+### Then the client answered, and the last two were built
 
-| Waiting on | Tasks |
+**Direction D2 — search-led** (after the Church of England's *A Church Near You*), chosen from
+three built previews. The homepage now opens with a search field and, immediately beneath it,
+**all ten congregations named** under Northern → Central → Southern. Search is a filter over a
+list that is already visible rather than a box in front of an empty page — a visitor who does
+not know what to type still gets an answer.
+
+| Task | Built |
 |---|---|
-| **Homepage direction** (D1 / D2 / D3) | T45 hero · T51 cards spike — both written against Direction B, which was rejected; they cannot be *completed*, only **rewritten** against the chosen direction |
+| **T45** | D2 homepage. Verified in a browser: 10 churches named, search at 205px above the fold, correct region order, 0 overflow at 1440 and 390, 0 page errors |
+| **T51** | Cards go flat under D2 — the lifting `shadow-lg`/`rounded-xl` card is gone, hover moves the border instead. Proven on leadership (14 cards) and ABC (4) before reaching the other five pages |
+| **T49②** | Six department hues respread onto the brand family: same lightness and chroma as the brand green, hues 45-80° apart, each near its previous identity |
 
-Plus two taste calls held back deliberately rather than shipped blind: **which hue each
-department owns** (T49②), and **whether leadership portraits go greyscale** (T49④) — the
-latter desaturates photographs of named people, and five design changes have already been
-rejected for landing without review.
+**Photography exists** and will be supplied. D2 deliberately does not depend on it — a layout
+that breaks when the images are late is the wrong layout.
+
+**Still held back on purpose:** T49④, greyscaling the leadership portraits. It desaturates
+photographs of named people, and five design changes have already been rejected for landing
+without review. It goes up separately or not at all.
+
+### Two defects this work surfaced
+
+**The homepage rendered no `h1`.** D2 opens with the finder block, whose heading was an `h2`,
+and `PageHeader` is suppressed at the root. This is the *same symptom* that exposed the
+rejected Direction B homepage — reproduced, caught by the sweep, and fixed by promoting the
+first block's heading on the homepage.
+
+**`/api/churches` never consulted `regions.sort_order`.** It ordered by featured-then-name, so
+the homepage rendered **Southern above Northern**. `ChurchDirectoryBlock` carried a comment
+asserting the API supplied region order — an ordering that had never existed. Fixed at source
+with a `leftJoin`, so every consumer benefits and churches without a region still appear.
 
 ### A defect this pass found in my own work
 

@@ -1,7 +1,14 @@
 <template>
     <section class="py-16 bg-brand-green-100">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 v-if="data.heading" class="text-3xl font-bold text-brand-ink mb-6">{{ data.heading }}</h2>
+            <!-- h1 when this block opens the homepage, h2 otherwise. A page
+                 needs exactly one h1, and under D2 the finder IS the homepage's
+                 primary heading — there is no hero above it to carry one. -->
+            <component
+                :is="isFirst ? 'h1' : 'h2'"
+                v-if="data.heading"
+                :class="isFirst ? 'text-4xl md:text-5xl font-bold text-brand-ink mb-6' : 'text-3xl font-bold text-brand-ink mb-6'"
+            >{{ data.heading }}</component>
 
             <!-- A real form, so Enter submits and the field is labelled. This
                  block holds no data of its own; it hands the query to the
@@ -30,7 +37,10 @@ import { useRouter } from 'vue-router'
 
 export default defineComponent({
     name: 'ChurchFinderBlock',
-    props: { data: { type: Object, required: true } },
+    props: {
+        data: { type: Object, required: true },
+        isFirst: { type: Boolean, default: false },
+    },
     setup() {
         const router = useRouter()
         const query = ref('')

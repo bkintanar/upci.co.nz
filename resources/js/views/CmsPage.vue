@@ -213,7 +213,13 @@
                  authored content, so the author sets configuration and the page
                  stays current on its own. Each handles its own loading, error
                  and empty states through BlockState. -->
-            <ChurchFinderBlock v-else-if="block.type === 'church_finder'" :data="block.data" />
+            <!-- is-first promotes this block's heading to the page h1.
+                 The homepage under D2 leads with the finder and has no hero, and
+                 PageHeader is suppressed at the root — so without this the
+                 homepage renders no h1 at all. That is not hypothetical: a
+                 full-site sweep caught exactly this, which is the same symptom
+                 that exposed the rejected Direction B homepage. -->
+            <ChurchFinderBlock v-else-if="block.type === 'church_finder'" :data="block.data" :is-first="index === 0 && isHome" />
             <ChurchDirectoryBlock v-else-if="block.type === 'church_directory'" :data="block.data" />
             <EventsFeedBlock v-else-if="block.type === 'events_feed'" :data="block.data" />
             <DepartmentListBlock v-else-if="block.type === 'department_list'" :data="block.data" />
