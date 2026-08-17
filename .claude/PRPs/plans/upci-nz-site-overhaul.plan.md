@@ -113,8 +113,10 @@ Fix the storage disk first (it blocks requirements 1 and 2). Then introduce thre
 | Column | Type | Notes |
 |---|---|---|
 | `id` | pk | Always row 1 |
-| `logo_path` | string, nullable | Primary logo |
-| `logo_mono_path` | string, nullable | Optional footer/dark variant |
+| `header_logo_path` | string, nullable | Navbar mark. Currently the **stacked** lockup (variant 01) |
+| `footer_logo_path` | string, nullable | Footer mark. Currently the **horizontal** lockup (variant 03) |
+
+🔴 **Two logos, not one.** The header and footer take different lockups from the same pack and must be editable independently — the navbar is a horizontal strip that suits a compact stacked mark, while the footer has room for the wide one. A single `logo_path` cannot express that. Both fall back to a bundled default when empty.
 | `social_links` | json, nullable | `[{platform, url}]` — replaces hard-coded SVGs |
 | `contact_email` | string, nullable | Footer currently hard-codes `info@upci.org.nz` |
 | `footer_blurb` | text, nullable | Footer paragraph, currently hard-coded |
@@ -344,9 +346,9 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 
 | # | Task | Notes / hazards |
 |---|---|---|
-| T9 | `site_settings` migration + model, **and seed `logo_path` via the T2 artisan command — NOT in the migration** | 🔴 §12.8 forbids file copies in migrations (they run under `RefreshDatabase` on every test); T9 originally told you to copy a **293 KB** asset in one. Also `storage/app/public/site/` does not exist — create it. Without the seed, T11 *removes* the logo |
+| T9 | `site_settings` migration + model, **and seed `header_logo_path` + `footer_logo_path` via an artisan command — NOT in the migration** | 🔴 §12.8 forbids file copies in migrations (they run under `RefreshDatabase` on every test); T9 originally told you to copy a **293 KB** asset in one. Also `storage/app/public/site/` does not exist — create it. Without the seed, T11 *removes* the logo |
 | T10 | `ManageSiteSettings` page with **`canAccess()` + `shouldRegisterNavigation()` overrides** | 🔴 §12.4 — a policy does nothing here; a custom Page is open to all. ⚠️ **~1 day, not one line.** Needs: `protected static string $view` → a Blade file in **`resources/views/filament/pages/` which does not exist and no task creates**; `HasForms`+`InteractsWithForms`; a `$data` array; `mount()` hydrating row 1; a `save()`; singleton semantics (`firstOrCreate(['id'=>1])`); and the `logo_path` `FileUpload` **must** carry `->disk('public')` or T1's bug returns on day one |
-| T11 | `GET /api/site-settings`; wire `Navbar.vue` + `Footer.vue` (keep the bundled import as `v-else`) | |
+| T11 | `GET /api/site-settings`; wire `Navbar.vue` to `header_logo_path` and `Footer.vue` to `footer_logo_path`, each keeping its bundled import as the `v-else` fallback | |
 | T12 | **Region rename migration** — names *and* slugs, **plus** all **SEVEN** `ChurchController` coupling sites, **plus** all four test files' `firstOrCreate(['slug'=>'north'])` | 🔴 Sites: `:28` filter · `:103` + `:149` `exists:regions,name` validation · `:125` + `:172` `Region::where('name')` · `:223` `pluck('name')` · `:285` payload. **Correction to §12.6:** the failure is *not* a silent null — `exists:regions,name` fires first and returns a **loud 422**. Fix all seven or the API's own list endpoint (`:223`) returns values its own filter (`:28`) rejects |
 | T13 | Region enrichment migration (`logo_path`, `intro`, `presbyter_name`, `is_published`) + update `Region::$fillable` + casts | §12.11 |
 | T14 | Filter `/api/churches-organizational-regions` by `is_published` | §12.6 — currently leaks |

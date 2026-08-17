@@ -90,9 +90,12 @@ import { defineComponent, computed } from 'vue'
 // navbar and footer sit on dark surfaces, and the standard mark sets its
 // wordmark in black. PNG rather than SVG deliberately: the SVG export
 // carries an unclassed full-canvas <rect> that renders as a black plate
-// behind the mark. The PNGs are transparent. Still a build-time import —
+// behind the mark. Trimmed from the pack's PNG, which has ~11% transparent
+// padding per side. Uses variant 03, the only horizontal lockup in the pack
+// (2.51:1); 01 and 02 are stacked and clip inside a horizontal bar.
+// Still a build-time import —
 // making this CMS-editable is the site-settings work (T9-T11).
-import upciLogo from '../../images/logos/general/UPCINZ-MINISTRIES-01-WHITE.png'
+import upciLogo from '../../images/upci-nz-logo-footer.png'
 
 export default defineComponent({
     name: 'Footer',

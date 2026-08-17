@@ -6,11 +6,11 @@
                             <router-link to="/" class="flex-shrink-0 flex items-center group">
                                 <img :src="upciLogo"
                                      alt="UPCI New Zealand"
-                                     class="h-28 w-auto group-hover:scale-105 transition-transform duration-300">
+                                     class="h-24 w-auto group-hover:scale-105 transition-transform duration-300">
                             </router-link>
                         </div>
 
-                <div v-if="!loading" class="hidden md:flex flex-1 min-w-0 justify-end items-center gap-x-0 lg:gap-x-1 xl:gap-x-2">
+                <div v-if="!loading" class="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
                     <template v-for="item in menuItems" :key="item.id">
                         <!-- Menu item with dropdown -->
                         <div v-if="item.children && item.children.length > 0" class="relative group">
@@ -144,9 +144,12 @@ import { defineComponent, onMounted, ref } from 'vue';
 // navbar and footer sit on dark surfaces, and the standard mark sets its
 // wordmark in black. PNG rather than SVG deliberately: the SVG export
 // carries an unclassed full-canvas <rect> that renders as a black plate
-// behind the mark. The PNGs are transparent. Still a build-time import —
+// behind the mark. Trimmed from the pack's PNG, which has ~11% transparent
+// padding per side. Uses variant 03, the only horizontal lockup in the pack
+// (2.51:1); 01 and 02 are stacked and clip inside a horizontal bar.
+// Still a build-time import —
 // making this CMS-editable is the site-settings work (T9-T11).
-import upciLogo from '../../images/logos/general/UPCINZ-MINISTRIES-01-WHITE.png';
+import upciLogo from '../../images/upci-nz-logo-nav.png';
 
 export default defineComponent({
     name: 'Navbar',
