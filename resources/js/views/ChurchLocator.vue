@@ -361,16 +361,23 @@
 <script>
 // ChurchLocator.vue - Updated: 2025-10-12 00:45:00
 import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-        import L from 'leaflet'
-        import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+// Marker images are bundled by Vite rather than fetched from cdnjs. The CDN
+// copy was pinned to 1.7.1 while the installed package is 1.9.4, and it made
+// the locator depend on a third party at runtime.
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 
-        // Fix for default markers in webpack
-        delete L.Icon.Default.prototype._getIconUrl
-        L.Icon.Default.mergeOptions({
-            iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-        })
+// Leaflet resolves its default icon paths relative to the bundle, which breaks
+// under Vite — point it at the imported asset URLs instead.
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+})
 
         export default defineComponent({
             name: 'ChurchLocator',
@@ -415,7 +422,6 @@ import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch
                                 calculateDistances()
                             },
                             (error) => {
-                                console.log('Geolocation error:', error)
                                 // Set default location (Wellington, NZ) if geolocation fails
                                 userLocation.value = {
                                     lat: -41.2924,
@@ -484,12 +490,6 @@ import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch
                                 distance: 0 // Will be calculated after user location is obtained
                             }))
 
-                            // Debug: Log coordinates for Auckland UPCI
-                            const aucklandChurch = churches.value.find(c => c.name === 'Auckland UPCI')
-                            if (aucklandChurch) {
-                                console.log('Auckland UPCI coordinates:', aucklandChurch.lat, aucklandChurch.lng)
-                                console.log('Auckland UPCI address:', aucklandChurch.address)
-                            }
                             // Calculate distances if user location is available
                             if (userLocation.value) {
                                 calculateDistances()
@@ -646,14 +646,6 @@ import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch
 
             // Add markers for filtered churches
             filteredChurches.value.forEach(church => {
-                // Debug: Log marker coordinates for Auckland UPCI
-                if (church.name === 'Auckland UPCI') {
-                    console.log('Creating marker for Auckland UPCI at:', church.lat, church.lng)
-                    console.log('Raw latitude from API:', church.latitude)
-                    console.log('Raw longitude from API:', church.longitude)
-                    console.log('Parsed lat:', parseFloat(church.latitude))
-                    console.log('Parsed lng:', parseFloat(church.longitude))
-                }
 
                 const marker = L.marker([church.lat, church.lng])
                     .addTo(map)

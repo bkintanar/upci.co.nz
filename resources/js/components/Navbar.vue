@@ -157,7 +157,6 @@ export default defineComponent({
             try {
                 const response = await axios.get('/api/menu/header')
                 menuItems.value = response.data.data || response.data
-                console.log('Menu items loaded:', menuItems.value)
             } catch (error) {
                 console.error('Failed to fetch menu items:', error)
                 // Keep default menu if API fails
