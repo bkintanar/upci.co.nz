@@ -25,12 +25,19 @@
                         <!-- Requirement 1b: the department's own mark, falling
                              back to the site logo. Not all six departments have
                              a logo, and an absent one should read as the parent
-                             brand rather than as a gap. -->
+                             brand rather than as a gap.
+
+                             Larger than it was (h-24/h-32), and the emblem-only
+                             lockup, because the stacked lockup spent half its
+                             height on a wordmark that repeats the h1 directly
+                             below it — which is what made the mark read as
+                             small. drop-shadow-lg is gone: it existed to rescue
+                             contrast that the light variant now provides. -->
                         <img
                             v-if="departmentLogo"
                             :src="departmentLogo"
                             :alt="`${department.name} logo`"
-                            class="h-24 md:h-32 w-auto mx-auto mb-8 drop-shadow-lg"
+                            class="h-32 md:h-44 w-auto mx-auto mb-8"
                         />
                         <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                             {{ department.name }}
@@ -159,7 +166,16 @@ export default defineComponent({
         }
 
         // Falls back to the site header logo when a department has none.
+        // This hero is always a dark department hue ending in brand-ink, so the
+        // LIGHT mark is the correct one here. The dark logo stays the fallback:
+        // a department with no light variant still shows its own mark rather
+        // than jumping straight to the generic site logo.
+        //
+        // The two card render sites — GetInvolved.vue and DepartmentListBlock.vue
+        // — sit on white and deliberately keep reading `logo_path`. That is why
+        // this preference lives here and not in the API.
         const departmentLogo = computed(() => {
+            if (department.value?.logo_light_path) return imageUrl(department.value.logo_light_path)
             if (department.value?.logo_path) return imageUrl(department.value.logo_path)
             if (settings.value?.header_logo_url) return settings.value.header_logo_url
             return null

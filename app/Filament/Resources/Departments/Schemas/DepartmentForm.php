@@ -43,8 +43,24 @@ class DepartmentForm
                             ->toolbarButtons(['bold', 'italic', 'link', 'heading', 'bulletList', 'orderedList', 'blockquote'])
                             ->columnSpanFull(),
                         FileUpload::make('logo_path')
-                            ->label('Department Logo')
-                            ->helperText('Shown in listings and on the department page. Falls back to the UPCI NZ mark when empty.')
+                            ->label('Department Logo (dark — for light backgrounds)')
+                            ->helperText('Shown on the white cards in listings. Falls back to the UPCI NZ mark when empty.')
+                            ->image()
+                            ->disk('public')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/svg+xml', 'image/png', 'image/webp'])
+                            ->directory('department-logos')
+                            ->maxSize(2048),
+
+                        // The department page's hero is always a dark brand-hue
+                        // gradient, so the dark mark above disappears into it.
+                        // Two columns rather than one derived from the other:
+                        // the supplied filenames are inconsistent (missions is
+                        // MISSIONS-02.svg against MISSION-02-WHITE.svg), so any
+                        // string-substitution rule 404s on one of six.
+                        FileUpload::make('logo_light_path')
+                            ->label('Department Logo (light — for dark backgrounds)')
+                            ->helperText('Used on the department page hero, which is a dark colour. Must have a transparent background — a logo with a solid backing will show as a rectangle. Falls back to the dark logo when empty.')
                             ->image()
                             ->disk('public')
                             ->visibility('public')

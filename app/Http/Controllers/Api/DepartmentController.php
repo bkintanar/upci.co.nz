@@ -22,6 +22,7 @@ class DepartmentController extends Controller
                 'slug' => $d->slug,
                 'hero_image' => $d->hero_image,
                 'logo_path' => $d->logo_path,
+                'logo_light_path' => $d->logo_light_path,
                 'color_theme' => $d->color_theme,
                 // The listing page needs a line of real copy per department.
                 // Sent whole rather than pre-truncated: the caller decides how
@@ -82,6 +83,7 @@ class DepartmentController extends Controller
                 'description' => $department->description,
                 'hero_image' => $department->hero_image,
                 'logo_path' => $department->logo_path,
+                'logo_light_path' => $department->logo_light_path,
                 'color_theme' => $department->color_theme,
                 'scripture_quote' => $department->scripture_quote,
                 'announcements' => $announcements,

@@ -14,6 +14,7 @@ class Department extends Model
         'description',
         'hero_image',
         'logo_path',
+        'logo_light_path',
         'color_theme',
         'scripture_quote',
         'is_published',
