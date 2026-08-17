@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\Events\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Table;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 
 class EventsTable
 {
@@ -15,6 +15,22 @@ class EventsTable
     {
         return $table
             ->columns([
+                TextColumn::make('scope')
+                    ->label('Calendar')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state?->label())
+                    ->color(fn ($state) => match ($state?->value) {
+                        'national' => 'success',
+                        'regional' => 'info',
+                        default => 'gray',
+                    })
+                    ->sortable(),
+
+                TextColumn::make('region.name')
+                    ->label('Region')
+                    ->placeholder('—')
+                    ->toggleable(),
+
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('start_date')->date()->sortable(),
                 TextColumn::make('end_date')->date()->placeholder('—'),

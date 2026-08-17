@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Event;
+use App\Enums\EventScope;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
@@ -14,7 +16,27 @@ class EventController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Event::published()->with('department')->orderBy('start_date');
+        $query = Event::published()->with(['department', 'region'])->orderBy('start_date');
+
+        // Requirement 9: the national calendar is a distinct list, not the
+        // whole table. Validated against the enum rather than passed through,
+        // so an unknown scope is a loud 422 instead of a silently empty list.
+        if ($request->filled('scope')) {
+            $request->validate([
+                'scope' => ['string', Rule::enum(EventScope::class)],
+            ]);
+            $query->where('scope', $request->string('scope')->toString());
+        }
+
+        // Region filters on slug, matching the church locator's wire format.
+        // Not restricted to scope=regional here: the caller asks for one or
+        // both, and combining them is what a region page actually wants.
+        if ($request->filled('region')) {
+            $request->validate([
+                'region' => ['string', 'exists:regions,slug'],
+            ]);
+            $query->whereHas('region', fn ($q) => $q->where('slug', $request->string('region')->toString()));
+        }
 
         if ($request->has('from') && $request->from) {
             $query->where(function ($q) use ($request) {
@@ -41,6 +63,11 @@ class EventController extends Controller
             'end_date' => $event->end_date?->format('Y-m-d'),
             'location' => $event->location,
             'url' => $event->url,
+            'scope' => $event->scope?->value,
+            'region' => $event->region ? [
+                'slug' => $event->region->slug,
+                'name' => $event->region->name,
+            ] : null,
             'department' => $event->department ? [
                 'slug' => $event->department->slug,
                 'name' => $event->department->name,
@@ -56,7 +83,7 @@ class EventController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $event = Event::published()->find($id);
+        $event = Event::published()->with('region')->find($id);
         if (! $event) {
             return response()->json(['success' => false, 'message' => 'Event not found'], 404);
         }
@@ -72,6 +99,11 @@ class EventController extends Controller
                 'end_date' => $event->end_date?->format('Y-m-d'),
                 'location' => $event->location,
                 'url' => $event->url,
+                'scope' => $event->scope?->value,
+                'region' => $event->region ? [
+                    'slug' => $event->region->slug,
+                    'name' => $event->region->name,
+                ] : null,
             ],
         ]);
     }
