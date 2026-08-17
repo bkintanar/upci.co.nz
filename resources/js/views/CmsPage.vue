@@ -263,7 +263,7 @@
 </template>
 
 <script>
-import { marked } from 'marked';
+import { renderMarkdown } from '../utils/markdown';
 import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Modal from '../components/Modal.vue';
@@ -368,16 +368,6 @@ export default defineComponent({
             } finally {
                 loading.value = false
             }
-        }
-
-        marked.setOptions({
-            breaks: true,
-            gfm: true
-        })
-
-        const renderMarkdown = (content) => {
-            if (!content) return ''
-            return marked.parse(content)
         }
 
         const getImageUrl = (path) => {

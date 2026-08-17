@@ -104,7 +104,7 @@
 <script>
 import { defineComponent, ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { marked } from 'marked'
+import { renderMarkdown } from '../utils/markdown'
 import GalleryGrid from '../components/GalleryGrid.vue'
 import { useSiteSettings } from '../composables/useSiteSettings'
 import { departmentHeroClasses } from '../utils/theme'
@@ -127,10 +127,6 @@ export default defineComponent({
             return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'long', year: 'numeric' })
         }
 
-        const renderMarkdown = (s) => {
-            if (!s) return ''
-            return marked.parse(s, { breaks: true, gfm: true })
-        }
 
         // Shared with any other surface that renders a department.
         const heroClasses = departmentHeroClasses

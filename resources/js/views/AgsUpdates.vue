@@ -38,7 +38,7 @@
 
 <script>
 import { defineComponent, ref, onMounted } from 'vue'
-import { marked } from 'marked'
+import { renderMarkdown } from '../utils/markdown'
 
 export default defineComponent({
     name: 'AgsUpdates',
@@ -53,10 +53,8 @@ export default defineComponent({
             return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'long', year: 'numeric' })
         }
 
-        const renderedContent = (content) => {
-            if (!content) return ''
-            return marked.parse(content)
-        }
+        // Same shared sanitising renderer as everywhere else.
+        const renderedContent = (content) => renderMarkdown(content)
 
         const fetchUpdates = async () => {
             try {

@@ -116,7 +116,7 @@
 <script>
 import { defineComponent, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { marked } from 'marked'
+import { renderMarkdown } from '../utils/markdown'
 import GalleryGrid from '../components/GalleryGrid.vue'
 import { usePageMeta } from '../composables/usePageMeta'
 
@@ -130,7 +130,6 @@ export default defineComponent({
         const loading = ref(true)
         const error = ref(null)
 
-        const renderMarkdown = (s) => (s ? marked.parse(s, { breaks: true, gfm: true }) : '')
 
         // Parsed as parts rather than through Date: "2026-09-01" is parsed as
         // UTC midnight, which renders as the previous day in NZ time.
