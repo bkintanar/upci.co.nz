@@ -160,7 +160,7 @@
             <section v-else-if="block.type === 'cards'"
                      :class="sectionBackground(block, 'py-16 lg:py-20')">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 v-if="block.data.heading" :id="sectionId(block.data.heading)" class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-10 lg:mb-12">{{ block.data.heading }}</h2>
+                    <h2 v-if="block.data.heading" :id="sectionId(block.data.heading)" class="text-3xl md:text-4xl font-bold text-brand-ink text-center mb-10 lg:mb-12">{{ block.data.heading }}</h2>
                     <div :class="cardsGridClasses(block)">
                         <!-- variant === 'person' is an explicit author option, not
                              an inference from the heading or item count: portrait
@@ -493,13 +493,26 @@ export default defineComponent({
 
         const getMinistryCardClasses = (card) => {
             if (card.data.icon_svg === 'blue-ministry') {
-                return 'bg-brand-green-100 p-6 rounded-lg'
+                return 'bg-brand-green-100 p-6'
             } else if (card.data.icon_svg === 'green-ministry') {
-                return 'bg-green-50 p-6 rounded-lg'
+                return 'bg-brand-green-100 p-6'
             } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
-                return 'flex items-start space-x-3 bg-white p-6 rounded-lg'
+                return 'flex items-start space-x-3 bg-white p-6 border border-brand-grey-200'
             }
-            return 'group bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-slate-100'
+            // T51's answer. The spike asked whether the `cards` block survives
+            // the chosen direction; under D2 it does, but not in this chrome.
+            //
+            // This was `rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-2`
+            // — the lifting-shadow card that every Tailwind-era site shipped
+            // between 2020 and 2024. It reads as decoration applied TO content
+            // rather than as a container FOR it, and it sat directly beneath a
+            // homepage whose whole register is flat and institutional.
+            //
+            // Flat, bordered, square. Hover moves the border to the brand green
+            // instead of levitating the card: the card is a boundary, not an
+            // object that rises when looked at. Same treatment the church
+            // directory already uses, so the two read as one system.
+            return 'group bg-white p-8 border border-brand-grey-200 hover:border-brand-green-700 transition-colors'
         }
 
         const getMinistryCardContentClasses = (card) => {
@@ -513,24 +526,24 @@ export default defineComponent({
 
         const getMinistryCardTitleClasses = (card) => {
             if (card.data.icon_svg === 'blue-ministry') {
-                return 'text-lg font-semibold text-blue-900 mb-3'
+                return 'text-lg font-semibold text-brand-green-900 mb-3'
             } else if (card.data.icon_svg === 'green-ministry') {
-                return 'text-lg font-semibold text-green-900 mb-3'
+                return 'text-lg font-semibold text-brand-green-900 mb-3'
             } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
-                return 'font-semibold text-gray-900 mb-1'
+                return 'font-semibold text-brand-ink mb-1'
             }
-            return 'text-xl font-bold text-slate-900 mb-4'
+            return 'text-xl font-bold text-brand-ink mb-4'
         }
 
         const getMinistryCardDescClasses = (card) => {
             if (card.data.icon_svg === 'blue-ministry') {
                 return 'text-brand-green-900 text-sm'
             } else if (card.data.icon_svg === 'green-ministry') {
-                return 'text-green-800 text-sm'
+                return 'text-brand-green-900 text-sm'
             } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
-                return 'text-gray-600 text-sm'
+                return 'text-brand-grey-600 text-sm'
             }
-            return 'text-slate-600 leading-relaxed mb-4'
+            return 'text-brand-ink leading-relaxed mb-4'
         }
 
         const getSlug = () => {
