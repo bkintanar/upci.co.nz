@@ -27,7 +27,7 @@
                             target="_blank"
                             rel="noopener"
                             :aria-label="platformLabel(link.platform)"
-                            class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors"
+                            class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-brand-green-700 transition-colors"
                         >
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path :d="iconPath(link.platform)" />
@@ -54,7 +54,7 @@
                     <h3 class="text-lg font-semibold mb-6">Contact</h3>
                     <div class="space-y-3">
                         <div class="flex items-start">
-                            <svg class="w-5 h-5 text-blue-400 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-green-100 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <div v-if="contactEmail" class="flex items-start">
-                            <svg class="w-5 h-5 text-blue-400 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-green-100 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                             <div>

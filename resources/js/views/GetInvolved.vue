@@ -11,7 +11,7 @@
 
             <!-- Social links -->
             <div class="flex flex-wrap justify-center gap-4 mb-12">
-                <a href="https://www.facebook.com" target="_blank" rel="noopener" class="inline-flex items-center px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-blue-600 hover:text-white transition-colors">
+                <a href="https://www.facebook.com" target="_blank" rel="noopener" class="inline-flex items-center px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-brand-green-700 hover:text-white transition-colors">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                     Facebook
                 </a>
@@ -58,7 +58,7 @@
                     <p class="text-gray-700 font-semibold mb-2">We couldn't load the departments.</p>
                     <p class="text-gray-500 text-sm mb-4">{{ departmentsError }}</p>
                     <button @click="fetchDepartments"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+                            class="px-4 py-2 bg-brand-green-700 text-white rounded-lg text-sm hover:bg-brand-green-900">
                         Try again
                     </button>
                 </div>
@@ -68,7 +68,7 @@
                         v-for="department in departments"
                         :key="department.slug"
                         :to="`/departments/${department.slug}`"
-                        class="group bg-white p-8 rounded-lg border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 flex flex-col no-underline"
+                        class="group bg-white p-8 rounded-lg border border-slate-200 hover:border-brand-green-700 hover:shadow-lg transition-all duration-300 flex flex-col no-underline"
                     >
                         <img v-if="department.logo_path"
                              :src="imageUrl(department.logo_path)"
@@ -80,7 +80,7 @@
                             {{ department.name.charAt(0) }}
                         </div>
 
-                        <h2 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 group-hover:text-brand-green-700 transition-colors">
                             {{ department.name }}
                         </h2>
 
@@ -88,7 +88,7 @@
                             {{ excerpt(department.description) }}
                         </p>
 
-                        <span class="mt-auto text-blue-600 font-semibold text-sm inline-flex items-center">
+                        <span class="mt-auto text-brand-green-700 font-semibold text-sm inline-flex items-center">
                             More info
                             <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none"
                                  stroke="currentColor" viewBox="0 0 24 24">
@@ -138,18 +138,18 @@
                 </div>
 
                 <!-- Call to Action -->
-                <div class="bg-blue-600 text-white p-8 rounded-lg text-center">
+                <div class="bg-brand-green-700 text-white p-8 rounded-lg text-center">
                     <h2 class="text-2xl font-bold mb-4">Ready to Get Started?</h2>
-                    <p class="text-blue-100 mb-6">
+                    <p class="text-brand-green-100 mb-6">
                         There's a place for everyone in UPCI New Zealand. Whether you're looking to grow spiritually,
                         serve others, or build meaningful relationships, we have opportunities that will fit your interests and schedule.
                     </p>
                     <div class="space-y-4">
-                        <p class="text-blue-100">
+                        <p class="text-brand-green-100">
                             Contact your local UPCI church to learn more about specific ministry opportunities in your area.
                         </p>
-                        <div class="bg-blue-700 p-4 rounded-lg">
-                            <p class="text-blue-100 text-sm">
+                        <div class="bg-brand-green-900 p-4 rounded-lg">
+                            <p class="text-brand-green-100 text-sm">
                                 "For we are his workmanship, created in Christ Jesus for good works, which God hath before ordained
                                 that we should walk in them." - Ephesians 2:10
                             </p>

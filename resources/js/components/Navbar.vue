@@ -17,13 +17,13 @@
                             <router-link
                                 v-if="item.url && item.url !== '#' && !item.url.startsWith('http')"
                                 :to="item.url"
-                                class="text-white hover:text-blue-300 px-2 lg:px-3 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
+                                class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
                                 {{ item.label }}
                                 <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </router-link>
-                            <button v-else class="text-white hover:text-blue-300 px-2 lg:px-3 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
+                            <button v-else class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
                                 {{ item.label }}
                                 <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -36,14 +36,14 @@
                                             v-if="child.url && (child.url.startsWith('http') || child.url === '#')"
                                             :href="child.url"
                                             :target="child.open_in_new_tab ? '_blank' : '_self'"
-                                            class="block px-6 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                            class="block px-6 py-3 text-sm text-slate-700 hover:bg-brand-green-100 hover:text-brand-green-700 transition-colors">
                                             <div class="font-semibold">{{ child.label }}</div>
                                             <div v-if="child.description" class="text-xs text-slate-500">{{ child.description }}</div>
                                         </a>
                                         <router-link
                                             v-else-if="child.url"
                                             :to="child.url"
-                                            class="block px-6 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                            class="block px-6 py-3 text-sm text-slate-700 hover:bg-brand-green-100 hover:text-brand-green-700 transition-colors">
                                             <div class="font-semibold">{{ child.label }}</div>
                                             <div v-if="child.description" class="text-xs text-slate-500">{{ child.description }}</div>
                                         </router-link>
@@ -57,7 +57,7 @@
                                             v-for="grandchild in (child.children || [])"
                                             :key="grandchild.id"
                                             :to="grandchild.url"
-                                            class="flex items-center pl-12 pr-6 py-2 text-sm text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                            class="flex items-center pl-12 pr-6 py-2 text-sm text-slate-600 hover:bg-brand-green-100 hover:text-brand-green-700 transition-colors">
                                             <span class="w-3 border-t border-slate-300 mr-3" aria-hidden="true"></span>
                                             {{ grandchild.label }}
                                         </router-link>
@@ -71,13 +71,13 @@
                             v-else-if="item.url && (item.url.startsWith('http') || item.url === '#')"
                             :href="item.url"
                             :target="item.open_in_new_tab ? '_blank' : '_self'"
-                            class="text-white hover:text-blue-300 px-2 lg:px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
+                            class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
                             {{ item.label }}
                         </a>
                         <router-link
                             v-else-if="item.url"
                             :to="item.url"
-                            class="text-white hover:text-blue-300 px-2 lg:px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
+                            class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
                             {{ item.label }}
                         </router-link>
                     </template>
@@ -85,7 +85,7 @@
 
                 <!-- Mobile menu button -->
                 <div class="min-[1400px]:hidden flex items-center">
-                    <button @click="toggleMobileMenu" class="text-white hover:text-blue-300 p-2 rounded-lg hover:bg-slate-700 transition-colors">
+                    <button @click="toggleMobileMenu" class="text-white hover:text-brand-green-100 p-2 rounded-lg hover:bg-slate-700 transition-colors">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>

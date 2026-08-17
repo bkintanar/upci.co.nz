@@ -8,7 +8,7 @@
         <div v-else-if="error" class="text-center py-24">
             <h1 class="text-3xl font-bold text-slate-900 mb-4">Department not found</h1>
             <p class="text-slate-600">{{ error }}</p>
-            <router-link to="/departments" class="inline-block mt-6 text-blue-600 hover:underline">
+            <router-link to="/departments" class="inline-block mt-6 text-brand-green-700 hover:underline">
                 &larr; Back to Departments
             </router-link>
         </div>
@@ -75,7 +75,7 @@
                             :key="e.id"
                             class="bg-white rounded-xl shadow-md border border-slate-200 p-6 flex flex-col"
                         >
-                            <p class="text-blue-600 font-semibold text-sm mb-2">
+                            <p class="text-brand-green-700 font-semibold text-sm mb-2">
                                 {{ formatDate(e.start_date) }}<span v-if="e.end_date"> &ndash; {{ formatDate(e.end_date) }}</span>
                             </p>
                             <h3 class="text-xl font-bold text-slate-900 mb-3">{{ e.name }}</h3>
@@ -86,7 +86,7 @@
                                 :href="e.url"
                                 target="_blank"
                                 rel="noopener"
-                                class="mt-auto text-blue-600 hover:underline text-sm font-medium"
+                                class="mt-auto text-brand-green-700 hover:underline text-sm font-medium"
                             >
                                 Learn more &rarr;
                             </a>

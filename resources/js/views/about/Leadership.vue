@@ -13,8 +13,8 @@
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">District Leadership</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <div class="bg-gray-50 p-6 rounded-lg text-center">
-                            <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                                <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-24 h-24 bg-brand-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-brand-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                             </div>
@@ -24,8 +24,8 @@
                         </div>
 
                         <div class="bg-gray-50 p-6 rounded-lg text-center">
-                            <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                                <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-24 h-24 bg-brand-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-brand-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                             </div>
@@ -35,8 +35,8 @@
                         </div>
 
                         <div class="bg-gray-50 p-6 rounded-lg text-center">
-                            <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                                <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-24 h-24 bg-brand-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-brand-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                                 </svg>
                             </div>
@@ -51,22 +51,22 @@
                     <h2 class="text-2xl font-bold text-gray-900 mb-6">Ministry Leaders</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-6">
-                            <div class="bg-blue-50 p-6 rounded-lg">
+                            <div class="bg-brand-green-100 p-6 rounded-lg">
                                 <h3 class="text-lg font-semibold text-blue-900 mb-3">Youth Ministry</h3>
-                                <p class="text-blue-800 mb-2">Leading the next generation in faith and service.</p>
-                                <p class="text-sm text-blue-700">Organizes youth events, camps, and discipleship programs.</p>
+                                <p class="text-brand-green-900 mb-2">Leading the next generation in faith and service.</p>
+                                <p class="text-sm text-brand-green-900">Organizes youth events, camps, and discipleship programs.</p>
                             </div>
 
-                            <div class="bg-blue-50 p-6 rounded-lg">
+                            <div class="bg-brand-green-100 p-6 rounded-lg">
                                 <h3 class="text-lg font-semibold text-blue-900 mb-3">Women's Ministry</h3>
-                                <p class="text-blue-800 mb-2">Empowering women in their walk with God.</p>
-                                <p class="text-sm text-blue-700">Coordinates women's conferences, Bible studies, and outreach.</p>
+                                <p class="text-brand-green-900 mb-2">Empowering women in their walk with God.</p>
+                                <p class="text-sm text-brand-green-900">Coordinates women's conferences, Bible studies, and outreach.</p>
                             </div>
 
-                            <div class="bg-blue-50 p-6 rounded-lg">
+                            <div class="bg-brand-green-100 p-6 rounded-lg">
                                 <h3 class="text-lg font-semibold text-blue-900 mb-3">Men's Ministry</h3>
-                                <p class="text-blue-800 mb-2">Building strong men of God and character.</p>
-                                <p class="text-sm text-blue-700">Facilitates men's retreats, accountability groups, and service projects.</p>
+                                <p class="text-brand-green-900 mb-2">Building strong men of God and character.</p>
+                                <p class="text-sm text-brand-green-900">Facilitates men's retreats, accountability groups, and service projects.</p>
                             </div>
                         </div>
 
@@ -113,7 +113,7 @@
                 </div>
 
                 <div class="text-center">
-                    <router-link to="/about/general-superintendent" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    <router-link to="/about/general-superintendent" class="bg-brand-green-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-900 transition-colors">
                         Learn About Our General Superintendent
                     </router-link>
                 </div>

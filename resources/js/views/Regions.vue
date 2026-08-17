@@ -1,10 +1,10 @@
 <template>
     <div>
         <!-- Hero -->
-        <section class="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white">
+        <section class="bg-gradient-to-br from-brand-green-700 via-brand-green-900 to-slate-900 text-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <h1 class="text-4xl md:text-5xl font-bold mb-4">Regions</h1>
-                <p class="text-xl text-blue-100 max-w-3xl">
+                <p class="text-xl text-brand-green-100 max-w-3xl">
                     UPCI New Zealand is organised into three regions. Find the one nearest you.
                 </p>
             </div>
@@ -20,7 +20,7 @@
                     <p class="text-slate-700 font-semibold mb-2">We couldn't load the regions.</p>
                     <p class="text-slate-500 text-sm mb-4">{{ error }}</p>
                     <button @click="fetchRegions"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+                            class="px-4 py-2 bg-brand-green-700 text-white rounded-lg text-sm hover:bg-brand-green-900">
                         Try again
                     </button>
                 </div>
@@ -30,18 +30,18 @@
                         v-for="region in regions"
                         :key="region.slug"
                         :to="`/regions/${region.slug}`"
-                        class="group bg-white rounded-2xl border border-slate-200 p-8 hover:border-blue-300 hover:shadow-xl transition-all duration-300 flex flex-col"
+                        class="group bg-white rounded-2xl border border-slate-200 p-8 hover:border-brand-green-700 hover:shadow-xl transition-all duration-300 flex flex-col"
                     >
                         <!-- Falls back to a lettermark rather than a broken image
                              frame: region logos are not supplied yet. -->
                         <img v-if="region.logo_url" :src="region.logo_url" :alt="`${region.name} logo`"
                              class="h-16 w-auto mb-6 object-contain self-start">
                         <div v-else
-                             class="h-16 w-16 mb-6 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center text-2xl font-bold">
+                             class="h-16 w-16 mb-6 rounded-xl bg-brand-green-100 text-brand-green-900 flex items-center justify-center text-2xl font-bold">
                             {{ region.name.charAt(0) }}
                         </div>
 
-                        <h2 class="text-2xl font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
+                        <h2 class="text-2xl font-bold text-slate-900 mb-2 group-hover:text-brand-green-700 transition-colors">
                             {{ region.name }}
                         </h2>
 
@@ -50,7 +50,7 @@
                             <template v-if="region.presbyter_name"> · {{ region.presbyter_name }}</template>
                         </p>
 
-                        <span class="mt-auto text-blue-600 font-medium text-sm inline-flex items-center">
+                        <span class="mt-auto text-brand-green-700 font-medium text-sm inline-flex items-center">
                             More info
                             <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none"
                                  stroke="currentColor" viewBox="0 0 24 24">

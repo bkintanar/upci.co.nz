@@ -43,15 +43,15 @@
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-4">Biblical Foundation</h2>
                         <div class="space-y-4">
-                            <div class="border-l-4 border-blue-500 pl-4">
+                            <div class="border-l-4 border-brand-green-700 pl-4">
                                 <p class="text-gray-600 italic">"Hear, O Israel: The LORD our God, the LORD is one."</p>
                                 <p class="text-sm text-gray-500">Deuteronomy 6:4</p>
                             </div>
-                            <div class="border-l-4 border-blue-500 pl-4">
+                            <div class="border-l-4 border-brand-green-700 pl-4">
                                 <p class="text-gray-600 italic">"For there are three that bear record in heaven, the Father, the Word, and the Holy Ghost: and these three are one."</p>
                                 <p class="text-sm text-gray-500">1 John 5:7 (KJV)</p>
                             </div>
-                            <div class="border-l-4 border-blue-500 pl-4">
+                            <div class="border-l-4 border-brand-green-700 pl-4">
                                 <p class="text-gray-600 italic">"And Jesus came and spake unto them, saying, All power is given unto me in heaven and in earth. Go ye therefore, and teach all nations, baptizing them in the name of the Father, and of the Son, and of the Holy Ghost."</p>
                                 <p class="text-sm text-gray-500">Matthew 28:18-19</p>
                             </div>
@@ -59,20 +59,20 @@
                     </div>
                 </div>
 
-                <div class="bg-blue-50 p-8 rounded-lg mb-12">
+                <div class="bg-brand-green-100 p-8 rounded-lg mb-12">
                     <h2 class="text-2xl font-bold text-blue-900 mb-4">The Oneness Message</h2>
-                    <p class="text-blue-800 mb-4">
+                    <p class="text-brand-green-900 mb-4">
                         The Oneness message is not just a theological position—it's a call to return to the apostolic faith
                         and the simplicity of the gospel as preached by the early church. We believe this message brings
                         clarity to understanding who God is and how we should worship Him.
                     </p>
-                    <p class="text-blue-800">
+                    <p class="text-brand-green-900">
                         This understanding shapes every aspect of our worship, ministry, and daily walk with God.
                     </p>
                 </div>
 
                 <div class="text-center">
-                    <router-link to="/about/beliefs" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    <router-link to="/about/beliefs" class="bg-brand-green-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-900 transition-colors">
                         Read Our Complete Beliefs
                     </router-link>
                 </div>

@@ -45,31 +45,31 @@
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Essential Practices</h2>
                         <div class="space-y-6">
-                            <div class="bg-blue-50 p-6 rounded-lg">
+                            <div class="bg-brand-green-100 p-6 rounded-lg">
                                 <h3 class="text-xl font-semibold text-blue-900 mb-3">Water Baptism</h3>
-                                <p class="text-blue-800 mb-2">
+                                <p class="text-brand-green-900 mb-2">
                                     We baptize by immersion in the name of Jesus Christ for the remission of sins,
                                     following the apostolic pattern established in the New Testament.
                                 </p>
-                                <p class="text-sm text-blue-700 italic">"And he commanded them to be baptized in the name of the Lord." - Acts 10:48</p>
+                                <p class="text-sm text-brand-green-900 italic">"And he commanded them to be baptized in the name of the Lord." - Acts 10:48</p>
                             </div>
 
-                            <div class="bg-blue-50 p-6 rounded-lg">
+                            <div class="bg-brand-green-100 p-6 rounded-lg">
                                 <h3 class="text-xl font-semibold text-blue-900 mb-3">Holy Ghost Baptism</h3>
-                                <p class="text-blue-800 mb-2">
+                                <p class="text-brand-green-900 mb-2">
                                     We believe in the necessity of receiving the Holy Ghost with the evidence of speaking in tongues,
                                     as experienced by the early church on the Day of Pentecost.
                                 </p>
-                                <p class="text-sm text-blue-700 italic">"And they were all filled with the Holy Ghost, and began to speak with other tongues..." - Acts 2:4</p>
+                                <p class="text-sm text-brand-green-900 italic">"And they were all filled with the Holy Ghost, and began to speak with other tongues..." - Acts 2:4</p>
                             </div>
 
-                            <div class="bg-blue-50 p-6 rounded-lg">
+                            <div class="bg-brand-green-100 p-6 rounded-lg">
                                 <h3 class="text-xl font-semibold text-blue-900 mb-3">Holy Living</h3>
-                                <p class="text-blue-800 mb-2">
+                                <p class="text-brand-green-900 mb-2">
                                     We believe in living a holy life separated from the world, following biblical standards
                                     of dress, behavior, and lifestyle that honor God.
                                 </p>
-                                <p class="text-sm text-blue-700 italic">"But as he which hath called you is holy, so be ye holy in all manner of conversation." - 1 Peter 1:15</p>
+                                <p class="text-sm text-brand-green-900 italic">"But as he which hath called you is holy, so be ye holy in all manner of conversation." - 1 Peter 1:15</p>
                             </div>
                         </div>
                     </div>
@@ -157,7 +157,7 @@
                 </div>
 
                 <div class="text-center">
-                    <router-link to="/about/leadership" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    <router-link to="/about/leadership" class="bg-brand-green-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-900 transition-colors">
                         Meet Our Leadership
                     </router-link>
                 </div>

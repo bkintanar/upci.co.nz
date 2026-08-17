@@ -14,6 +14,11 @@
 
 // Department hero treatments. Previously inlined in Department.vue, which meant
 // the only list of valid themes lived inside one component.
+// NOT migrated to the brand green with the rest of the palette: these six must
+// stay distinguishable from each other, and collapsing `blue` into green would
+// make the Prayer and Men's departments look like the same page. Spreading the
+// six across a family that harmonises with the brand is T49's job, and needs a
+// decision about which hue each department owns.
 const DEPARTMENT_THEMES = {
     blue: 'bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900',
     green: 'bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-900',

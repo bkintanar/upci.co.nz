@@ -11,12 +11,12 @@
             <div class="prose prose-lg max-w-none">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                     <div class="space-y-6">
-                        <div class="bg-blue-50 p-6 rounded-lg">
+                        <div class="bg-brand-green-100 p-6 rounded-lg">
                             <h2 class="text-xl font-semibold text-blue-900 mb-3">About the UPCI</h2>
-                            <p class="text-blue-800 mb-4">
+                            <p class="text-brand-green-900 mb-4">
                                 Learn about the history, mission, and global impact of the United Pentecostal Church International.
                             </p>
-                            <router-link to="/about/upci" class="text-blue-600 hover:text-blue-800 font-medium">
+                            <router-link to="/about/upci" class="text-brand-green-700 hover:text-brand-green-900 font-medium">
                                 Learn More →
                             </router-link>
                         </div>
@@ -61,13 +61,13 @@
                         Meet the spiritual leader who guides the worldwide UPCI organization and learn about their role
                         in providing leadership to our global family.
                     </p>
-                    <router-link to="/about/general-superintendent" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    <router-link to="/about/general-superintendent" class="bg-brand-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-green-900 transition-colors">
                         Learn About Our General Superintendent
                     </router-link>
                 </div>
 
                 <div class="text-center">
-                    <router-link to="/departments" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    <router-link to="/departments" class="bg-brand-green-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-900 transition-colors">
                         Get Involved
                     </router-link>
                 </div>

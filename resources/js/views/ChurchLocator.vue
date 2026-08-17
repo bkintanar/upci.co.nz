@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Hero Section -->
-        <section class="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white overflow-hidden">
+        <section class="relative bg-gradient-to-br from-brand-green-700 via-brand-green-900 to-brand-ink text-white overflow-hidden">
             <!-- Background Pattern -->
             <div class="absolute inset-0 opacity-10">
                 <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.1&quot;%3E%3Ccircle cx=&quot;30&quot; cy=&quot;30&quot; r=&quot;1&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
@@ -19,10 +19,10 @@
 
                     <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                         Discover UPCI Churches<br>
-                        <span class="text-blue-200">Across New Zealand</span>
+                        <span class="text-brand-green-100">Across New Zealand</span>
                     </h1>
 
-                    <p class="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed mb-8">
+                    <p class="text-xl text-brand-green-100 max-w-3xl mx-auto leading-relaxed mb-8">
                         Connect with your local UPCI community. Find churches, service times, and contact information across New Zealand.
                     </p>
 
@@ -30,17 +30,17 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
                         <div class="text-center">
                             <div class="text-3xl font-bold text-white mb-1">{{ churches.length }}</div>
-                            <div class="text-blue-200 text-sm">Churches</div>
+                            <div class="text-brand-green-100 text-sm">Churches</div>
                         </div>
                         <div class="text-center">
                             <!-- Was a hard-coded 6. There are three organisational regions,
                                  and hard-coding the count is how it came to be wrong. -->
                             <div class="text-3xl font-bold text-white mb-1">{{ regions.length ? regions.length - 1 : '—' }}</div>
-                            <div class="text-blue-200 text-sm">Regions</div>
+                            <div class="text-brand-green-100 text-sm">Regions</div>
                         </div>
                         <div class="text-center">
                             <div class="text-3xl font-bold text-white mb-1">24/7</div>
-                            <div class="text-blue-200 text-sm">Directory</div>
+                            <div class="text-brand-green-100 text-sm">Directory</div>
                         </div>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                                 v-model="searchQuery"
                                 type="text"
                                 placeholder="Search by city, region, church name, or address..."
-                                class="w-full pl-12 pr-4 py-4 text-lg border-0 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:outline-none transition-all duration-300 shadow-lg bg-white"
+                                class="w-full pl-12 pr-4 py-4 text-lg border-0 rounded-2xl focus:ring-4 focus:ring-brand-green-700/20 focus:outline-none transition-all duration-300 shadow-lg bg-white"
                             >
                             <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
                                 <div class="text-sm text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
@@ -79,7 +79,7 @@
                     <div class="lg:col-span-1">
                         <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sticky top-24">
                             <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center">
-                                <svg class="w-5 h-5 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 mr-3 text-brand-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
                                 </svg>
                                 Filters
@@ -95,13 +95,13 @@
                                             type="radio"
                                             :value="region.value"
                                             v-model="selectedRegion"
-                                            class="mr-3 text-blue-600 focus:ring-blue-500"
+                                            class="mr-3 text-brand-green-700 focus:ring-brand-green-700"
                                         >
                                         <span class="text-sm text-slate-700 group-hover:text-slate-900">{{ region.label }}</span>
                                     </label>
                                 </div>
                                 <button v-if="selectedRegion" @click="selectedRegion = ''"
-                                        class="mt-3 text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center">
+                                        class="mt-3 text-xs text-brand-green-700 hover:text-brand-green-900 font-medium flex items-center">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
@@ -119,13 +119,13 @@
                                             type="checkbox"
                                             :value="day.value"
                                             v-model="selectedServiceDays"
-                                            class="mr-3 text-blue-600 focus:ring-blue-500"
+                                            class="mr-3 text-brand-green-700 focus:ring-brand-green-700"
                                         >
                                         <span class="text-sm text-slate-700 group-hover:text-slate-900">{{ day.label }}</span>
                                     </label>
                                 </div>
                                 <button v-if="selectedServiceDays.length > 0" @click="selectedServiceDays = []"
-                                        class="mt-3 text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center">
+                                        class="mt-3 text-xs text-brand-green-700 hover:text-brand-green-900 font-medium flex items-center">
                                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
@@ -136,7 +136,7 @@
                             <!-- Clear All Filters -->
                             <button v-if="searchQuery || selectedRegion || selectedServiceDays.length > 0"
                                     @click="clearFilters"
-                                    class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                    class="w-full bg-gradient-to-r from-brand-green-700 to-brand-green-900 text-white py-3 px-4 rounded-xl font-semibold hover:from-brand-green-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                                 Clear All Filters
                             </button>
                         </div>
@@ -148,13 +148,13 @@
                         <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 mb-8">
                             <div class="flex items-center justify-between mb-6">
                                 <h3 class="text-xl font-bold text-slate-900 flex items-center">
-                                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 mr-2 text-brand-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
                                     </svg>
                                     Interactive Map
                                 </h3>
                                 <div class="flex items-center text-sm text-slate-600 bg-slate-100 px-3 py-2 rounded-full">
-                                    <div class="w-3 h-3 bg-blue-600 rounded-full mr-2"></div>
+                                    <div class="w-3 h-3 bg-brand-green-700 rounded-full mr-2"></div>
                                     <span>{{ filteredChurches.length }} UPCI Churches</span>
                                 </div>
                             </div>
@@ -177,7 +177,7 @@
 
                                     <div v-if="loading" class="text-center py-16">
                                         <div class="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-                                            <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-10 h-10 text-brand-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                             </svg>
                                         </div>
@@ -197,19 +197,19 @@
                                     v-for="church in group.churches"
                                     :key="church.id"
                                     @click="selectChurch(church)"
-                                    class="group bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 cursor-pointer hover:border-blue-300 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                                    :class="{ 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl': selectedChurch?.id === church.id }"
+                                    class="group bg-gradient-to-br from-white to-slate-50 rounded-xl border border-slate-200 p-6 cursor-pointer hover:border-brand-green-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                                    :class="{ 'border-brand-green-700 bg-gradient-to-br from-brand-green-100 to-brand-paper shadow-xl': selectedChurch?.id === church.id }"
                                 >
                                     <div class="flex items-start justify-between mb-4">
                                         <div class="flex-1">
-                                            <h4 class="font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors text-lg">{{ church.name }}</h4>
+                                            <h4 class="font-bold text-slate-900 mb-2 group-hover:text-brand-green-700 transition-colors text-lg">{{ church.name }}</h4>
                                             <div class="space-y-1">
                                                 <p class="text-sm text-slate-600">{{ church.address }}</p>
                                                 <p class="text-sm text-slate-500">{{ church.city }}, {{ church.region }}</p>
                                             </div>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-brand-green-900 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -219,7 +219,7 @@
                                     </div>
 
                                     <div class="flex items-center justify-between">
-                                        <div v-if="formatDistance(church.distance)" class="flex items-center text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded-full">
+                                        <div v-if="formatDistance(church.distance)" class="flex items-center text-sm text-brand-green-700 bg-brand-green-100 px-3 py-2 rounded-full">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -252,7 +252,7 @@
                                 </div>
                                 <h3 class="text-xl font-semibold text-slate-700 mb-3">No churches found</h3>
                                 <p class="text-slate-500 mb-6">Try adjusting your search criteria or filters</p>
-                                <button @click="clearFilters" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                <button @click="clearFilters" class="bg-gradient-to-r from-brand-green-700 to-brand-green-900 text-white px-6 py-3 rounded-xl font-semibold hover:from-brand-green-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
                                     Clear All Filters
                                 </button>
                             </div>
@@ -365,13 +365,13 @@
         </Modal>
 
         <!-- Call to Action -->
-        <section class="py-16 bg-blue-600 text-white">
+        <section class="py-16 bg-brand-green-700 text-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h2 class="text-3xl md:text-4xl font-bold mb-6">Can't Find a Church Near You?</h2>
-                <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+                <p class="text-xl text-brand-green-100 mb-8 max-w-3xl mx-auto">
                     We're always looking to expand our ministry. Contact us to learn about starting a new UPCI church in your area.
                 </p>
-                <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                <button class="bg-white text-brand-green-700 px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-100 transition-colors">
                     Contact Us About Starting a Church
                 </button>
             </div>
@@ -764,7 +764,7 @@ L.Icon.Default.mergeOptions({
                             <p class="text-xs text-slate-600 mb-1">${church.address}</p>
                             <p class="text-xs text-slate-500 mb-2">${church.city}, ${church.region}</p>
                             <button data-church-id="${church.id}"
-                                    class="js-more-info bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors">
+                                    class="js-more-info bg-brand-green-700 text-white px-2 py-1 rounded text-xs hover:bg-brand-green-900 transition-colors">
                                 More info
                             </button>
                         </div>
@@ -925,7 +925,7 @@ L.Icon.Default.mergeOptions({
 }
 
 /* Enhanced hover effects */
-.group:hover .group-hover\:bg-blue-100 {
+.group:hover .group-hover\:bg-brand-green-100 {
     background-color: rgb(219 234 254);
 }
 

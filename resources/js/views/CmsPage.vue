@@ -80,7 +80,7 @@
                     <div v-if="block.data.button1_text || block.data.button2_text" class="flex flex-col sm:flex-row gap-4 justify-center">
                         <a v-if="block.data.button1_text && block.data.button1_url"
                            :href="block.data.button1_url"
-                           class="group bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                           class="group bg-brand-green-700 text-white px-8 py-4 rounded-lg font-semibold hover:bg-brand-green-900 transition-all duration-300 transform hover:scale-105 shadow-lg">
                             <span class="flex items-center justify-center">
                                 {{ block.data.button1_text }}
                                 <svg class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +197,7 @@
                                 <h3 :class="getMinistryCardTitleClasses(card)">{{ card.data.title }}</h3>
                                 <p :class="getMinistryCardDescClasses(card)">{{ card.data.description }}</p>
                             </div>
-                            <a v-if="card.data.link_url && card.data.variant !== 'person'" :href="card.data.link_url" :target="card.data.link_url.startsWith('http') ? '_blank' : '_self'" :rel="card.data.link_url.startsWith('http') ? 'noopener noreferrer' : null" :class="isRegistrationBlock(block) ? 'cms-registration-card-link' : ''" class="text-blue-600 hover:text-blue-800 font-semibold block text-center">
+                            <a v-if="card.data.link_url && card.data.variant !== 'person'" :href="card.data.link_url" :target="card.data.link_url.startsWith('http') ? '_blank' : '_self'" :rel="card.data.link_url.startsWith('http') ? 'noopener noreferrer' : null" :class="isRegistrationBlock(block) ? 'cms-registration-card-link' : ''" class="text-brand-green-700 hover:text-brand-green-900 font-semibold block text-center">
                                 {{ card.data.link_text || 'Learn More' }} →
                             </a>
                             <span v-if="card.data.variant === 'person'"
@@ -393,19 +393,19 @@ export default defineComponent({
         const getHeroClasses = (style) => {
             const styles = {
                 'gradient-slate': 'bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900',
-                'gradient-blue': 'bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800',
+                'gradient-blue': 'bg-gradient-to-br from-brand-green-700 via-brand-green-900 to-brand-ink',
                 'gradient-indigo': 'bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800',
                 'gradient-purple': 'bg-gradient-to-br from-purple-600 via-purple-700 to-pink-800',
-                'solid-blue': 'bg-blue-600',
-                'solid-indigo': 'bg-indigo-600',
+                'solid-blue': 'bg-brand-green-700',
+                'solid-indigo': 'bg-brand-green-700',
             }
             return styles[style] || styles['gradient-slate']
         }
 
         const getCtaClasses = (style) => {
             const styles = {
-                'blue': 'bg-blue-600',
-                'indigo': 'bg-indigo-600',
+                'blue': 'bg-brand-green-700',
+                'indigo': 'bg-brand-green-700',
                 'purple': 'bg-purple-600',
                 'gray': 'bg-gray-700',
             }
@@ -467,7 +467,7 @@ export default defineComponent({
             }
             // Default color rotation for other icons
             const colors = [
-                'bg-blue-600',
+                'bg-brand-green-700',
                 'bg-emerald-600',
                 'bg-slate-600',
             ]
@@ -485,7 +485,7 @@ export default defineComponent({
             }
             // District leadership and other cards with icons (large blue circle for leadership icons)
             if (card.data.icon_svg && card.data.icon_svg.includes('stroke="currentColor"')) {
-                return 'w-24 h-24 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center'
+                return 'w-24 h-24 bg-brand-green-100 rounded-full mx-auto mb-4 flex items-center justify-center'
             }
             // Default card icons (colored rounded squares with hover effect)
             return [getCardIconClass(index, card.data.icon_svg), 'w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300'].join(' ')
@@ -493,7 +493,7 @@ export default defineComponent({
 
         const getMinistryCardClasses = (card) => {
             if (card.data.icon_svg === 'blue-ministry') {
-                return 'bg-blue-50 p-6 rounded-lg'
+                return 'bg-brand-green-100 p-6 rounded-lg'
             } else if (card.data.icon_svg === 'green-ministry') {
                 return 'bg-green-50 p-6 rounded-lg'
             } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
@@ -524,7 +524,7 @@ export default defineComponent({
 
         const getMinistryCardDescClasses = (card) => {
             if (card.data.icon_svg === 'blue-ministry') {
-                return 'text-blue-800 text-sm'
+                return 'text-brand-green-900 text-sm'
             } else if (card.data.icon_svg === 'green-ministry') {
                 return 'text-green-800 text-sm'
             } else if (card.data.icon_svg && card.data.icon_svg.includes('16.707 5.293')) {
@@ -840,7 +840,7 @@ export default defineComponent({
     transition: background 0.2s, color 0.2s;
 }
 
-.cms-registration-card.bg-blue-50 .cms-registration-card-link:hover {
+.cms-registration-card.bg-brand-green-100 .cms-registration-card-link:hover {
     background: #1e40af;
     color: white;
     border-color: #1e40af;
@@ -852,7 +852,7 @@ export default defineComponent({
     border-color: #047857;
 }
 
-.cms-registration-card:not(.bg-blue-50):not(.bg-green-50) .cms-registration-card-link:hover {
+.cms-registration-card:not(.bg-brand-green-100):not(.bg-green-50) .cms-registration-card-link:hover {
     background: #1e293b;
     color: white;
     border-color: #1e293b;

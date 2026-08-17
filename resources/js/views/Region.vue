@@ -7,17 +7,17 @@
         <div v-else-if="error" class="max-w-7xl mx-auto px-4 py-24 text-center">
             <h1 class="text-2xl font-bold text-slate-900 mb-2">Region not found</h1>
             <p class="text-slate-500 mb-6">{{ error }}</p>
-            <router-link to="/regions" class="text-blue-600 hover:text-blue-700 font-medium">
+            <router-link to="/regions" class="text-brand-green-700 hover:text-brand-green-900 font-medium">
                 Back to all regions
             </router-link>
         </div>
 
         <template v-else-if="region">
             <!-- Hero -->
-            <section class="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white">
+            <section class="bg-gradient-to-br from-brand-green-700 via-brand-green-900 to-slate-900 text-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                     <router-link to="/regions"
-                                 class="inline-flex items-center text-blue-200 hover:text-white text-sm mb-6">
+                                 class="inline-flex items-center text-brand-green-100 hover:text-white text-sm mb-6">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -29,7 +29,7 @@
                              class="h-20 w-auto object-contain bg-white/10 rounded-xl p-2">
                         <div>
                             <h1 class="text-4xl md:text-5xl font-bold mb-2">{{ region.name }}</h1>
-                            <p v-if="region.presbyter_name" class="text-blue-100">
+                            <p v-if="region.presbyter_name" class="text-brand-green-100">
                                 Presbyter: {{ region.presbyter_name }}
                             </p>
                         </div>
@@ -83,14 +83,14 @@
                         <div v-for="event in region.events" :key="event.id"
                              class="flex items-start gap-6 bg-slate-50 rounded-xl p-6 border border-slate-200">
                             <div class="text-center shrink-0 w-16">
-                                <div class="text-2xl font-bold text-blue-600">{{ dayOf(event.start_date) }}</div>
+                                <div class="text-2xl font-bold text-brand-green-700">{{ dayOf(event.start_date) }}</div>
                                 <div class="text-xs uppercase text-slate-500">{{ monthOf(event.start_date) }}</div>
                             </div>
                             <div class="flex-1">
                                 <h3 class="font-bold text-slate-900 mb-1">{{ event.name }}</h3>
                                 <p v-if="event.location" class="text-sm text-slate-500">{{ event.location }}</p>
                                 <a v-if="event.url" :href="event.url" target="_blank" rel="noopener"
-                                   class="text-sm text-blue-600 hover:text-blue-700 font-medium">More info</a>
+                                   class="text-sm text-brand-green-700 hover:text-brand-green-900 font-medium">More info</a>
                             </div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@
                          they are assigned to regions. -->
                     <p v-else class="text-slate-500">
                         No regional events are scheduled. See the
-                        <router-link to="/events" class="text-blue-600 hover:text-blue-700">national calendar</router-link>
+                        <router-link to="/events" class="text-brand-green-700 hover:text-brand-green-900">national calendar</router-link>
                         for events across New Zealand.
                     </p>
                 </div>

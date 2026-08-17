@@ -108,7 +108,7 @@
                                         :href="event.url"
                                         target="_blank"
                                         rel="noopener"
-                                        class="ml-auto inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                                        class="ml-auto inline-flex items-center text-sm font-semibold text-brand-green-700 hover:text-brand-green-900 hover:underline"
                                     >
                                         Details
                                         <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +125,7 @@
             <div class="mt-16 text-center">
                 <router-link
                     to="/calendar"
-                    class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    class="inline-flex items-center px-6 py-3 bg-brand-green-700 text-white font-semibold rounded-lg hover:bg-brand-green-900 transition-colors"
                 >
                     View month calendar
                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -37,7 +37,7 @@
                         v-for="cell in calendarCells"
                         :key="cell.key"
                         class="min-h-[80px] p-2 rounded-lg border border-slate-100 text-left"
-                        :class="{ 'bg-slate-50': !cell.isCurrentMonth, 'bg-blue-50': cell.isToday }"
+                        :class="{ 'bg-slate-50': !cell.isCurrentMonth, 'bg-brand-green-100': cell.isToday }"
                     >
                         <span class="text-sm font-medium" :class="cell.isCurrentMonth ? 'text-slate-900' : 'text-slate-400'">
                             {{ cell.day }}
@@ -74,14 +74,14 @@
                         >
                             {{ statusClasses(ev).pillLabel }}
                         </span>
-                        <a v-if="ev.url" :href="ev.url" target="_blank" rel="noopener" class="ml-auto text-blue-600 text-sm hover:underline">Details</a>
+                        <a v-if="ev.url" :href="ev.url" target="_blank" rel="noopener" class="ml-auto text-brand-green-700 text-sm hover:underline">Details</a>
                     </li>
                 </ul>
                 <p v-else class="text-slate-500">No events this month.</p>
             </div>
 
             <div class="text-center">
-                <router-link to="/events" class="inline-flex items-center text-blue-600 font-medium hover:underline">
+                <router-link to="/events" class="inline-flex items-center text-brand-green-700 font-medium hover:underline">
                     View all events
                     <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

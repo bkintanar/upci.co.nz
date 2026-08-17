@@ -90,7 +90,7 @@
                         <button
                             type="submit"
                             :disabled="sending"
-                            class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            class="inline-flex items-center justify-center px-6 py-3 bg-brand-green-700 text-white font-semibold rounded-lg hover:bg-brand-green-900 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {{ sending ? 'Sending...' : 'Send' }}
                         </button>

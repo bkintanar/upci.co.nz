@@ -40,23 +40,23 @@
                         establishing churches, training ministers, and providing fellowship and support for our members worldwide.
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-blue-50 p-6 rounded-lg">
+                        <div class="bg-brand-green-100 p-6 rounded-lg">
                             <h3 class="text-lg font-semibold text-blue-900 mb-2">Evangelism</h3>
-                            <p class="text-blue-800">Spreading the gospel message to all nations and peoples.</p>
+                            <p class="text-brand-green-900">Spreading the gospel message to all nations and peoples.</p>
                         </div>
-                        <div class="bg-blue-50 p-6 rounded-lg">
+                        <div class="bg-brand-green-100 p-6 rounded-lg">
                             <h3 class="text-lg font-semibold text-blue-900 mb-2">Discipleship</h3>
-                            <p class="text-blue-800">Training and equipping believers for ministry and service.</p>
+                            <p class="text-brand-green-900">Training and equipping believers for ministry and service.</p>
                         </div>
-                        <div class="bg-blue-50 p-6 rounded-lg">
+                        <div class="bg-brand-green-100 p-6 rounded-lg">
                             <h3 class="text-lg font-semibold text-blue-900 mb-2">Fellowship</h3>
-                            <p class="text-blue-800">Building strong Christian communities and relationships.</p>
+                            <p class="text-brand-green-900">Building strong Christian communities and relationships.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="text-center">
-                    <router-link to="/about/oneness-pentecostalism" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    <router-link to="/about/oneness-pentecostalism" class="bg-brand-green-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-900 transition-colors">
                         Learn About Oneness Pentecostalism
                     </router-link>
                 </div>
