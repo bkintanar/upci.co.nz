@@ -380,8 +380,8 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 
 | # | Task | Notes / hazards |
 |---|---|---|
-| T33 | Tailwind `theme.extend` with brand tokens; settle Figtree vs Poppins | Currently the webfont is loaded and never used |
-| T34 | `utils/theme.js` — literal class-string lookup map | Mirror `eventStatus.js`; no regex safelist |
+| T33 ✅ | Tailwind `theme.extend` with brand tokens; settle Figtree vs Poppins | Currently the webfont is loaded and never used |
+| T34 ✅ | `utils/theme.js` — literal class-string lookup map | Mirror `eventStatus.js`; no regex safelist |
 | T35 | `Modal.vue` (native `<dialog>` + `<Teleport>` + focus trap); refactor `ChurchLocator.vue` onto it | |
 | T36 ◐ | Locator: switch to `organizational_region`; Leaflet `maxBounds`; cap `fitBounds`; group by region; "More info"; kill the `window.selectChurchFromMap` global; fix the hard-coded hero stats and dead CTA | §12 + G9 + G10 |
 | T37 | Events national/regional split | ⚠️ Must precede T38 or region pages ship with permanently empty feeds |

@@ -268,3 +268,51 @@ for would not have been the right trade.
 T35 (`Modal.vue`, finishing T36) then T41 — together these are requirement 3, the leadership
 modal and portrait images. Then T39 (rebuild `GetInvolved.vue` from `/api/departments`),
 T42 (meta/title on route change), and requirement 6 (announcements).
+
+### Iteration 6 — 2026-08-17
+
+#### User steer mid-iteration
+Asked when the huashu-design overhaul lands. Answered with the real state (approved
+Direction B, zero tasks implemented, empty `theme.extend`) and the cost of waiting: every
+view built in the current visual language accrues restyling debt. **User chose "tokens now,
+full B after features."**
+
+#### Completed
+- **T33/T34** (`f2257e3`) — brand tokens in `tailwind.config.js`, `utils/theme.js`
+
+#### Validation
+Lint PASS · Build PASS · Tests **85 passed (208 assertions)**
+
+#### Decision — Figtree over Poppins (T33's open question)
+Figtree is **already loaded** from bunny.net and was never wired up, so the webfont was
+fetched and unused. `body` already carries `font-sans`, so pointing that at Figtree fixes the
+whole site with zero markup change. Poppins would add a second font request, and its
+geometric roundness reads friendlier than a national church body should — Direction B's
+register is plain and institutional.
+
+#### Correction to brand-spec.md
+The spec annotates `oklch(0.47 0.09 143)` as "≈ #4D7B37" (the raw logo sample). It actually
+resolves to **#3a6838** — darker and less saturated. I converted OKLCH→sRGB independently and
+got the same value the build emits, so **the toolchain is correct and the annotation was
+wrong**. The darkening is deliberate per the spec's own argument ("reads as ink rather than
+screen-green"), so the oklch value stands and the note was corrected.
+
+I initially blamed the build chain for "shifting the brand colour" — wrong, and caught by
+doing the conversion myself rather than assuming.
+
+#### Learnings
+- **Verify design tokens against the COMPILED CSS, never the config.** A token that does not
+  emit is worthless, and the config looks identical either way.
+- **`ls -t public/build/assets/*.css | head -1` is the wrong file.** Scoped component styles
+  build to their own CSS; the real entry is whatever `manifest.json` maps
+  `resources/css/app.css` to. My first check grepped a 124-byte component file and reported
+  a false negative.
+- **Tailwind JIT emits only classes it finds in content**, so an unused token legitimately
+  does not appear. Confirming `text-h2`/`text-body` needed a throwaway probe component.
+- Tailwind 3.4 converts `oklch()` to hex at build; authoring in oklch costs nothing at render
+  and preserves the spec's intent.
+
+#### Next
+Requirement 3 (T35 `Modal.vue` + T41 portrait leadership) and requirement 6 (announcements)
+are the last two untouched requirements. Then the full B rollout: T32, T45–T49, spikes
+T50/T51. **T46 (two-row header) also fixes the nine-item navbar crowding.**
