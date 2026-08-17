@@ -314,9 +314,10 @@ New tests to add (Pest, `test('...', function(){})`, `Region::firstOrCreate` + `
 ```bash
 vendor/bin/pint --test --dirty && npm run build && ./vendor/bin/pest \
   tests/Feature/AccessLevelScopingTest.php tests/Feature/ChurchPolicyLocalEditTest.php \
-  tests/Feature/EventAccessPolicyTest.php tests/Feature/PanelAccessGateTest.php
+  tests/Feature/EventAccessPolicyTest.php tests/Feature/PanelAccessGateTest.php \
+  tests/Feature/SecurityRegressionTest.php
 ```
-Baseline is **27 passing** in those four files. The full suite is *not* a gate — 16 tests fail before any change.
+Baseline is **38 passing** in those five files. The full suite is *not* a gate — 16 tests fail before any change.
 
 🔴 **`--dirty` is load-bearing, not a nicety.** Plain `vendor/bin/pint --test` exits **1** on a clean tree with **83 pre-existing failures** — including `AccessLevelScopingTest.php` and `PanelAccessGateTest.php`, two of the four gate files. Because the chain is `&&`, the build and the tests **never execute**: the gate reported failure regardless of what you did. `--dirty` lints only changed files and exits 0 on a clean tree (both verified). Do **not** "fix" this by running bare `vendor/bin/pint` — that produces an 83-file reformat diff which then tangles into your first real commit.
 
