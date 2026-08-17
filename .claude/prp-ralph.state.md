@@ -491,3 +491,52 @@ ministries is the client's call, not mine.
 T26–T31 (CMS block library): `icon_svg` in the card schema (**must precede T31**), remove the
 four presentation heuristics, `two_column` ratio, per-block async loader, six data-bound
 blocks, card `bio`. Then the rest of Direction B (T32, T45, T47–T49) and spikes T50/T51.
+
+### Iteration 11 — 2026-08-17
+
+#### Completed
+- **T26/T31** — `icon_svg`, `variant`, `bio` declared in the card block schema
+- Navbar reverted to one row + true three-level menu (`5cbd9dd`), all user-directed
+
+#### Validation
+Lint PASS · Build PASS · Tests **97 passed (238 assertions)** · migration up/down clean
+
+#### The T26 bug was wider than the plan recorded
+`CmsPage.vue` reads `icon_svg` in 18 places; `PageForm` declared it zero times. Filament's
+Builder rebuilds block state from the DECLARED schema on save, so editing an affected card
+dropped it permanently. **`variant` and `bio` — which I added in `ea347d8` — had the same gap
+across 13 live cards**, so editing any leadership card would have destroyed the portrait
+treatment and modal I had just built.
+
+Accuracy note: the plan said 5 live `icon_svg` values; there are 4. The missing one is the
+card *I* removed when deduping ABC registration in iteration 2 — not evidence of stripping.
+
+#### Design reversal — the two-row header was wrong
+The user rejected it: they want the logo left of the menu on one row, no green rule. Reverted.
+Fitting nine items beside the logo needed a slimmer bar and mark, tighter item padding, and a
+**wider container for the nav alone** — `max-w-7xl` minus padding cannot hold ~1240px. Below
+1400px there is genuinely no room, so the hamburger takes over there.
+
+**Lesson: measuring that a layout "fits" is not the same as it being the layout the user
+wants.** I solved the overflow correctly and still had to undo it.
+
+#### The interleaving was also the wrong fix
+Ordering SBQ/JBQ next to their ministries was a workaround for the navbar rendering two
+levels. The user wanted real nesting. Fixed properly: the API formatter is now recursive (it
+stopped at children, so a grandchild could exist in the admin and never render), and both
+menus render a third level. **When a structural limit forces a workaround, say so and offer to
+lift the limit — do not quietly ship the workaround as the answer.**
+
+#### Learnings
+- **Filament's Builder silently drops undeclared block fields on save.** Any field the
+  renderer reads MUST be declared. Adding a field to block data in a migration without adding
+  it to the form schema is a delayed data-loss bug.
+- Testing Filament schemas by instantiation needs a Livewire container; reading the declared
+  names from source is simpler and survives upgrades.
+- A moved page needs **slug, menu row and Vue route** changed together.
+- Changing a Tailwind breakpoint (`md:` → `xl:`) silently breaks any test selector that
+  hard-codes the old class.
+
+#### Next
+T27 (replace the four presentation heuristics), T28 (`two_column` ratio), T29 (per-block async
+loader), T30 (six data-bound blocks), then Direction B (T32, T45, T47–T49) and spikes T50/T51.
