@@ -3,13 +3,18 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
                 <h1 class="text-4xl font-bold text-slate-900 mb-3">Calendar of Events</h1>
+                <!-- The year was written into the copy, so this page would have
+                     announced "2026" throughout 2027 and every year after. It is
+                     read from the events themselves now, and omitted entirely
+                     when there are none rather than stating a year on faith. -->
                 <p class="text-lg text-slate-600 max-w-2xl mx-auto">
-                    UPCI New Zealand — 2026 National Calendar. General Conference, Annual Ministers Meeting, department events, and more.
+                    UPCI New Zealand<template v-if="calendarYears"> — {{ calendarYears }} National Calendar</template>.
+                    General Conference, Annual Ministers Meeting, department events, and more.
                 </p>
             </div>
 
             <div v-if="loading" class="text-center py-20">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-green-700"></div>
                 <p class="mt-4 text-slate-600">Loading events...</p>
             </div>
 
@@ -145,6 +150,21 @@ export default defineComponent({
     name: 'Events',
     setup() {
         const events = ref([])
+
+        // One year reads "2026"; a span reads "2026-2027"; nothing reads as
+        // nothing, because a calendar page with no events should not claim a
+        // year it cannot support.
+        const calendarYears = computed(() => {
+            const years = [...new Set(
+                events.value
+                    .map((e) => String(e.start_date || '').slice(0, 4))
+                    .filter((y) => /^\d{4}$/.test(y))
+            )].sort()
+
+            if (!years.length) return ''
+
+            return years.length === 1 ? years[0] : `${years[0]}\u2013${years[years.length - 1]}`
+        })
         const loading = ref(true)
         const error = ref(null)
 
@@ -206,6 +226,7 @@ export default defineComponent({
         onMounted(fetchEvents)
 
         return {
+            calendarYears,
             events, loading, error,
             groupedEvents,
             statusClasses, deptChip, departmentLabel,
