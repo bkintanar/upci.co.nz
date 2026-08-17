@@ -11,7 +11,9 @@ use App\Http\Controllers\Api\AGSUpdateController;
 use App\Http\Controllers\Api\DepartmentController;
 
 // API routes (must come before catch-all route)
-Route::prefix('api')->group(function () {
+// A baseline limit for the whole public API. None of these routes are
+// authenticated, so without this any of them can be hammered for free.
+Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     // Public, read-only. Church writes are managed exclusively through the
     // Filament admin (ChurchResource + ChurchPolicy). Registering the full
     // apiResource here exposed unauthenticated POST/PUT/PATCH/DELETE — and
@@ -24,7 +26,11 @@ Route::prefix('api')->group(function () {
     Route::get('/churches-regions', [ChurchController::class, 'regions']);
     Route::get('/churches-organizational-regions', [ChurchController::class, 'organizationalRegions']);
     Route::get('/churches-service-days', [ChurchController::class, 'serviceDays']);
-    Route::post('/address-search', [ChurchController::class, 'addressSearch']);
+    // Each call makes two sequential blocking file_get_contents to NZ Post
+    // with a 2s timeout apiece, so one request can hold a PHP-FPM worker for
+    // up to 4s. Tighter limit than the group baseline.
+    Route::post('/address-search', [ChurchController::class, 'addressSearch'])
+        ->middleware('throttle:20,1');
 
     // CMS page routes
     Route::get('/pages', [PageController::class, 'index']);
@@ -49,7 +55,10 @@ Route::prefix('api')->group(function () {
     Route::get('/departments/{slug}', [DepartmentController::class, 'show']);
 
     // Contact form
-    Route::post('/contact', [ContactController::class, 'store']);
+    // Unauthenticated write with no captcha or honeypot — without a limit the
+    // contact_messages table (and the new admin inbox) can be flooded.
+    Route::post('/contact', [ContactController::class, 'store'])
+        ->middleware('throttle:5,1');
 });
 
 // Frontend routes
