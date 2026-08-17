@@ -44,6 +44,37 @@ const brand = {
   // Scoped to error states only (D13). The two-hue rule stands everywhere else;
   // this exists because green and clay cannot carry "something is wrong".
   error: 'oklch(0.52 0.17 27)',
+
+  // Department hues (T49②, client-approved 2026-08-17: "respread to harmonise
+  // with brand green").
+  //
+  // The six departments previously used Tailwind's stock blue-700 / emerald-700
+  // / pink-600 / amber-500 / purple-700 / indigo-700. Those are defaults, not
+  // choices — they carry no relationship to the mark, and the reason the site
+  // read as generic was exactly this kind of arbitrary palette.
+  //
+  // Every department keeps its own hue so the pages stay distinguishable (the
+  // original constraint: collapsing them into green would make Prayer and Men's
+  // look like the same page). What changes is that they now share the BRAND's
+  // lightness and chroma — L 0.47/0.34 and C 0.09/0.07, the same values as
+  // green.700 and green.900 — so they read as one family lit the same way,
+  // rather than six unrelated pigments.
+  //
+  // Hues are spread at roughly even angles (45-80° apart) so no two sit close
+  // enough to be confused at these low chromas. Each stayed near its previous
+  // identity rather than being reassigned: yellow→amber 70, green 143 (the
+  // brand hue itself, unchanged), blue 220, indigo 275, purple 325, pink→rose 10.
+  //
+  // Chroma stays at the brand's 0.09 cap, so these are print-density fills, not
+  // the screen-fluorescent stock values they replace.
+  dept: {
+    yellow: { 700: 'oklch(0.47 0.09 70)', 900: 'oklch(0.34 0.07 70)' },
+    green: { 700: 'oklch(0.47 0.09 143)', 900: 'oklch(0.34 0.07 143)' },
+    blue: { 700: 'oklch(0.47 0.09 220)', 900: 'oklch(0.34 0.07 220)' },
+    indigo: { 700: 'oklch(0.47 0.09 275)', 900: 'oklch(0.34 0.07 275)' },
+    purple: { 700: 'oklch(0.47 0.09 325)', 900: 'oklch(0.34 0.07 325)' },
+    pink: { 700: 'oklch(0.47 0.09 10)', 900: 'oklch(0.34 0.07 10)' },
+  },
 }
 
 export default {

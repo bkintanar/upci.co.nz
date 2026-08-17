@@ -14,18 +14,27 @@
 
 // Department hero treatments. Previously inlined in Department.vue, which meant
 // the only list of valid themes lived inside one component.
-// NOT migrated to the brand green with the rest of the palette: these six must
-// stay distinguishable from each other, and collapsing `blue` into green would
-// make the Prayer and Men's departments look like the same page. Spreading the
-// six across a family that harmonises with the brand is T49's job, and needs a
-// decision about which hue each department owns.
+//
+// T49② (client-approved 2026-08-17): respread onto the brand family. These were
+// Tailwind's stock blue-700/emerald-700/pink-600/amber-500/purple-700/indigo-700
+// and terminated in `slate-900`, a neutral from nowhere in the mark. Each
+// department still owns its own hue — they must stay distinguishable, since
+// collapsing them into green would make Prayer and Men's look like the same
+// page — but all six now share the brand's lightness and chroma and land on
+// brand-ink. See the `dept` block in tailwind.config.js for the hue angles.
+//
+// The KEYS are the legacy identifiers stored in `departments.color_theme`
+// ('green', 'pink', …). They are deliberately left alone: renaming them to
+// match the new hues would mean a data migration whose only benefit is tidier
+// strings, and any row that failed to migrate would silently fall back to blue.
+// The key names a department's slot; the token names its colour.
 const DEPARTMENT_THEMES = {
-    blue: 'bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900',
-    green: 'bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-900',
-    pink: 'bg-gradient-to-br from-pink-600 via-rose-700 to-slate-900',
-    yellow: 'bg-gradient-to-br from-amber-500 via-orange-600 to-slate-900',
-    purple: 'bg-gradient-to-br from-purple-700 via-purple-800 to-slate-900',
-    indigo: 'bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900',
+    blue: 'bg-gradient-to-br from-brand-dept-blue-700 via-brand-dept-blue-900 to-brand-ink',
+    green: 'bg-gradient-to-br from-brand-dept-green-700 via-brand-dept-green-900 to-brand-ink',
+    pink: 'bg-gradient-to-br from-brand-dept-pink-700 via-brand-dept-pink-900 to-brand-ink',
+    yellow: 'bg-gradient-to-br from-brand-dept-yellow-700 via-brand-dept-yellow-900 to-brand-ink',
+    purple: 'bg-gradient-to-br from-brand-dept-purple-700 via-brand-dept-purple-900 to-brand-ink',
+    indigo: 'bg-gradient-to-br from-brand-dept-indigo-700 via-brand-dept-indigo-900 to-brand-ink',
 }
 
 /**
