@@ -1,7 +1,10 @@
 <template>
-    <section class="py-16 bg-slate-50">
+    <!-- D2 makes this the page, not a section of it: the congregations are the
+         homepage's primary content, so this sits on paper rather than on a grey
+         band that would read as secondary. -->
+    <section class="py-16 bg-brand-paper">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 v-if="data.heading" class="text-3xl font-bold text-slate-900 mb-8">{{ data.heading }}</h2>
+            <h2 v-if="data.heading" class="text-3xl font-bold text-brand-ink mb-8">{{ data.heading }}</h2>
 
             <BlockState
                 :loading="loading" :error="error" :items="visible"
@@ -10,9 +13,11 @@
                 <template #loading>Loading churches…</template>
 
                 <div v-for="group in groups" :key="group.slug" class="mb-10 last:mb-0">
-                    <div v-if="grouped" class="flex items-baseline justify-between mb-4 pb-2 border-b border-slate-200">
-                        <h3 class="text-lg font-bold text-slate-900">{{ group.name }}</h3>
-                        <span class="text-sm text-slate-500">
+                    <!-- The region name is the organising device in D2, so it
+                         carries the brand rule rather than a grey hairline. -->
+                    <div v-if="grouped" class="flex items-baseline justify-between mb-4 pb-2 border-b-2 border-brand-green-700">
+                        <h3 class="text-lg font-bold text-brand-ink">{{ group.name }}</h3>
+                        <span class="text-sm text-brand-grey-600">
                             {{ group.churches.length }} {{ group.churches.length === 1 ? 'church' : 'churches' }}
                         </span>
                     </div>
@@ -21,15 +26,15 @@
                         <div
                             v-for="church in group.churches"
                             :key="church.id"
-                            class="bg-white rounded-xl border border-slate-200 p-6"
+                            class="bg-white border border-brand-grey-200 p-6"
                         >
-                            <h4 class="font-bold text-slate-900 mb-1">{{ church.name }}</h4>
-                            <p v-if="church.city" class="text-sm text-slate-500 mb-2">{{ church.city }}</p>
-                            <p v-if="church.pastor" class="text-sm text-slate-600">{{ church.pastor }}</p>
+                            <h4 class="font-bold text-brand-ink mb-1">{{ church.name }}</h4>
+                            <p v-if="church.city" class="text-sm text-brand-grey-600 mb-2">{{ church.city }}</p>
+                            <p v-if="church.pastor" class="text-sm text-brand-ink">{{ church.pastor }}</p>
                             <!-- Same honesty as the locator: a church with no
                                  coordinates is listed and says why it is not
                                  mappable, rather than being dropped. -->
-                            <p v-if="!church.has_coordinates" class="text-xs text-slate-400 mt-2">
+                            <p v-if="!church.has_coordinates" class="text-xs text-brand-grey-400 mt-2">
                                 Not on the map yet
                             </p>
                         </div>
@@ -87,8 +92,11 @@ export default defineComponent({
                 map.get(slug).churches.push(church)
             })
 
-            // Unassigned sorts last; everything else keeps API order, which is
-            // the regions' own sort_order.
+            // Unassigned sorts last; everything else keeps API order, which the
+            // churches endpoint now sorts by the regions table's own
+            // sort_order. It did NOT before — it ordered by featured-then-name,
+            // so this comment described an ordering that never existed and the
+            // homepage rendered Southern above Northern.
             return [...map.values()].sort((a, b) =>
                 (a.slug === 'unassigned' ? 1 : 0) - (b.slug === 'unassigned' ? 1 : 0)
             )

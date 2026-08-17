@@ -54,9 +54,29 @@ class ChurchController extends Controller
             });
         }
 
-        // Order by featured first, then by name
-        $churches = $query->orderBy('is_featured', 'desc')
-            ->orderBy('name')
+        // Order by the region's own sort_order first, then featured, then name.
+        //
+        // The region term is new. Consumers that group by region — the homepage
+        // directory under D2, above all — were previously getting whatever order
+        // a name-sorted list happened to produce, which put Southern before
+        // Northern on the homepage. Region order is the organising device on that
+        // page, so arbitrary was not good enough.
+        //
+        // Ordering here rather than in the client keeps the sequence the regions
+        // table's business (northern=1, central=2, southern=3) instead of
+        // hard-coding region names in `resources/js`, which the plan's
+        // anti-requirement watch explicitly forbids.
+        //
+        // leftJoin, not join: churches with no region must still be returned.
+        // They sort last via the NULL guard rather than vanishing — the same
+        // rule as churches without coordinates.
+        $churches = $query
+            ->leftJoin('regions', 'churches.region_id', '=', 'regions.id')
+            ->orderByRaw('CASE WHEN regions.sort_order IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('regions.sort_order')
+            ->orderBy('churches.is_featured', 'desc')
+            ->orderBy('churches.name')
+            ->select('churches.*')
             ->get()
             ->map(function ($church) {
                 return $this->formatChurchForApi($church);
