@@ -68,11 +68,11 @@
             </section>
 
             <!-- Text Block -->
-            <section v-else-if="block.type === 'text'" :class="getTextBlockClasses(index)">
+            <section v-else-if="block.type === 'text'" :class="sectionBackground(block, 'py-20')">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="text-center">
                         <h2 v-if="block.data.heading" class="text-4xl md:text-5xl font-bold text-slate-900 mb-6">{{ block.data.heading }}</h2>
-                        <div class="max-w-4xl mx-auto text-xl text-slate-600 leading-relaxed cms-text-content" :class="{ 'stats-content': hasStats(block.data.content) }" :data-has-stats="hasStats(block.data.content)" v-html="renderMarkdown(block.data.content)"></div>
+                        <div class="max-w-4xl mx-auto text-xl text-slate-600 leading-relaxed cms-text-content" :class="{ 'stats-content': isStatsBlock(block) }" :data-has-stats="isStatsBlock(block)" v-html="renderMarkdown(block.data.content)"></div>
                     </div>
                 </div>
             </section>
@@ -110,10 +110,10 @@
 
             <!-- Card Grid -->
             <section v-else-if="block.type === 'cards'"
-                     :class="['py-16 lg:py-20', getCardsSectionClasses(page.content, index)]">
+                     :class="sectionBackground(block, 'py-16 lg:py-20')">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 v-if="block.data.heading" class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-10 lg:mb-12">{{ block.data.heading }}</h2>
-                    <div :class="getCardsGridClasses(block.data.items, block.data.heading)">
+                    <div :class="cardsGridClasses(block)">
                         <!-- variant === 'person' is an explicit author option, not
                              an inference from the heading or item count: portrait
                              crop, and the whole card opens a detail modal
@@ -283,19 +283,35 @@ export default defineComponent({
             return styles[style] || styles['blue']
         }
 
-        const getTextBlockClasses = (index) => {
-            // First text block (Our Mission) - white background
-            if (index === 1) {
-                return 'py-20 bg-white'
-            }
-            // Stats block (Our Impact) - slate background
-            return 'py-20 bg-slate-50'
+        // Presentation is read from the block, never inferred. These five
+        // rules used to derive appearance from array position, ordinal, item
+        // count, or a substring of the prose — so an editor could not control
+        // layout and reordering blocks silently restyled the page (§11.2).
+        // The values were backfilled from what each rule produced, so existing
+        // pages look exactly as they did.
+        const BACKGROUNDS = {
+            white: 'bg-white',
+            slate: 'bg-slate-50',
         }
 
-        const hasStats = (content) => {
-            // Check if content has bullet points (stats pattern)
-            return content && content.includes('- **')
+        const sectionBackground = (block, spacing) => {
+            const background = BACKGROUNDS[block.data.background] || BACKGROUNDS.slate
+            return `${spacing} ${background}`
         }
+
+        const isStatsBlock = (block) => block.data.style === 'stats'
+
+        const isRegistrationBlock = (block) => block.data.style === 'registration'
+
+        // Literal class strings per column count — Tailwind's scanner reads
+        // source as text, so a constructed `lg:grid-cols-${n}` is never emitted.
+        const CARD_GRIDS = {
+            2: 'grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8',
+            3: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8',
+            4: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8',
+        }
+
+        const cardsGridClasses = (block) => CARD_GRIDS[block.data.columns] || CARD_GRIDS[3]
 
         const getCardIconClass = (index, iconSvg) => {
             // Use green for checkmark icons
@@ -370,24 +386,6 @@ export default defineComponent({
             return 'text-slate-600 leading-relaxed mb-4'
         }
 
-        const getCardsSectionClasses = (content, index) => {
-            const blockIndex = content.findIndex(b => b.type === 'cards')
-            const cardsBlockIndex = content.slice(0, index).filter(b => b.type === 'cards').length
-            return cardsBlockIndex % 2 === 0 ? 'bg-slate-50' : 'bg-white'
-        }
-
-        const getCardsGridClasses = (items, heading) => {
-            const count = items.length
-            if (count >= 5) return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8'
-            if (count >= 4) return 'grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8'
-            return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8'
-        }
-
-        const isRegistrationBlock = (block) => {
-            if (block.type !== 'cards' || !block.data.items || block.data.items.length < 3) return false
-            return block.data.items.every(item => item.data && item.data.link_url && item.data.link_url.startsWith('http'))
-        }
-
         const getSlug = () => {
             // If slug param exists (from /cms/:slug), use it
             if (route.params.slug) {
@@ -426,16 +424,15 @@ export default defineComponent({
             getImageUrl,
             getHeroClasses,
             getCtaClasses,
-            getTextBlockClasses,
-            hasStats,
+            sectionBackground,
+            isStatsBlock,
             getCardIconClass,
             getCardIconContainerClass,
             getMinistryCardClasses,
             getMinistryCardContentClasses,
             getMinistryCardTitleClasses,
             getMinistryCardDescClasses,
-            getCardsSectionClasses,
-            getCardsGridClasses,
+            cardsGridClasses,
             isRegistrationBlock,
         }
     }

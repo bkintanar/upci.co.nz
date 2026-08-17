@@ -153,3 +153,38 @@ test('no card in the CMS carries a field the schema does not declare', function 
 
     expect(array_values(array_unique($undeclared)))->toBe([]);
 });
+
+test('text and card blocks carry explicit presentation, not inferred', function () {
+    // §11.2: five rules used to derive appearance from array position, ordinal,
+    // item count, or a substring of the prose. An editor could not control
+    // layout, and reordering blocks silently restyled the page. Every existing
+    // block was backfilled with the value its rule produced, so a block missing
+    // one now means something wrote a block without going through the form.
+    $missing = [];
+
+    foreach (Page::all() as $page) {
+        $blocks = is_string($page->content) ? json_decode($page->content, true) : $page->content;
+
+        if (! is_array($blocks)) {
+            continue;
+        }
+
+        foreach ($blocks as $block) {
+            $data = $block['data'] ?? [];
+
+            $required = match ($block['type'] ?? null) {
+                'text' => ['background', 'style'],
+                'cards' => ['background', 'style', 'columns'],
+                default => [],
+            };
+
+            foreach ($required as $key) {
+                if (! array_key_exists($key, $data)) {
+                    $missing[] = "{$page->slug} ({$block['type']}): {$key}";
+                }
+            }
+        }
+    }
+
+    expect(array_values(array_unique($missing)))->toBe([]);
+});

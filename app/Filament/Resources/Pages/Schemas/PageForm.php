@@ -129,6 +129,26 @@ class PageForm
                                         TextInput::make('heading')
                                             ->label('Heading (Optional)')
                                             ->maxLength(255),
+
+                                        // Presentation is authored, not inferred. The
+                                        // background used to come from the block's ARRAY
+                                        // POSITION and the stat styling from the literal
+                                        // string "- **", so reordering blocks or writing an
+                                        // ordinary bold bullet silently restyled the page.
+                                        Select::make('background')
+                                            ->label('Background')
+                                            ->options(['slate' => 'Light grey', 'white' => 'White'])
+                                            ->default('slate')
+                                            ->required(),
+
+                                        Select::make('style')
+                                            ->label('Presentation')
+                                            ->options([
+                                                'default' => 'Normal prose',
+                                                'stats' => 'Large figures (for bulleted statistics)',
+                                            ])
+                                            ->default('default')
+                                            ->required(),
                                         MarkdownEditor::make('content')
                                             ->label('Content')
                                             ->required()
@@ -231,6 +251,32 @@ class PageForm
                                         TextInput::make('heading')
                                             ->label('Section Heading (Optional)')
                                             ->maxLength(255),
+
+                                        // Column count used to be derived from the NUMBER of
+                                        // cards (4 gave two columns, 3 or 5+ gave three), and
+                                        // "registration" styling applied whenever every card
+                                        // happened to link offsite. Both are now the author's
+                                        // choice.
+                                        Select::make('columns')
+                                            ->label('Columns')
+                                            ->options([2 => 'Two', 3 => 'Three', 4 => 'Four'])
+                                            ->default(3)
+                                            ->required(),
+
+                                        Select::make('background')
+                                            ->label('Background')
+                                            ->options(['slate' => 'Light grey', 'white' => 'White'])
+                                            ->default('slate')
+                                            ->required(),
+
+                                        Select::make('style')
+                                            ->label('Presentation')
+                                            ->options([
+                                                'default' => 'Standard cards',
+                                                'registration' => 'Registration links (large, opens in a new tab)',
+                                            ])
+                                            ->default('default')
+                                            ->required(),
                                         Builder::make('items')
                                             ->label('Cards')
                                             ->blocks([
