@@ -23,7 +23,10 @@ Gate file for §1.a Core Asset Protocol. Every value below was **extracted from 
 ```
 --ink        oklch(0.18 0.01 150)   /* near-black, from logo #000 lifted off pure */
 --green-900  oklch(0.34 0.07 143)
---green-700  oklch(0.47 0.09 143)   /* ≈ #4D7B37 — THE brand colour */
+--green-700  oklch(0.47 0.09 143)   /* THE brand colour. Resolves to #3a6838, NOT #4D7B37 —
+                                        the convergence deliberately darkens the raw logo
+                                        sample so it reads as ink. Verified against the
+                                        compiled CSS. */
 --green-100  oklch(0.93 0.03 143)
 --clay-600   oklch(0.62 0.12  55)   /* warm accent, borrowed from AU's amber, chroma pulled to ink density */
 --paper      oklch(0.98 0.005 95)   /* warm white, not #FFF */

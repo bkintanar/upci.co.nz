@@ -107,15 +107,7 @@ import { useRoute } from 'vue-router'
 import { marked } from 'marked'
 import GalleryGrid from '../components/GalleryGrid.vue'
 import { useSiteSettings } from '../composables/useSiteSettings'
-
-const THEME_CLASSES = {
-    blue: 'bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900',
-    green: 'bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-900',
-    pink: 'bg-gradient-to-br from-pink-600 via-rose-700 to-slate-900',
-    yellow: 'bg-gradient-to-br from-amber-500 via-orange-600 to-slate-900',
-    purple: 'bg-gradient-to-br from-purple-700 via-purple-800 to-slate-900',
-    indigo: 'bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900',
-}
+import { departmentHeroClasses } from '../utils/theme'
 
 export default defineComponent({
     name: 'Department',
@@ -138,7 +130,8 @@ export default defineComponent({
             return marked.parse(s, { breaks: true, gfm: true })
         }
 
-        const heroClasses = (theme) => THEME_CLASSES[theme] || THEME_CLASSES.blue
+        // Shared with any other surface that renders a department.
+        const heroClasses = departmentHeroClasses
 
         const imageUrl = (path) => {
             if (!path) return ''
