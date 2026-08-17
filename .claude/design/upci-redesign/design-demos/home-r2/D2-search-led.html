@@ -1,0 +1,112 @@
+<!doctype html><html lang="en-NZ"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UPCI NZ — Search-led</title>
+<link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0f130f;--green:#3a6838;--green-lo:#20411e;--green-100:#ddeddb;--clay:#bd7138;
+      --g200:#dcdfdc;--g400:#a1a6a2;--g600:#6e736e;--paper:#f9f8f5}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Figtree,system-ui,sans-serif;background:#fff;color:var(--ink);font-size:17px;line-height:1.6;
+     -webkit-font-smoothing:antialiased;text-wrap:pretty}
+.wrap{max-width:1140px;margin:0 auto;padding:0 32px}
+a{color:var(--green);text-underline-offset:2px}
+/* utility bar + mast */
+.util{background:var(--ink);color:#cfd6cb;font-size:13px}
+.util .wrap{display:flex;justify-content:space-between;padding:9px 0}
+header{border-bottom:1px solid var(--g200)}
+.mast{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+.brand{font-weight:700;font-size:19px;letter-spacing:-.01em}
+nav ul{display:flex;gap:24px;list-style:none;font-size:15px;font-weight:600}
+nav a{color:var(--ink);text-decoration:none}
+/* SEARCH IS THE PAGE — the whole hero is one task */
+.search{background:var(--green-100);border-bottom:1px solid #cbdfc8;padding:64px 0 58px}
+.search h1{font-size:clamp(30px,4vw,46px);line-height:1.1;letter-spacing:-.02em;max-width:17ch;font-weight:700}
+.search p{margin-top:12px;color:#3c4a39;max-width:50ch}
+.sbox{margin-top:26px;background:#fff;border:2px solid var(--green);border-radius:4px;padding:8px;
+      display:grid;grid-template-columns:1fr auto auto;gap:8px;max-width:760px}
+.sbox input{border:0;padding:15px 14px;font:inherit;font-size:17px;outline:none}
+.sbox select{border:0;border-left:1px solid var(--g200);padding:15px 12px;font:inherit;background:#fff}
+.sbox button{background:var(--green);color:#fff;border:0;padding:15px 26px;font:inherit;font-weight:700;
+             border-radius:2px;cursor:pointer}
+.quick{margin-top:16px;font-size:14px;color:#3c4a39}
+.quick a{margin-right:14px}
+/* results preview — three region columns, the country's shape */
+.cols{padding:60px 0 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:34px}
+.col h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--green-lo);
+        border-bottom:2px solid var(--green);padding-bottom:8px;margin-bottom:12px}
+.col li{list-style:none;padding:11px 0;border-bottom:1px solid #eceeea;font-size:16px}
+.col li span{display:block;color:var(--g600);font-size:13px}
+/* life-events style row — practical entry points, not brochure copy */
+.entry{padding:56px 0}
+.entry h2{font-size:26px;font-weight:700;letter-spacing:-.015em;margin-bottom:20px}
+.egrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.card{border:1px solid var(--g200);border-radius:4px;padding:22px;text-decoration:none;color:var(--ink);display:block}
+.card:hover{border-color:var(--green)}
+.card b{display:block;font-size:17px;margin-bottom:5px}
+.card span{color:var(--g600);font-size:14px}
+/* whats on strip */
+.on{background:var(--paper);border-top:1px solid var(--g200);border-bottom:1px solid var(--g200);padding:48px 0}
+.on h2{font-size:22px;font-weight:700;margin-bottom:16px}
+.ev{display:grid;grid-template-columns:80px 1fr auto;gap:16px;padding:13px 0;border-top:1px solid var(--g200);align-items:baseline}
+.ev .d{font-weight:700;color:var(--green)}
+.ev .p{color:var(--g600);font-size:14px}
+.slot{margin:44px 0;border:1px dashed #c3cbbf;background:#fbfcfa;padding:40px;text-align:center;color:var(--g600)}
+.slot b{display:block;color:var(--ink);margin-bottom:6px}
+footer{padding:36px 0;color:var(--g600);font-size:14px}
+</style></head><body>
+<div class="util"><div class="wrap"><span>United Pentecostal Church International</span><span>Aotearoa New Zealand</span></div></div>
+<header><div class="wrap mast">
+  <div class="brand">UPCI New Zealand</div>
+  <nav><ul><li><a href="#">About</a></li><li><a href="#">Departments</a></li><li><a href="#">Regions</a></li><li><a href="#">Bible College</a></li><li><a href="#">Contact</a></li></ul></nav>
+</div></header>
+
+<section class="search"><div class="wrap">
+  <h1>Find a church near you, right now.</h1>
+  <p>Ten congregations across three regions. Search by town, or browse the full list below.</p>
+  <form class="sbox" onsubmit="return false">
+    <input placeholder="Town, suburb or church name" aria-label="Search">
+    <select aria-label="Region"><option>All regions</option><option>Northern</option><option>Central</option><option>Southern</option></select>
+    <button>Search</button>
+  </form>
+  <div class="quick">Or jump to: <a href="#">Auckland</a><a href="#">Hamilton</a><a href="#">Wellington</a><a href="#">Christchurch</a></div>
+</div></section>
+
+<div class="wrap"><div class="cols">
+  <div class="col"><h2>Northern · 4</h2><ul>
+    <li>Southside Pentecostal Fellowship<span>Auckland</span></li>
+    <li>New Zealand Family in Christ Church<span>Auckland</span></li>
+    <li>Grace Fellowship<span>Hamilton</span></li>
+    <li>Daystar Fellowship<span>Whangarei</span></li></ul></div>
+  <div class="col"><h2>Central · 2</h2><ul>
+    <li>Apostolic Life Church<span>Tauranga</span></li>
+    <li>Storehouse Chapel<span>Hamilton</span></li></ul></div>
+  <div class="col"><h2>Southern · 4</h2><ul>
+    <li>Church Triumphant Wellington<span>Wellington</span></li>
+    <li>Apostolics of Christchurch<span>Christchurch</span></li>
+    <li>The Pentecostals of Rangiora<span>Rangiora</span></li>
+    <li>Lighthouse of Jesus Christ<span>Rolleston</span></li></ul></div>
+</div></div>
+
+<section class="entry"><div class="wrap">
+  <h2>Why people get in touch</h2>
+  <div class="egrid">
+    <a class="card" href="#"><b>I'm visiting</b><span>What a service is like, and when they meet.</span></a>
+    <a class="card" href="#"><b>I need prayer</b><span>Send a request to the prayer ministry.</span></a>
+    <a class="card" href="#"><b>Bible College</b><span>Study with Apostolic Bible College, online.</span></a>
+    <a class="card" href="#"><b>What we believe</b><span>Apostolic doctrine, plainly set out.</span></a>
+  </div>
+</div></section>
+
+<section class="on"><div class="wrap">
+  <h2>What's on nationally</h2>
+  <div class="ev"><span class="d">22 Aug</span><span>Men's Online Virtual Training</span><span class="p">Online</span></div>
+  <div class="ev"><span class="d">06 Sep</span><span>Mission Sunday Promotion</span><span class="p">Nationwide</span></div>
+  <div class="ev"><span class="d">19 Sep</span><span>General Director Visitation</span><span class="p">Wellington</span></div>
+  <div class="ev"><span class="d">26 Sep</span><span>JBQ Mini-tourney</span><span class="p">South Island</span></div>
+</div></section>
+
+<div class="wrap"><div class="slot"><b>Optional photography band</b>
+  This direction works with no photographs at all. Supply them and they slot in here without changing the structure.</div></div>
+
+<footer><div class="wrap">© 2026 UPCI New Zealand · Direction 2 · Search-led (A Church Near You transfer)</div></footer>
+</body></html>

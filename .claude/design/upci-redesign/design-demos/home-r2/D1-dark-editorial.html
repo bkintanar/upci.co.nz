@@ -1,0 +1,125 @@
+<!doctype html><html lang="en-NZ"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UPCI NZ — Dark Editorial</title>
+<link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700|jetbrains-mono:400,500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0f130f;--paper:#f9f8f5;--green:#3a6838;--green-lo:#20411e;--green-hi:#8fbe6e;
+      --g200:#dcdfdc;--g400:#a1a6a2;--g600:#6e736e;--night:#12160f;--night-2:#1a1f17;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Figtree,system-ui,sans-serif;background:var(--night);color:#f3f5f1;
+     -webkit-font-smoothing:antialiased;font-size:17px;line-height:1.6;text-wrap:pretty}
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+a{color:inherit}
+/* masthead */
+header{border-bottom:1px solid #262c22}
+.mast{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+.brand{display:flex;align-items:center;gap:14px;font-weight:700;letter-spacing:-.01em}
+.dot{width:10px;height:10px;background:var(--green-hi);border-radius:50%}
+nav ul{display:flex;gap:26px;list-style:none;font-size:14px;font-weight:500}
+nav a{opacity:.78;text-decoration:none}
+/* hero: the ten congregations ARE the hero */
+.hero{padding:76px 0 60px;border-bottom:1px solid #262c22}
+.hero h1{font-size:clamp(38px,5.4vw,66px);line-height:1.03;letter-spacing:-.025em;font-weight:700;max-width:15ch}
+.hero h1 em{font-style:normal;color:var(--green-hi)}
+.hero p{margin-top:20px;max-width:46ch;color:#b9c0b4;font-size:19px}
+.finder{margin-top:34px;display:flex;gap:10px;max-width:560px}
+.finder input{flex:1;background:var(--night-2);border:1px solid #303829;color:#fff;
+  padding:16px 18px;font:inherit;font-size:16px;border-radius:2px}
+.finder button{background:var(--green-hi);color:var(--ink);border:0;padding:16px 26px;
+  font:inherit;font-weight:700;border-radius:2px;cursor:pointer}
+/* the register strip — UPCA's single invitation, but typographic */
+.invite{background:var(--green);padding:22px 0}
+.invite .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.invite b{font-size:19px}
+.invite .mono{opacity:.85}
+.invite a{background:#fff;color:var(--green-lo);padding:11px 22px;border-radius:2px;
+  text-decoration:none;font-weight:700;font-size:15px;white-space:nowrap}
+/* church index — the motif */
+.idx{padding:70px 0}
+.idx h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--g400);
+  font-family:'JetBrains Mono',monospace;font-weight:500;margin-bottom:28px}
+.region{margin-bottom:38px}
+.region .rh{display:flex;align-items:baseline;justify-content:space-between;
+  border-bottom:1px solid #262c22;padding-bottom:10px;margin-bottom:4px}
+.region .rh h3{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.region .rh span{color:var(--g600);font-size:13px}
+.church{display:flex;align-items:baseline;justify-content:space-between;gap:20px;
+  padding:13px 0;border-bottom:1px solid #1c211a}
+.church .nm{font-weight:500}
+.church .ct{color:var(--g400);font-size:14px;white-space:nowrap}
+.church:hover .nm{color:var(--green-hi)}
+/* figures */
+.figs{border-top:1px solid #262c22;border-bottom:1px solid #262c22;padding:44px 0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+.figs .v{font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--green-hi);font-variant-numeric:tabular-nums}
+.figs .l{color:var(--g400);font-size:14px;margin-top:2px}
+/* what's on */
+.on{padding:66px 0}
+.on h2{font-size:28px;font-weight:700;letter-spacing:-.015em;margin-bottom:24px}
+.ev{display:grid;grid-template-columns:88px 1fr;gap:20px;padding:16px 0;border-top:1px solid #1c211a}
+.ev .d{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--green-hi);padding-top:3px}
+.ev .n{font-weight:500}
+.ev .p{color:var(--g600);font-size:14px}
+/* photo slot — honest */
+.slot{margin:0 0 66px;border:1px dashed #3a4434;padding:46px 30px;text-align:center;color:var(--g600)}
+.slot b{display:block;color:#cdd4c8;font-weight:600;margin-bottom:6px}
+footer{border-top:1px solid #262c22;padding:40px 0;color:var(--g600);font-size:14px}
+</style></head><body>
+<header><div class="wrap mast">
+  <div class="brand"><span class="dot"></span> UPCI New Zealand</div>
+  <nav><ul><li><a href="#">About</a></li><li><a href="#">Departments</a></li><li><a href="#">Find a church</a></li><li><a href="#">Regions</a></li><li><a href="#">Calendar</a></li></ul></nav>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <h1>Ten congregations, <em>the length of the country</em>.</h1>
+  <p>The United Pentecostal Church International in New Zealand. Find the one nearest you.</p>
+  <form class="finder" onsubmit="return false">
+    <input placeholder="Enter your town or suburb" aria-label="Town or suburb">
+    <button>Find a church</button>
+  </form>
+</div></section>
+
+<div class="invite"><div class="wrap">
+  <div><div class="mono">Next nationally</div><b>Men's Online Virtual Training — 22 August</b></div>
+  <a href="#">Register</a>
+</div></div>
+
+<section class="idx"><div class="wrap">
+  <h2>The churches</h2>
+  <div class="region"><div class="rh"><h3>Northern Region</h3><span>4 churches</span></div>
+    <div class="church"><span class="nm">Southside Pentecostal Fellowship</span><span class="ct">Auckland</span></div>
+    <div class="church"><span class="nm">New Zealand Family in Christ Church</span><span class="ct">Auckland</span></div>
+    <div class="church"><span class="nm">Grace Fellowship</span><span class="ct">Hamilton</span></div>
+    <div class="church"><span class="nm">Daystar Fellowship</span><span class="ct">Whangarei</span></div></div>
+  <div class="region"><div class="rh"><h3>Central Region</h3><span>2 churches</span></div>
+    <div class="church"><span class="nm">Apostolic Life Church</span><span class="ct">Tauranga</span></div>
+    <div class="church"><span class="nm">Storehouse Chapel</span><span class="ct">Hamilton</span></div></div>
+  <div class="region"><div class="rh"><h3>Southern Region</h3><span>4 churches</span></div>
+    <div class="church"><span class="nm">Church Triumphant Wellington</span><span class="ct">Wellington</span></div>
+    <div class="church"><span class="nm">Apostolics of Christchurch</span><span class="ct">Christchurch</span></div>
+    <div class="church"><span class="nm">The Pentecostals of Rangiora</span><span class="ct">Rangiora</span></div>
+    <div class="church"><span class="nm">Lighthouse of Jesus Christ</span><span class="ct">Rolleston</span></div></div>
+</div></section>
+
+<div class="wrap"><div class="figs">
+  <div><div class="v">9</div><div class="l">Established churches</div></div>
+  <div><div class="v">1</div><div class="l">Preaching point</div></div>
+  <div><div class="v">3</div><div class="l">Regions</div></div>
+</div></div>
+
+<section class="on"><div class="wrap">
+  <h2>What's on</h2>
+  <div class="ev"><div class="d">22 AUG</div><div><div class="n">Men's Online Virtual Training</div><div class="p">Nationwide (online)</div></div></div>
+  <div class="ev"><div class="d">06 SEP</div><div><div class="n">Mission Sunday Promotion</div><div class="p">Nationwide</div></div></div>
+  <div class="ev"><div class="d">19 SEP</div><div><div class="n">General Director Visitation</div><div class="p">Wellington</div></div></div>
+  <div class="ev"><div class="d">26 SEP</div><div><div class="n">JBQ Mini-tourney</div><div class="p">South Island</div></div></div>
+</div></section>
+
+<div class="wrap"><div class="slot">
+  <b>Conference photography goes here</b>
+  Reserved full-bleed band. No stock photography substituted — this fills with your own images.
+</div></div>
+
+<footer><div class="wrap">© 2026 UPCI New Zealand · <span class="mono">Direction 1 · Dark Editorial</span></div></footer>
+</body></html>

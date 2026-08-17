@@ -374,7 +374,7 @@ Baseline is **38 passing** in those five files. The full suite is *not* a gate �
 | T29 ✅ | Per-block async loader in `CmsPage.vue` — loading / error / empty states | §9 + §10 |
 | T30 ✅ | Six data-bound blocks, each with an **authored empty-state message field** | §9 + §13.5. Depends on T20, T22, T25 |
 | T31 ✅ | `card` block `bio` + clickable cards — **decide `bio` vs `link_url` precedence** | §12.11 — nested interactive elements otherwise |
-| T32 | Re-author the `home` page to Direction B's block sequence | |
+| T32 ✅ | Re-author the `home` page to Direction B's block sequence | |
 
 ### Block D — Frontend
 

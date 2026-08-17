@@ -1,0 +1,104 @@
+<!doctype html><html lang="en-NZ"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UPCI NZ — Vessel</title>
+<link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1d19;--green:#3a6838;--green-lo:#20411e;--paper:#f7f6f2;--line:#e3e2dc;--soft:#7d827a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Figtree,system-ui,sans-serif;background:var(--paper);color:var(--ink);
+     font-size:17px;line-height:1.75;font-weight:400;-webkit-font-smoothing:antialiased;text-wrap:pretty}
+.wrap{max-width:1000px;margin:0 auto;padding:0 40px}
+a{color:var(--ink)}
+header{padding:30px 0}
+.mast{display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:600;letter-spacing:.01em}
+nav ul{display:flex;gap:28px;list-style:none;font-size:14px}
+nav a{text-decoration:none;color:var(--soft)}
+nav a:hover{color:var(--ink)}
+/* the vessel: a wide quiet field, the country as a single vertical measure */
+.vessel{padding:96px 0 84px;position:relative}
+.vessel h1{font-size:clamp(30px,4vw,46px);font-weight:300;line-height:1.25;letter-spacing:-.015em;max-width:20ch}
+.vessel h1 b{font-weight:600;color:var(--green)}
+.vessel .sub{margin-top:26px;color:var(--soft);max-width:44ch}
+/* the measure — ten marks down the length of the country */
+.measure{margin-top:64px;display:grid;grid-template-columns:120px 1fr;gap:0}
+.rg{display:contents}
+.rg .lab{padding:22px 0 22px 0;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);
+         border-top:1px solid var(--line)}
+.rg .list{border-top:1px solid var(--line);padding:22px 0}
+.rg .list div{padding:7px 0;display:flex;justify-content:space-between;gap:20px;font-size:16px}
+.rg .list span{color:var(--soft);font-size:14px}
+.rg:hover .lab{color:var(--green)}
+/* single invitation, held in white space */
+.invite{padding:88px 0;text-align:center;border-top:1px solid var(--line)}
+.invite .k{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+.invite h2{font-weight:300;font-size:clamp(24px,3vw,34px);margin:14px 0 6px;letter-spacing:-.01em}
+.invite .w{color:var(--soft);font-size:15px}
+.invite a{display:inline-block;margin-top:24px;border:1px solid var(--green);color:var(--green);
+  padding:13px 34px;text-decoration:none;font-size:15px;font-weight:500;border-radius:1px}
+.invite a:hover{background:var(--green);color:#fff}
+/* three quiet counts */
+.counts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.counts div{padding:44px 0;text-align:center;border-right:1px solid var(--line)}
+.counts div:last-child{border-right:0}
+.counts .v{font-size:40px;font-weight:300;color:var(--green);font-variant-numeric:tabular-nums}
+.counts .l{font-size:13px;color:var(--soft);letter-spacing:.06em;margin-top:4px}
+/* departments as a plain line-list, no cards */
+.dept{padding:76px 0;border-top:1px solid var(--line)}
+.dept h3{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:20px}
+.dept ul{list-style:none;columns:2;column-gap:60px}
+.dept li{padding:11px 0;border-bottom:1px solid var(--line);break-inside:avoid}
+.slot{margin:0 0 76px;padding:60px 40px;text-align:center;border:1px solid var(--line);background:#fbfaf7;color:var(--soft)}
+.slot b{display:block;color:var(--ink);font-weight:500;margin-bottom:6px}
+footer{border-top:1px solid var(--line);padding:34px 0;color:var(--soft);font-size:14px}
+</style></head><body>
+<header><div class="wrap mast">
+  <div class="brand">UPCI New Zealand</div>
+  <nav><ul><li><a href="#">About</a></li><li><a href="#">Churches</a></li><li><a href="#">Departments</a></li><li><a href="#">Calendar</a></li><li><a href="#">Contact</a></li></ul></nav>
+</div></header>
+
+<section class="vessel"><div class="wrap">
+  <h1>There is a congregation near you, <b>somewhere down this list</b>.</h1>
+  <p class="sub">Ten churches, three regions, one country. Nothing here is stock — the page is built to be filled by the congregations themselves.</p>
+
+  <div class="measure">
+    <div class="rg"><div class="lab">Northern</div><div class="list">
+      <div>Southside Pentecostal Fellowship <span>Auckland</span></div>
+      <div>New Zealand Family in Christ Church <span>Auckland</span></div>
+      <div>Grace Fellowship <span>Hamilton</span></div>
+      <div>Daystar Fellowship <span>Whangarei</span></div></div></div>
+    <div class="rg"><div class="lab">Central</div><div class="list">
+      <div>Apostolic Life Church <span>Tauranga</span></div>
+      <div>Storehouse Chapel <span>Hamilton</span></div></div></div>
+    <div class="rg"><div class="lab">Southern</div><div class="list">
+      <div>Church Triumphant Wellington <span>Wellington</span></div>
+      <div>Apostolics of Christchurch <span>Christchurch</span></div>
+      <div>The Pentecostals of Rangiora <span>Rangiora</span></div>
+      <div>Lighthouse of Jesus Christ <span>Rolleston</span></div></div></div>
+  </div>
+</div></section>
+
+<section class="invite"><div class="wrap">
+  <div class="k">Next nationally</div>
+  <h2>Men's Online Virtual Training</h2>
+  <div class="w">22 August · online, nationwide</div>
+  <a href="#">Register</a>
+</div></section>
+
+<div class="wrap"><div class="counts">
+  <div><div class="v">9</div><div class="l">ESTABLISHED CHURCHES</div></div>
+  <div><div class="v">1</div><div class="l">PREACHING POINT</div></div>
+  <div><div class="v">3</div><div class="l">REGIONS</div></div>
+</div></div>
+
+<section class="dept"><div class="wrap">
+  <h3>National departments</h3>
+  <ul><li>National Men's Department</li><li>Ladies Ministries</li><li>Home Missions Department</li>
+      <li>Youth Ministry</li><li>Children's Ministry</li><li>Prayer Ministry</li></ul>
+</div></section>
+
+<div class="wrap"><div class="slot"><b>Where a photograph would go</b>
+  Deliberately empty until the congregations supply their own. The layout does not depend on it.</div></div>
+
+<footer><div class="wrap">© 2026 UPCI New Zealand · Direction 3 · Vessel (Kenya Hara / emptiness as a container)</div></footer>
+</body></html>
