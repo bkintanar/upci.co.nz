@@ -25,7 +25,7 @@ class ChurchController extends Controller
         // Filter by organizational region (North/Central/South) — accepts the region name
         // for wire compatibility with the Vue frontend; internally resolves to region_id.
         if ($request->filled('organizational_region')) {
-            $query->whereHas('organizationalRegion', fn ($r) => $r->where('name', $request->organizational_region));
+            $query->whereHas('organizationalRegion', fn ($r) => $r->where('slug', $request->organizational_region));
         }
 
         // Filter by church status
@@ -100,7 +100,7 @@ class ChurchController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'region' => 'nullable|string|max:255',
-            'organizational_region' => 'nullable|string|exists:regions,name',
+            'organizational_region' => 'nullable|string|exists:regions,slug',
             'church_status' => 'nullable|string|in:Established Church,Daughter Works,Preaching Point',
             'potential_home_group' => 'nullable|boolean',
             'zip' => 'nullable|string|max:255',
@@ -122,7 +122,7 @@ class ChurchController extends Controller
         ]);
 
         if (isset($validated['organizational_region'])) {
-            $validated['region_id'] = Region::where('name', $validated['organizational_region'])->value('id');
+            $validated['region_id'] = Region::where('slug', $validated['organizational_region'])->value('id');
             unset($validated['organizational_region']);
         }
 
@@ -146,7 +146,7 @@ class ChurchController extends Controller
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'region' => 'nullable|string|max:255',
-            'organizational_region' => 'nullable|string|exists:regions,name',
+            'organizational_region' => 'nullable|string|exists:regions,slug',
             'church_status' => 'nullable|string|in:Established Church,Daughter Works,Preaching Point',
             'potential_home_group' => 'nullable|boolean',
             'zip' => 'nullable|string|max:255',
@@ -169,7 +169,7 @@ class ChurchController extends Controller
 
         if (array_key_exists('organizational_region', $validated)) {
             $validated['region_id'] = $validated['organizational_region']
-                ? Region::where('name', $validated['organizational_region'])->value('id')
+                ? Region::where('slug', $validated['organizational_region'])->value('id')
                 : null;
             unset($validated['organizational_region']);
         }
@@ -220,7 +220,8 @@ class ChurchController extends Controller
      */
     public function organizationalRegions(): JsonResponse
     {
-        $regions = Region::orderBy('sort_order')->pluck('name');
+        // slug is the wire format the filter accepts; name is for display
+        $regions = Region::orderBy('sort_order')->get(['slug', 'name']);
 
         return response()->json([
             'success' => true,
@@ -281,7 +282,8 @@ class ChurchController extends Controller
             'city' => $church->city,
             'state' => $church->state,
             'region' => $church->region,
-            'organizational_region' => $church->organizationalRegion?->name,
+            'organizational_region' => $church->organizationalRegion?->slug,
+            'organizational_region_name' => $church->organizationalRegion?->name,
             'church_status' => $church->church_status,
             'potential_home_group' => $church->potential_home_group,
             'zip' => $church->zip,

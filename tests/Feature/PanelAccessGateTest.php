@@ -1,15 +1,15 @@
 <?php
 
-use App\Enums\AccessLevel;
-use App\Enums\UserRole;
+use App\Models\User;
 use App\Models\Church;
 use App\Models\Region;
-use App\Models\User;
+use App\Enums\UserRole;
+use App\Enums\AccessLevel;
 use Filament\Facades\Filament;
 
 beforeEach(function () {
     $this->panel = Filament::getPanel('admin');
-    $this->region = Region::firstOrCreate(['slug' => 'north'], ['name' => 'North Region', 'sort_order' => 1]);
+    $this->region = Region::firstOrCreate(['slug' => 'northern'], ['name' => 'Northern Region', 'sort_order' => 1]);
     $this->church = Church::create(['name' => 'Test Church', 'region_id' => $this->region->id, 'is_active' => true]);
 });
 

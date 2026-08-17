@@ -21,8 +21,8 @@ use App\Filament\Resources\Attendances\AttendanceResource;
  * review, because several never reach a policy at all.
  */
 beforeEach(function () {
-    $this->region = Region::firstOrCreate(['slug' => 'north'], ['name' => 'North Region', 'sort_order' => 1]);
-    $this->otherRegion = Region::firstOrCreate(['slug' => 'south'], ['name' => 'South Region', 'sort_order' => 3]);
+    $this->region = Region::firstOrCreate(['slug' => 'northern'], ['name' => 'Northern Region', 'sort_order' => 1]);
+    $this->otherRegion = Region::firstOrCreate(['slug' => 'southern'], ['name' => 'Southern Region', 'sort_order' => 3]);
     // index() chains ->withCoordinates(), so a church without lat/lng is
     // invisible to the endpoint and any assertion over it would vacuously pass
     $this->church = Church::create([

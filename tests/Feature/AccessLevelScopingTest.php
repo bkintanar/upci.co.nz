@@ -1,19 +1,19 @@
 <?php
 
-use App\Enums\AccessLevel;
-use App\Enums\UserRole;
-use App\Filament\Resources\Attendances\AttendanceResource;
-use App\Filament\Resources\Churches\ChurchResource;
-use App\Filament\Resources\Users\UserResource;
+use App\Models\User;
 use App\Models\Church;
 use App\Models\Region;
-use App\Models\User;
+use App\Enums\UserRole;
+use App\Enums\AccessLevel;
+use App\Filament\Resources\Users\UserResource;
+use App\Filament\Resources\Churches\ChurchResource;
+use App\Filament\Resources\Attendances\AttendanceResource;
 
 beforeEach(function () {
     // regions table is populated by migration; re-seed in :memory: DB
-    $this->northId   = Region::firstOrCreate(['slug' => 'north'],   ['name' => 'North Region',   'sort_order' => 1])->id;
+    $this->northId = Region::firstOrCreate(['slug' => 'northern'], ['name' => 'Northern Region',   'sort_order' => 1])->id;
     $this->centralId = Region::firstOrCreate(['slug' => 'central'], ['name' => 'Central Region', 'sort_order' => 2])->id;
-    $this->southId   = Region::firstOrCreate(['slug' => 'south'],   ['name' => 'South Region',   'sort_order' => 3])->id;
+    $this->southId = Region::firstOrCreate(['slug' => 'southern'], ['name' => 'Southern Region',   'sort_order' => 3])->id;
 
     $this->northChurchA = Church::create(['name' => 'North A', 'region_id' => $this->northId, 'is_active' => true]);
     $this->northChurchB = Church::create(['name' => 'North B', 'region_id' => $this->northId, 'is_active' => true]);

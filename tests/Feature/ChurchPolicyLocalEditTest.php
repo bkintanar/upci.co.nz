@@ -7,8 +7,8 @@ use App\Enums\UserRole;
 use App\Enums\AccessLevel;
 
 beforeEach(function () {
-    $this->regionNorth = Region::firstOrCreate(['slug' => 'north'], ['name' => 'North Region', 'sort_order' => 1]);
-    $this->regionSouth = Region::firstOrCreate(['slug' => 'south'], ['name' => 'South Region', 'sort_order' => 3]);
+    $this->regionNorth = Region::firstOrCreate(['slug' => 'northern'], ['name' => 'Northern Region', 'sort_order' => 1]);
+    $this->regionSouth = Region::firstOrCreate(['slug' => 'southern'], ['name' => 'Southern Region', 'sort_order' => 3]);
     $this->myChurch = Church::create(['name' => 'Mine', 'region_id' => $this->regionNorth->id, 'is_active' => true]);
     $this->otherChurch = Church::create(['name' => 'Other', 'region_id' => $this->regionSouth->id, 'is_active' => true]);
 });
