@@ -64,6 +64,16 @@ const routes = [
         component: () => import('../views/CmsPage.vue')
     },
     {
+        path: '/youth-and-childrens/sbq',
+        name: 'SBQ',
+        component: () => import('../views/CmsPage.vue')
+    },
+    {
+        path: '/youth-and-childrens/jbq',
+        name: 'JBQ',
+        component: () => import('../views/CmsPage.vue')
+    },
+    {
         path: '/gallery',
         name: 'Gallery',
         component: () => import('../views/Gallery.vue')
