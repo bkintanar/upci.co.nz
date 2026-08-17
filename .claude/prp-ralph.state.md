@@ -1,5 +1,5 @@
 ---
-iteration: 32
+iteration: 33
 max_iterations: 40
 plan_path: ".claude/PRPs/plans/upci-nz-site-overhaul.plan.md"
 input_type: "plan"
@@ -1059,3 +1059,38 @@ Zero 500s after.
 - `.env.example` is tracked; a bad default there outlives any local fix.
 
 #### Sweep now clean across all 32 routes.
+
+### Iteration 32 — 2026-08-17
+
+#### The plan's status was understating reality by fifteen tasks
+T0–T12, T37, T58 and T62 were completed early in the session, before status markers were in
+use, and were never marked. **Each verified against the code, not memory** — the database is
+absent from git history, upload disks are set, `site_settings` exists, regions are renamed,
+`events.scope` exists, the sanitiser is in place.
+
+#### True position
+**59 done · 2 partial · 2 declined with reasons · 9 remaining.**
+
+#### Four decisions recorded rather than left looking unfinished
+- **T43 ✅** was never blocked — all four `forms.gle` URLs already matched the live site.
+- **T60 ⛔** declined. "Detail links *if relevant*" is not relevant for two ~600-character
+  announcements rendered in full. Nobody is truncated, so nobody needs a read-more. Revisit if
+  announcements grow long enough to excerpt.
+- **T68 ✅** resolved by the footer rebuild. The three `href="#"` legal links are gone and the
+  copyright derives from the clock. Settings columns pointing at pages that do not exist would
+  be premature.
+- **T5 ◐ / T65 ◐** partial by choice — the missing halves are client content that should not be
+  invented (a stale address whose blanking degrades the listing twice over; a message *from* a
+  region).
+
+#### Of the 9 remaining, 8 are gated
+- **Homepage direction** → T45, T50, T51, T54
+- **Department hues** → T49, T69
+- **Client data** → T55 (assigning 49 events to regions)
+- **Plan hygiene only** → T64, T71
+
+#### This is a genuine boundary
+The feature, security and correctness work is substantially complete: all 11 original
+requirements addressed, gate at 106 passing, a clean sweep across all 32 routes, and the
+live-site defects found along the way fixed. What remains needs three decisions that are the
+client's to make. Continuing to generate commits without them would be churn.
