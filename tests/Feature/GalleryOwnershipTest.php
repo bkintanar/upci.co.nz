@@ -132,3 +132,88 @@ test('a local user manages no gallery at all', function () {
     expect($user->can('viewAny', GalleryItem::class))->toBeFalse()
         ->and($user->can('update', $this->regionItem))->toBeFalse();
 });
+
+/*
+|--------------------------------------------------------------------------
+| Admin pages and owner assignment
+|--------------------------------------------------------------------------
+| MorphToSelect::nullable() does not exist in Filament v4, so the create,
+| view and edit pages all threw. Removing it made the owner picker reachable,
+| which would have let a regional user move an item out of their region (or
+| create one owned by any department), so the owner is national-only on the
+| standalone resource and create is national-only there too.
+*/
+
+function galleryAdmin(string $level, array $extra = []): App\Models\User
+{
+    return App\Models\User::create(array_merge([
+        'name' => 'G', 'email' => $level.'-gallery@x', 'password' => 'x',
+        'role' => App\Enums\UserRole::ADMINISTRATOR,
+        'access_level' => App\Enums\AccessLevel::from($level),
+    ], $extra));
+}
+
+test('a national user can open the gallery create page', function () {
+    $this->actingAs(galleryAdmin('national'))->get('/admin/gallery-items/create')->assertOk();
+});
+
+test('a national user can open the gallery view page', function () {
+    $this->actingAs(galleryAdmin('national'))->get("/admin/gallery-items/{$this->regionItem->id}")->assertOk();
+});
+
+test('a national user can open the gallery edit page', function () {
+    $this->actingAs(galleryAdmin('national'))->get("/admin/gallery-items/{$this->regionItem->id}/edit")->assertOk();
+});
+
+test('a regional user cannot open the standalone gallery create page', function () {
+    $regional = galleryAdmin('regional', ['region_id' => $this->north->id]);
+
+    // The policy still allows regional create, for the region relation manager
+    // where the owner is fixed; the standalone page must refuse regardless.
+    expect($regional->can('create', GalleryItem::class))->toBeTrue();
+
+    $this->actingAs($regional)->get('/admin/gallery-items/create')->assertForbidden();
+});
+
+test('a regional user can still open their own region item for editing', function () {
+    $regional = galleryAdmin('regional', ['region_id' => $this->north->id]);
+
+    $this->actingAs($regional)->get("/admin/gallery-items/{$this->regionItem->id}/edit")->assertOk();
+});
+
+test('a regional user editing their region item cannot change its owner', function () {
+    $regional = galleryAdmin('regional', ['region_id' => $this->north->id]);
+    $this->actingAs($regional);
+    Filament\Facades\Filament::setCurrentPanel('admin');
+    // image_path is required, and FileUpload only hydrates a file that exists
+    Illuminate\Support\Facades\Storage::fake('public')->put('gallery/b.jpg', 'x');
+
+    Livewire\Livewire::test(App\Filament\Resources\GalleryItems\Pages\EditGalleryItem::class, ['record' => $this->regionItem->id])
+        ->set('data.galleryable_type', 'department')
+        ->set('data.galleryable_id', $this->youth->id)
+        ->set('data.title', 'Renamed rally')
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $item = $this->regionItem->fresh();
+    // The rest of the form still saves; only the owner is locked.
+    expect($item->title)->toBe('Renamed rally')
+        ->and($item->galleryable_type)->toBe('region')
+        ->and($item->galleryable_id)->toBe($this->north->id);
+});
+
+test('a national user can change a gallery item owner', function () {
+    $this->actingAs(galleryAdmin('national'));
+    Filament\Facades\Filament::setCurrentPanel('admin');
+    Illuminate\Support\Facades\Storage::fake('public')->put('gallery/b.jpg', 'x');
+
+    Livewire\Livewire::test(App\Filament\Resources\GalleryItems\Pages\EditGalleryItem::class, ['record' => $this->regionItem->id])
+        ->set('data.galleryable_type', 'department')
+        ->set('data.galleryable_id', $this->youth->id)
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $item = $this->regionItem->fresh();
+    expect($item->galleryable_type)->toBe('department')
+        ->and($item->galleryable_id)->toBe($this->youth->id);
+});

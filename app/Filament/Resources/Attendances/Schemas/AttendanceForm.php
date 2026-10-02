@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Attendances\Schemas;
 
+use App\Models\Church;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -32,7 +34,26 @@ class AttendanceForm
                                     })
                                     ->badge()
                                     ->color('primary')
-                                    ->size('lg'),
+                                    ->size('lg')
+                                    // A local user's church is fixed; everyone
+                                    // else picks one below.
+                                    ->visible(fn () => (bool) Auth::user()?->isLocal()),
+
+                                // Regional and national users have no church of
+                                // their own (or one unrelated to the service), so
+                                // the record's church is chosen explicitly.
+                                // Options are limited to churches they can
+                                // access, and Select rejects anything else.
+                                Select::make('church_id')
+                                    ->label('Church')
+                                    ->options(fn () => Church::query()
+                                        ->orderBy('name')
+                                        ->get()
+                                        ->filter(fn (Church $church) => Auth::user()->canAccessChurch($church))
+                                        ->pluck('name', 'id'))
+                                    ->searchable()
+                                    ->required()
+                                    ->visible(fn () => ! Auth::user()?->isLocal()),
                             ]),
 
                         Grid::make(2)

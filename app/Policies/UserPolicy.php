@@ -13,11 +13,11 @@ class UserPolicy
 
     public function view(User $actor, User $target): bool
     {
-        if ($actor->id === $target->id) {
+        if ($actor->id === $target->id || $actor->isNational()) {
             return true;
         }
 
-        return $actor->canAccessChurch($target->church);
+        return $this->outranks($actor, $target) && $actor->canAccessChurch($target->church);
     }
 
     public function create(User $user): bool
@@ -27,16 +27,18 @@ class UserPolicy
 
     public function update(User $actor, User $target): bool
     {
-        if ($actor->id === $target->id) {
+        if ($actor->id === $target->id || $actor->isNational()) {
             return true;
         }
 
-        if ($actor->isNational()) {
-            return true;
-        }
-
+        // A regional user may only act on someone of strictly lower rank.
+        // Matching on the target's church alone let a presbyter set the
+        // password of a national administrator who happened to attend a
+        // church in their region.
         if ($actor->isRegional()) {
-            return $target->church?->region_id === $actor->region_id;
+            return $actor->region_id !== null
+                && $this->outranks($actor, $target)
+                && $target->church?->region_id === $actor->region_id;
         }
 
         return false;
@@ -50,5 +52,15 @@ class UserPolicy
     public function deleteAny(User $user): bool
     {
         return $user->isNational();
+    }
+
+    /**
+     * Whether a non-national actor ranks above the target. Regional outranks
+     * local and no-access users; nobody but national outranks a regional or
+     * national user. National actors are handled before this is reached.
+     */
+    private function outranks(User $actor, User $target): bool
+    {
+        return ! $target->isNational() && ! $target->isRegional();
     }
 }

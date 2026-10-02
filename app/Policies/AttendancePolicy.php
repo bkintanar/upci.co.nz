@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\Attendance;
 use App\Models\User;
+use App\Models\Attendance;
 
 class AttendancePolicy
 {
@@ -29,11 +29,13 @@ class AttendancePolicy
         }
 
         if ($user->isRegional()) {
-            return $attendance->church?->region_id === $user->region_id;
+            // null === null would otherwise match an unscoped actor to an
+            // orphaned row (no church) or a church with no region
+            return $user->region_id !== null && $attendance->church?->region_id === $user->region_id;
         }
 
         if ($user->isLocal()) {
-            return $attendance->church_id === $user->church_id;
+            return $user->church_id !== null && $attendance->church_id === $user->church_id;
         }
 
         return false;

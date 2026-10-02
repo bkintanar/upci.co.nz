@@ -5,6 +5,7 @@ use App\Models\Church;
 use App\Models\Region;
 use App\Enums\UserRole;
 use App\Enums\AccessLevel;
+use App\Models\Attendance;
 use App\Filament\Resources\Users\UserResource;
 use App\Filament\Resources\Churches\ChurchResource;
 use App\Filament\Resources\Attendances\AttendanceResource;
@@ -132,4 +133,104 @@ test('regional user can update churches in their region', function () {
     ]);
     expect($user->can('update', $this->northChurchA))->toBeTrue();
     expect($user->can('update', $this->centralChurch))->toBeFalse();
+});
+
+/*
+|--------------------------------------------------------------------------
+| An unscoped actor must not match unscoped records
+|--------------------------------------------------------------------------
+| The access checks compared the actor's region_id / church_id with the
+| record's using ===, so a regional user with no region matched every church
+| with no region, and a local user with no church matched every orphaned
+| attendance row (null === null).
+*/
+
+test('a regional user with no region cannot reach a church with no region', function () {
+    $unregioned = Church::create(['name' => 'Nowhere', 'region_id' => null, 'is_active' => true]);
+    $user = User::create([
+        'name' => 'R', 'email' => 'rnull@x', 'password' => 'x',
+        'role' => UserRole::REGIONAL_PRESBYTER,
+        'access_level' => AccessLevel::REGIONAL,
+        'region_id' => null,
+    ]);
+
+    expect($user->canAccessChurch($unregioned))->toBeFalse()
+        ->and($user->can('view', $unregioned))->toBeFalse()
+        ->and($user->can('update', $unregioned))->toBeFalse();
+});
+
+test('a regional user with no region cannot update a churchless user', function () {
+    $user = User::create([
+        'name' => 'R', 'email' => 'rnull@x', 'password' => 'x',
+        'role' => UserRole::REGIONAL_PRESBYTER,
+        'access_level' => AccessLevel::REGIONAL,
+        'region_id' => null,
+    ]);
+    $churchless = User::create([
+        'name' => 'M', 'email' => 'm@x', 'password' => 'x',
+        'role' => UserRole::PASTOR,
+        'access_level' => AccessLevel::LOCAL,
+        'church_id' => null,
+    ]);
+
+    expect($user->can('update', $churchless))->toBeFalse()
+        ->and($user->can('view', $churchless))->toBeFalse();
+});
+
+test('a regional user with no region cannot touch attendance at a church with no region', function () {
+    $unregioned = Church::create(['name' => 'Nowhere', 'region_id' => null, 'is_active' => true]);
+    $user = User::create([
+        'name' => 'R', 'email' => 'rnull@x', 'password' => 'x',
+        'role' => UserRole::REGIONAL_PRESBYTER,
+        'access_level' => AccessLevel::REGIONAL,
+        'region_id' => null,
+    ]);
+    $row = Attendance::create([
+        'church_id' => $unregioned->id, 'user_id' => $user->id, 'date' => now()->toDateString(),
+        'mens' => 1, 'ladies' => 0, 'youth' => 0, 'children' => 0, 'visitors' => 0,
+    ]);
+
+    expect($user->can('view', $row))->toBeFalse()
+        ->and($user->can('update', $row))->toBeFalse();
+});
+
+test('a local user with no church cannot view or update an orphaned attendance row', function () {
+    $user = User::create([
+        'name' => 'L', 'email' => 'lnull@x', 'password' => 'x',
+        'role' => UserRole::PASTOR,
+        'access_level' => AccessLevel::LOCAL,
+        'church_id' => null,
+    ]);
+    $orphan = Attendance::create([
+        'church_id' => null, 'user_id' => $user->id, 'date' => now()->toDateString(),
+        'mens' => 1, 'ladies' => 0, 'youth' => 0, 'children' => 0, 'visitors' => 0,
+    ]);
+
+    expect($user->can('view', $orphan))->toBeFalse()
+        ->and($user->can('update', $orphan))->toBeFalse()
+        ->and($user->can('delete', $orphan))->toBeFalse();
+});
+
+test('scoped users still reach records in their own scope', function () {
+    $regional = User::create([
+        'name' => 'R', 'email' => 'rok@x', 'password' => 'x',
+        'role' => UserRole::REGIONAL_PRESBYTER,
+        'access_level' => AccessLevel::REGIONAL,
+        'region_id' => $this->northId,
+    ]);
+    $local = User::create([
+        'name' => 'L', 'email' => 'lok@x', 'password' => 'x',
+        'role' => UserRole::PASTOR,
+        'access_level' => AccessLevel::LOCAL,
+        'church_id' => $this->northChurchA->id,
+    ]);
+    $row = Attendance::create([
+        'church_id' => $this->northChurchA->id, 'user_id' => $local->id, 'date' => now()->toDateString(),
+        'mens' => 1, 'ladies' => 0, 'youth' => 0, 'children' => 0, 'visitors' => 0,
+    ]);
+
+    expect($regional->can('update', $row))->toBeTrue()
+        ->and($local->can('update', $row))->toBeTrue()
+        ->and($local->can('view', $row))->toBeTrue()
+        ->and($regional->can('update', $this->northChurchB))->toBeTrue();
 });

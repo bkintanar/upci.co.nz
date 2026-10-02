@@ -34,7 +34,10 @@ class GalleryItemPolicy
     public function create(User $user): bool
     {
         // The owner is decided by the record being edited, so a regional user
-        // reaching create has already passed the region's own gate.
+        // reaching create has already passed the region's own gate. That only
+        // holds inside RegionResource's relation manager: the standalone
+        // GalleryItemResource lets the form pick the owner, so it enforces
+        // national-only create itself through canCreate().
         return $user->isNational() || $user->isRegional();
     }
 

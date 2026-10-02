@@ -2,25 +2,44 @@
 
 namespace App\Filament\Resources\Churches\Schemas;
 
+use App\Models\User;
+use App\Models\Church;
+use App\Enums\UserRole;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Section;
+use Illuminate\Support\Facades\Gate;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\ViewField;
-use Filament\Schemas\Components\Utilities\Get;
+use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Utilities\Set;
 use Upci\FilamentAddressFinder\Forms\Components\AddressFinder;
-use App\Models\User;
-use App\Enums\UserRole;
 
 class ChurchForm
 {
+    /**
+     * Roles offered by the "Assign Leadership" select. Mirrors Church::leadership().
+     *
+     * @return array<int, UserRole>
+     */
+    public static function leadershipRoles(): array
+    {
+        return [
+            UserRole::PASTOR,
+            UserRole::SENIOR_PASTOR,
+            UserRole::ASSISTANT_PASTOR,
+            UserRole::ELDER,
+            UserRole::DEACON,
+            UserRole::USHER,
+            UserRole::ADMINISTRATOR,
+        ];
+    }
+
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -66,22 +85,19 @@ class ChurchForm
                             ->multiple()
                             ->searchable()
                             ->preload()
-                            ->options(function () {
-                                return User::whereIn('role', [
-                                    UserRole::PASTOR,
-                                    UserRole::SENIOR_PASTOR,
-                                    UserRole::ASSISTANT_PASTOR,
-                                    UserRole::ELDER,
-                                    UserRole::DEACON,
-                                    UserRole::USHER,
-                                    UserRole::ADMINISTRATOR
-                                ])->get()->mapWithKeys(function ($user) {
+                            // Only list leaders the actor may move (UserPolicy::update), plus the
+                            // church's current leaders so the existing selection still displays.
+                            ->options(fn (?Church $record) => User::query()
+                                ->with('church')
+                                ->whereIn('role', static::leadershipRoles())
+                                ->get()
+                                ->filter(fn (User $user) => ($record && $user->church_id === $record->id) || Gate::allows('update', $user))
+                                ->mapWithKeys(function (User $user) {
                                     $roleEnum = $user->role;
                                     $roleName = $roleEnum ? $roleEnum->getLabel() : 'Member';
 
-                                    return [$user->id => $user->name . ' (' . $roleName . ')'];
-                                });
-                            })
+                                    return [$user->id => $user->name.' ('.$roleName.')'];
+                                }))
                             ->default([])
                             ->placeholder('Search and select leadership members...')
                             ->helperText('Type to search for leadership members. Each option shows the name and role.')
@@ -92,33 +108,15 @@ class ChurchForm
                                     $component->state($record->leadership()->pluck('id')->toArray());
                                 }
                             })
-                            ->afterStateUpdated(function ($state, $record) {
-                                if ($record) {
-                                    // Get current leadership assigned to this church
-                                    $currentLeadership = $record->leadership()->pluck('id')->toArray();
-
-                                    // Users to add (in state but not currently assigned)
-                                    $toAdd = array_diff($state ?? [], $currentLeadership);
-
-                                    // Users to remove (currently assigned but not in state)
-                                    $toRemove = array_diff($currentLeadership, $state ?? []);
-
-                                    // Add new leadership
-                                    if (!empty($toAdd)) {
-                                        User::whereIn('id', $toAdd)->update(['church_id' => $record->id]);
-                                    }
-
-                                    // Remove leadership (set church_id to null)
-                                    if (!empty($toRemove)) {
-                                        User::whereIn('id', $toRemove)->update(['church_id' => null]);
-                                    }
-                                }
-                            }),
+                            // Never persisted from the form state: CreateChurch/EditChurch sync it on
+                            // save through the SyncsLeadership concern, which authorises every user it moves.
+                            ->dehydrated(false)
+                            ->disabled(fn () => (bool) auth()->user()?->isLocal()),
 
                         Placeholder::make('current_leadership')
                             ->label('Current Leadership Assigned')
                             ->content(function ($record) {
-                                if (!$record) {
+                                if (! $record) {
                                     return 'Save the church first to see assigned leadership.';
                                 }
 
@@ -129,7 +127,7 @@ class ChurchForm
                                 }
 
                                 return $leadership->map(function ($member) {
-                                    return $member->name . ' (' . $member->role->getLabel() . ')';
+                                    return $member->name.' ('.$member->role->getLabel().')';
                                 })->join(', ');
                             })
                             ->columnSpanFull(),
@@ -185,7 +183,10 @@ class ChurchForm
                                     ->relationship('organizationalRegion', 'name')
                                     ->preload()
                                     ->placeholder('Select region')
-                                    ->searchable(),
+                                    ->searchable()
+                                    // Moving a church between regions stays with national.
+                                    ->disabled(fn () => ! auth()->user()?->isNational())
+                                    ->dehydrated(fn () => (bool) auth()->user()?->isNational()),
 
                                 Select::make('church_status')
                                     ->label('Ministry Status')
@@ -291,15 +292,11 @@ class ChurchForm
                             ->columnSpanFull(),
 
                         // Hidden fields for coordinates (auto-populated by address search)
-                        TextInput::make('latitude')
-                            ->label('Latitude')
-                            ->numeric()
-                            ->hidden(),
+                        // Hidden (not ->hidden()): a hidden() field is neither rendered nor dehydrated in v4,
+                        // so the coordinates the address search writes would never be saved.
+                        Hidden::make('latitude'),
 
-                        TextInput::make('longitude')
-                            ->label('Longitude')
-                            ->numeric()
-                            ->hidden(),
+                        Hidden::make('longitude'),
                     ])
                     ->collapsible()
                     ->columnSpanFull(),

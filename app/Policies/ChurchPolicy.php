@@ -29,11 +29,12 @@ class ChurchPolicy
         }
 
         if ($user->isRegional()) {
-            return $church->region_id === $user->region_id;
+            // null === null would otherwise match unscoped actors to unscoped churches
+            return $user->region_id !== null && $church->region_id === $user->region_id;
         }
 
         if ($user->isLocal()) {
-            return $church->id === $user->church_id;
+            return $user->church_id !== null && $church->id === $user->church_id;
         }
 
         return false;

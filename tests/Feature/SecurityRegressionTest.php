@@ -431,3 +431,128 @@ test('the public church endpoint does not publish internal flags or timestamps',
     expect(array_keys($church))
         ->not->toContain('is_active', 'is_featured', 'potential_home_group', 'created_at', 'updated_at', 'leadership');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Regional to national account takeover
+|--------------------------------------------------------------------------
+| UserPolicy::update() let a regional user edit anyone whose church was in
+| their region, national administrators included, and the password and email
+| fields are not gated. A presbyter could therefore set a national admin's
+| password. A non-national actor may now only act on strictly lower rank.
+*/
+
+test('a regional user cannot update a national user attending a church in their region', function () {
+    $regional = regressionUser('regional', ['region_id' => $this->region->id]);
+    $national = regressionUser('national', ['church_id' => $this->church->id]);
+
+    expect($regional->can('update', $national))->toBeFalse()
+        ->and($regional->can('view', $national))->toBeFalse();
+});
+
+test('a regional user gets a 403 on a national user edit page', function () {
+    $regional = regressionUser('regional', ['region_id' => $this->region->id]);
+    $national = regressionUser('national', ['church_id' => $this->church->id]);
+
+    $this->actingAs($regional)->get("/admin/users/{$national->id}/edit")->assertForbidden();
+});
+
+test('a regional user cannot update a regional peer in their region', function () {
+    $regional = regressionUser('regional', ['region_id' => $this->region->id]);
+    $peer = regressionUser('regional', [
+        'email' => 'peer-regression@x',
+        'region_id' => $this->region->id,
+        'church_id' => $this->church->id,
+    ]);
+
+    expect($regional->can('update', $peer))->toBeFalse();
+});
+
+test('a regional user can still update a local user in their region', function () {
+    $regional = regressionUser('regional', ['region_id' => $this->region->id]);
+    $local = regressionUser('local', ['church_id' => $this->church->id]);
+
+    expect($regional->can('update', $local))->toBeTrue()
+        ->and($regional->can('view', $local))->toBeTrue();
+});
+
+test('a regional user cannot update a local user outside their region', function () {
+    $otherChurch = Church::create(['name' => 'Elsewhere', 'region_id' => $this->otherRegion->id, 'is_active' => true]);
+    $regional = regressionUser('regional', ['region_id' => $this->region->id]);
+    $local = regressionUser('local', ['church_id' => $otherChurch->id]);
+
+    expect($regional->can('update', $local))->toBeFalse();
+});
+
+test('a regional user with no church can open their own edit page', function () {
+    // The regional list scope matched on the user's church only, so a
+    // presbyter with no church got a 404 on their own profile.
+    $regional = regressionUser('regional', ['region_id' => $this->region->id, 'church_id' => null]);
+
+    $this->actingAs($regional)->get("/admin/users/{$regional->id}/edit")->assertOk();
+});
+
+/*
+|--------------------------------------------------------------------------
+| Attendance church comes from the form, checked, not from the creator
+|--------------------------------------------------------------------------
+| CreateAttendance copied the creator's church_id onto the row, so regional
+| and national users (who usually have none) saved orphaned rows, and there
+| was no check that the church was one the creator could access.
+*/
+
+function attendanceCreatePage(): Livewire\Features\SupportTesting\Testable
+{
+    Filament\Facades\Filament::setCurrentPanel('admin');
+
+    return Livewire\Livewire::test(App\Filament\Resources\Attendances\Pages\CreateAttendance::class)
+        ->set('data.date', now()->toDateString())
+        ->set('data.mens', 3);
+}
+
+test('a regional user records attendance for a church in their region', function () {
+    $this->actingAs(regressionUser('regional', ['region_id' => $this->region->id]));
+
+    attendanceCreatePage()
+        ->set('data.church_id', $this->church->id)
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Attendance::sole()->church_id)->toBe($this->church->id);
+});
+
+test('a regional user cannot record attendance for a church outside their region', function () {
+    $otherChurch = Church::create(['name' => 'Elsewhere', 'region_id' => $this->otherRegion->id, 'is_active' => true]);
+    $this->actingAs(regressionUser('regional', ['region_id' => $this->region->id]));
+
+    // The select only offers accessible churches and rejects anything else,
+    // so this fails validation before CreateAttendance's own 403 is reached.
+    attendanceCreatePage()
+        ->set('data.church_id', $otherChurch->id)
+        ->call('create')
+        ->assertHasFormErrors(['church_id']);
+
+    expect(Attendance::count())->toBe(0);
+});
+
+test('a local user always records attendance for their own church', function () {
+    $otherChurch = Church::create(['name' => 'Elsewhere', 'region_id' => $this->otherRegion->id, 'is_active' => true]);
+    $this->actingAs(regressionUser('local', ['church_id' => $this->church->id]));
+
+    attendanceCreatePage()
+        ->set('data.church_id', $otherChurch->id) // tampered: the field is not rendered for local users
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Attendance::sole()->church_id)->toBe($this->church->id);
+});
+
+test('a local user with no church cannot record attendance', function () {
+    $this->actingAs(regressionUser('local', ['church_id' => null]));
+
+    attendanceCreatePage()
+        ->call('create')
+        ->assertForbidden();
+
+    expect(Attendance::count())->toBe(0);
+});

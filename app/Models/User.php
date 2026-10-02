@@ -127,8 +127,10 @@ class User extends Authenticatable implements FilamentUser
 
         return match (true) {
             $this->isNational() => true,
-            $this->isRegional() => $church->region_id === $this->region_id,
-            $this->isLocal() => $church->id === $this->church_id,
+            // Guard the actor's own scope: without it a regional user with no
+            // region matched every church with no region (null === null).
+            $this->isRegional() => $this->region_id !== null && $church->region_id === $this->region_id,
+            $this->isLocal() => $this->church_id !== null && $church->id === $this->church_id,
             default => false,
         };
     }

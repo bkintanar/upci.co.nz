@@ -7,6 +7,15 @@ let searchTimeout = null;
 let leafletLoaded = false;
 let userHasInteracted = false;
 
+// Leaflet's bindPopup() takes an HTML string. The popup label comes from the
+// church's stored address, which a local admin can edit, so it is escaped
+// before it reaches the map: raw, it ran script in whichever (national) admin
+// next opened that church.
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (c) => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 // Load Leaflet dynamically
 function loadLeaflet() {
     return new Promise((resolve, reject) => {
@@ -109,7 +118,7 @@ function initializeMap() {
                             // Add new marker
                             mapInstance.marker = L.marker([address.latitude, address.longitude])
                                 .addTo(mapInstance)
-                                .bindPopup(address.label)
+                                .bindPopup(escapeHtml(address.label))
                                 .openPopup();
 
                             console.log('Map updated with existing address');
@@ -127,7 +136,7 @@ function initializeMap() {
                             // Add marker for existing address
                             mapInstance.marker = L.marker([address.latitude, address.longitude])
                                 .addTo(mapInstance)
-                                .bindPopup(address.label)
+                                .bindPopup(escapeHtml(address.label))
                                 .openPopup();
 
                             console.log('Map initialized with existing address');
@@ -411,12 +420,30 @@ function displayResults(results) {
     }
 
     if (results.length > 0) {
-        dropdown.innerHTML = results.map(result => `
-            <div class="address-finder-dropdown-item" onclick="selectAddress('${result.label}', ${result.latitude || -41.2924}, ${result.longitude || 174.7787})">
-                <div class="address-finder-dropdown-item-main">${result.label}</div>
-                <div class="address-finder-dropdown-item-sub">${result.city}, ${result.region}</div>
-            </div>
-        `).join('');
+        // Built with the DOM rather than an HTML string: the labels come from
+        // the geocoder, and interpolating them into an inline onclick broke on
+        // any apostrophe ("O'Connell Street") and let markup through.
+        dropdown.replaceChildren(...results.map(result => {
+            const item = document.createElement('div');
+            item.className = 'address-finder-dropdown-item';
+            item.addEventListener('click', () => selectAddress(
+                result.label,
+                result.latitude || -41.2924,
+                result.longitude || 174.7787
+            ));
+
+            const main = document.createElement('div');
+            main.className = 'address-finder-dropdown-item-main';
+            main.textContent = result.label ?? '';
+
+            const sub = document.createElement('div');
+            sub.className = 'address-finder-dropdown-item-sub';
+            sub.textContent = `${result.city}, ${result.region}`;
+
+            item.append(main, sub);
+
+            return item;
+        }));
         showDropdown();
     } else {
         hideDropdown();
@@ -524,8 +551,9 @@ function updateFormFields(address, lat, lng) {
             city: ['input[name*="city"]', 'input[name*="City"]', 'input[data-field-name*="city"]', 'input[id*="city"]'],
             region: ['input[name*="region"]', 'input[name*="Region"]', 'input[data-field-name*="region"]', 'input[id*="region"]'],
             zip: ['input[name*="zip"]', 'input[name*="Zip"]', 'input[name*="postcode"]', 'input[name*="Postcode"]', 'input[data-field-name*="zip"]', 'input[id*="zip"]'],
-            latitude: ['input[name*="latitude"]', 'input[name*="Latitude"]', 'input[data-field-name*="latitude"]', 'input[id*="latitude"]'],
-            longitude: ['input[name*="longitude"]', 'input[name*="Longitude"]', 'input[data-field-name*="longitude"]', 'input[id*="longitude"]'],
+            // Filament v4 renders Hidden fields with wire:model and id, not name, so match those first.
+            latitude: ['input[wire\\:model$=".latitude"]', 'input[id$=".latitude"]', 'input[name*="latitude"]', 'input[name*="Latitude"]', 'input[data-field-name*="latitude"]', 'input[id*="latitude"]'],
+            longitude: ['input[wire\\:model$=".longitude"]', 'input[id$=".longitude"]', 'input[name*="longitude"]', 'input[name*="Longitude"]', 'input[data-field-name*="longitude"]', 'input[id*="longitude"]'],
             country: ['input[name*="country"]', 'input[name*="Country"]', 'input[data-field-name*="country"]', 'input[id*="country"]']
         };
 
@@ -593,8 +621,7 @@ function updateFormFields(address, lat, lng) {
         // Update latitude field
         const latField = findField(form, fieldSelectors.latitude);
         if (latField) {
-            latField.value = lat;
-            latField.dispatchEvent(new Event('input', { bubbles: true }));
+            writeLivewireField(latField, lat);
             console.log('Updated latitude field:', lat);
         } else {
             console.log('Latitude field not found');
@@ -603,8 +630,7 @@ function updateFormFields(address, lat, lng) {
         // Update longitude field
         const lngField = findField(form, fieldSelectors.longitude);
         if (lngField) {
-            lngField.value = lng;
-            lngField.dispatchEvent(new Event('input', { bubbles: true }));
+            writeLivewireField(lngField, lng);
             console.log('Updated longitude field:', lng);
         } else {
             console.log('Longitude field not found');
@@ -621,6 +647,28 @@ function updateFormFields(address, lat, lng) {
         }
     } else {
         console.error('Form not found');
+    }
+}
+
+// Write a value into a wire:model bound input so Livewire's state actually changes.
+// Hidden inputs don't reliably propagate a synthetic input event, so set the state
+// path on the owning Livewire component directly, and still fire input/change as a fallback.
+function writeLivewireField(field, value) {
+    field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+
+    const statePath = field.getAttribute('wire:model')
+        || field.getAttribute('wire:model.live')
+        || field.getAttribute('wire:model.blur')
+        || field.getAttribute('wire:model.defer');
+    const root = field.closest('[wire\\:id]');
+
+    if (statePath && root && window.Livewire) {
+        const component = window.Livewire.find(root.getAttribute('wire:id'));
+        if (component) {
+            component.set(statePath, value, false);
+        }
     }
 }
 
@@ -780,7 +828,7 @@ function updateMapMarker(address) {
                 // Add new marker
                 L.marker([lat, lng])
                     .addTo(mapInstance)
-                    .bindPopup(address.label || 'Selected Address')
+                    .bindPopup(escapeHtml(address.label || 'Selected Address'))
                     .openPopup();
 
                 // Pan to the new location

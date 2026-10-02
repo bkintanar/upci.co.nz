@@ -45,9 +45,17 @@ class GalleryItemForm
                                 MorphToSelect\Type::make(Department::class)->titleAttribute('name'),
                                 MorphToSelect\Type::make(Region::class)->titleAttribute('name'),
                             ])
-                            ->nullable()
+                            // MorphToSelect is optional unless ->required(). The v4
+                            // component has no "optional" modifier method, and calling
+                            // the v3 one 500'd every page.
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            // The owner decides who may manage the item, so it is
+                            // national-only here. Regional users manage their own
+                            // region's gallery through RegionResource's relation
+                            // manager, where the owner is fixed by the parent record.
+                            ->disabled(fn () => ! auth()->user()?->isNational())
+                            ->dehydrated(fn () => (bool) auth()->user()?->isNational()),
 
                         Toggle::make('is_published')
                             ->default(true)

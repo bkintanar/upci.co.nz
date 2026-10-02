@@ -2,14 +2,14 @@
 
 namespace App\Filament\Resources\Users;
 
-use App\Filament\Concerns\ScopesToAccessLevel;
+use Closure;
 use BackedEnum;
 use App\Models\User;
-use Closure;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Concerns\ScopesToAccessLevel;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
@@ -28,17 +28,23 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    // Both scopes always include the actor themselves. UserPolicy lets anyone
+    // edit their own profile, but without this a user with no church (every
+    // regional presbyter, typically) got a 404 on their own edit page.
     protected static function localScope(): Closure
     {
-        return fn (Builder $q, int $churchId) => $q->where('church_id', $churchId);
+        return fn (Builder $q, int $churchId) => $q->where(fn (Builder $w) => $w
+            ->whereKey(auth()->id())
+            ->orWhere('church_id', $churchId));
     }
 
     protected static function regionalScope(): Closure
     {
-        return fn (Builder $q, int $regionId) => $q->whereHas(
-            'church',
-            fn (Builder $c) => $c->where('region_id', $regionId)
-        );
+        // Deliberately not orWhere('region_id', ...): that would list regional
+        // peers, whom UserPolicy::update refuses anyway.
+        return fn (Builder $q, int $regionId) => $q->where(fn (Builder $w) => $w
+            ->whereKey(auth()->id())
+            ->orWhereHas('church', fn (Builder $c) => $c->where('region_id', $regionId)));
     }
 
     public static function form(Schema $schema): Schema
