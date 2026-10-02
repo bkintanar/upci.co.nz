@@ -159,7 +159,7 @@ export default defineComponent({
             error.value = null
             department.value = null
             try {
-                const res = await fetch(`/api/departments/${slug}`)
+                const res = await fetch(`/api/departments/${slug}`, { headers: { Accept: 'application/json' } })
                 const body = await res.json()
                 if (body.success && body.data) {
                     department.value = body.data

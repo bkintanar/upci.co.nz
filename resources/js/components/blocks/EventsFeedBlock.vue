@@ -52,7 +52,14 @@ export default defineComponent({
             if (props.data.department) params.append('department', props.data.department)
             // Filtered server-side so a page asking for upcoming events does not
             // download the whole 2026 calendar to discard most of it.
-            if (props.data.upcoming_only !== false) params.append('from', new Date().toISOString().slice(0, 10))
+            //
+            // Today in the visitor's LOCAL calendar. the ISO string is UTC, so
+            // before midday in New Zealand it named yesterday and the feed
+            // still listed an event that finished the day before.
+            if (props.data.upcoming_only !== false) {
+                const d = new Date(), pad = (n) => String(n).padStart(2, '0')
+                params.append('from', `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`)
+            }
 
             return `/api/events?${params}`
         })

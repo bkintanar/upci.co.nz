@@ -88,3 +88,72 @@ it('returns an empty set rather than everything for a term that matches nothing'
 
     expect($data)->toBeEmpty();
 });
+
+/*
+ * Service-day filter. The locator's day filter is a multi-select, but the
+ * endpoint used to read `service_day` as a scalar, so PHP kept only the last
+ * value and a Sunday + Wednesday selection returned Wednesday churches only.
+ */
+function serviceDayChurches(): array
+{
+    $region = Region::firstOrCreate(['slug' => 'northern'], ['name' => 'Northern Region', 'sort_order' => 1]);
+
+    $make = fn (string $name, array $days) => Church::create([
+        'name' => $name,
+        'city' => 'Hamilton',
+        'region_id' => $region->id,
+        'latitude' => -37.78,
+        'longitude' => 175.28,
+        'is_active' => true,
+        'service_times' => [['service_type' => 'Service', 'time' => '10:00 AM', 'days' => $days]],
+    ]);
+
+    return [
+        'sunday' => $make('Sunday Only Church', ['sunday']),
+        'wednesday' => $make('Wednesday Only Church', ['wednesday']),
+        'friday' => $make('Friday Only Church', ['friday']),
+    ];
+}
+
+it('matches churches on ANY of several selected service days', function () {
+    serviceDayChurches();
+
+    $response = $this->getJson('/api/churches?service_day[]=sunday&service_day[]=wednesday')->assertOk();
+    $names = collect($response->json('data'))->pluck('name');
+
+    expect($names)->toContain('Sunday Only Church')
+        ->and($names)->toContain('Wednesday Only Church')
+        ->and($names)->not->toContain('Friday Only Church')
+        // Churches with no service times at all must not match a day filter.
+        ->and($names)->not->toContain('Auckland Test Church');
+
+    expect($response->json('filters.service_day'))->toBe(['sunday', 'wednesday']);
+});
+
+it('still accepts a single scalar service day from older shared links', function () {
+    serviceDayChurches();
+
+    $names = collect($this->getJson('/api/churches?service_day=sunday')->assertOk()->json('data'))->pluck('name');
+
+    expect($names)->toContain('Sunday Only Church')
+        ->and($names)->not->toContain('Wednesday Only Church')
+        ->and($names)->not->toContain('Friday Only Church');
+});
+
+it('matches service days case-insensitively', function () {
+    serviceDayChurches();
+
+    $names = collect($this->getJson('/api/churches?service_day[]=Wednesday')->assertOk()->json('data'))->pluck('name');
+
+    expect($names)->toContain('Wednesday Only Church')
+        ->and($names)->not->toContain('Sunday Only Church');
+});
+
+it('ignores an empty service day rather than filtering everything out', function () {
+    serviceDayChurches();
+
+    $names = collect($this->getJson('/api/churches?service_day=')->assertOk()->json('data'))->pluck('name');
+
+    expect($names)->toContain('Friday Only Church')
+        ->and($names)->toContain('Auckland Test Church');
+});

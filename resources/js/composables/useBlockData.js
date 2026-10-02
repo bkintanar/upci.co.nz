@@ -50,7 +50,9 @@ export function useBlockData(urlFactory, options = {}) {
         error.value = null
 
         try {
-            const response = await fetch(url)
+            // Without Accept the server has no reason to answer an error in
+            // JSON, and response.json() below would choke on an HTML page.
+            const response = await fetch(url, { headers: { Accept: 'application/json' } })
             const body = await response.json()
 
             if (!response.ok || !body.success) {

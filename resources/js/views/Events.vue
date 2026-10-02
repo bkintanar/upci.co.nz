@@ -290,7 +290,7 @@ export default defineComponent({
 
         const fetchEvents = async () => {
             try {
-                const res = await fetch('/api/events')
+                const res = await fetch('/api/events', { headers: { Accept: 'application/json' } })
                 const data = await res.json()
                 if (data.success && data.data) {
                     events.value = data.data

@@ -82,7 +82,7 @@ export default defineComponent({
             loading.value = true
             error.value = null
             try {
-                const res = await fetch('/api/regions')
+                const res = await fetch('/api/regions', { headers: { Accept: 'application/json' } })
                 const body = await res.json()
                 if (body.success && body.data) {
                     regions.value = body.data

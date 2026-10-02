@@ -30,7 +30,9 @@
                         >
                             <h4 class="font-bold text-brand-ink mb-1">{{ church.name }}</h4>
                             <p v-if="church.city" class="text-sm text-brand-grey-600 mb-2">{{ church.city }}</p>
-                            <p v-if="church.pastor" class="text-sm text-brand-ink">{{ church.pastor }}</p>
+                            <!-- pastor_name is the API field; there is no `pastor`, so this row
+                                 never rendered. -->
+                            <p v-if="church.pastor_name" class="text-sm text-brand-ink">{{ church.pastor_name }}</p>
                             <!-- Same honesty as the locator: a church with no
                                  coordinates is listed and says why it is not
                                  mappable, rather than being dropped. -->

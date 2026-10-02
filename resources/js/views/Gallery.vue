@@ -30,7 +30,10 @@
         </section>
 
         <!-- Keyed so switching tabs remounts the grid and refetches, rather
-             than showing the previous filter's images under a new label. -->
+             than showing the previous filter's images under a new label.
+             The empty message matters: GalleryGrid renders nothing at all for
+             an empty result without one, so a region with no photos showed a
+             blank page under its tab. -->
         <GalleryGrid
             :key="active"
             :department="activeTab.department"
@@ -38,6 +41,7 @@
             :general="activeTab.general"
             :heading="null"
             section-class="py-12 bg-white"
+            empty-message="No photos in this gallery yet."
         />
 
         <div v-if="!loadingTabs && tabs.length === 1" class="max-w-7xl mx-auto px-4 pb-16 text-slate-500">
@@ -85,7 +89,7 @@ export default defineComponent({
             // so a departments outage narrows the page rather than breaking it.
             const load = async (url, target) => {
                 try {
-                    const res = await fetch(url)
+                    const res = await fetch(url, { headers: { Accept: 'application/json' } })
                     const body = await res.json()
                     if (body.success && body.data) target.value = body.data
                 } catch (e) {

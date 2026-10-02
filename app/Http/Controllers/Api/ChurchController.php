@@ -38,9 +38,19 @@ class ChurchController extends Controller
             $query->where('church_status', $request->church_status);
         }
 
-        // Filter by service day
-        if ($request->has('service_day') && $request->service_day) {
-            $query->whereRaw('service_times LIKE ?', ['%"'.$request->service_day.'"%']);
+        // Filter by service day. The locator is a multi-select and sends
+        // `service_day[]=sunday&service_day[]=wednesday`; a church matches if
+        // it meets on ANY of the chosen days. A scalar `?service_day=sunday`
+        // is still accepted so older shared links keep working. Reading the
+        // param as a scalar used to make PHP keep only the last value, so a
+        // multi-day selection silently filtered by the final day alone.
+        $serviceDays = $this->serviceDayFilter($request);
+        if ($serviceDays) {
+            $query->where(function ($q) use ($serviceDays) {
+                foreach ($serviceDays as $day) {
+                    $q->orWhereRaw('LOWER(service_times) LIKE ?', ['%"'.strtolower($day).'"%']);
+                }
+            });
         }
 
         // Search by name, city, or address.
@@ -102,10 +112,24 @@ class ChurchController extends Controller
                 'region' => $request->region,
                 'organizational_region' => $request->organizational_region,
                 'church_status' => $request->church_status,
-                'service_day' => $request->service_day,
+                'service_day' => $serviceDays,
                 'search' => $request->search,
             ],
         ]);
+    }
+
+    /**
+     * The requested service days, as a list, whether the client sent a scalar
+     * or an array. Non-string members are ignored rather than cast.
+     *
+     * @return array<int, string>
+     */
+    private function serviceDayFilter(Request $request): array
+    {
+        return array_values(array_filter(
+            (array) $request->input('service_day', []),
+            fn ($day) => is_string($day) && $day !== '',
+        ));
     }
 
     /**

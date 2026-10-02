@@ -59,7 +59,24 @@
 
             <div class="mb-6">
                 <h3 class="text-lg font-semibold text-slate-900 mb-3">Events this month</h3>
-                <ul v-if="eventsInMonth.length" class="space-y-2">
+                <!-- Loading and failure read differently from "no events", in
+                     the same way BlockState does for blocks. A failed request
+                     used to render "No events this month", which is false. -->
+                <div v-if="loading" class="py-10 text-center text-slate-500" role="status" aria-live="polite">
+                    Loading events…
+                </div>
+                <div v-else-if="error" class="py-10 text-center">
+                    <p class="text-slate-700 font-semibold mb-1">Events couldn't be loaded.</p>
+                    <p class="text-slate-500 text-sm mb-4">{{ error }}</p>
+                    <button
+                        type="button"
+                        @click="fetchEvents"
+                        class="px-4 py-2 bg-brand-green-700 text-white rounded-lg text-sm hover:bg-brand-green-900 transition-colors"
+                    >
+                        Try again
+                    </button>
+                </div>
+                <ul v-else-if="eventsInMonth.length" class="space-y-2">
                     <li
                         v-for="ev in eventsInMonth"
                         :key="ev.id"
@@ -107,6 +124,12 @@ export default defineComponent({
 
         const current = ref(new Date())
         const events = ref([])
+        const loading = ref(false)
+        const error = ref(null)
+        // Month navigation can outpace the network. Each request takes a
+        // number and only the latest may write, so a slow response for a
+        // month already navigated away from is dropped.
+        let requestSeq = 0
 
         const monthLabel = computed(() => {
             return current.value.toLocaleDateString('en-NZ', { month: 'long', year: 'numeric' })
@@ -172,19 +195,38 @@ export default defineComponent({
             current.value = new Date(current.value.getFullYear(), current.value.getMonth() + 1)
         }
 
+        // Local calendar date as YYYY-MM-DD. Built from Date parts rather
+        // than toISOString(), which is UTC and shifts the day in NZ.
+        const localDate = (d) =>
+            d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+
         const fetchEvents = async () => {
+            const seq = ++requestSeq
             const year = current.value.getFullYear()
             const month = current.value.getMonth()
-            const from = year + '-' + String(month).padStart(2, '0') + '-01'
-            const to = year + '-' + String(month + 2).padStart(2, '0') + '-01'
+            // The first of the previous month to the first of the next one,
+            // the same range as before. Date() rolls the month over, so
+            // January no longer asks for month "00" nor December for "13".
+            const from = localDate(new Date(year, month - 1, 1))
+            const to = localDate(new Date(year, month + 1, 1))
+            loading.value = true
+            error.value = null
             try {
-                const res = await fetch(`/api/events?from=${from}&to=${to}`)
-                const data = await res.json()
-                if (data.success && data.data) {
+                const res = await fetch(`/api/events?from=${from}&to=${to}`, { headers: { Accept: 'application/json' } })
+                const data = await res.json().catch(() => null)
+                if (seq !== requestSeq) return
+                if (res.ok && data?.success && data.data) {
                     events.value = data.data
+                } else {
+                    events.value = []
+                    error.value = data?.message || `Events could not be loaded (${res.status})`
                 }
-            } catch (_) {
+            } catch (e) {
+                if (seq !== requestSeq) return
                 events.value = []
+                error.value = e?.message || 'Events could not be loaded'
+            } finally {
+                if (seq === requestSeq) loading.value = false
             }
         }
 
@@ -201,7 +243,10 @@ export default defineComponent({
             formatDate,
             prevMonth,
             nextMonth,
-            statusClasses
+            statusClasses,
+            loading,
+            error,
+            fetchEvents
         }
     }
 })

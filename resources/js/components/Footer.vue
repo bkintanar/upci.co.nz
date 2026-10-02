@@ -43,9 +43,12 @@
                          a stale hard-coded list. -->
                     <ul v-if="quickLinks.length" class="space-y-3">
                         <li v-for="link in quickLinks" :key="link.id">
-                            <router-link :to="link.url" class="text-slate-300 hover:text-white transition-colors">
+                            <!-- MenuLink, not router-link: an external quick link
+                                 (a Facebook page, say) must leave the site rather
+                                 than become an in-app path. -->
+                            <MenuLink :item="link" class="text-slate-300 hover:text-white transition-colors">
                                 {{ link.label }}
-                            </router-link>
+                            </MenuLink>
                         </li>
                     </ul>
                 </div>
@@ -105,6 +108,7 @@ import { defineComponent, computed, ref, onMounted } from 'vue'
 // Bundled import as the fallback when site settings have no footer logo.
 import upciLogo from '../../images/upci-nz-logo-footer.png'
 import { useSiteSettings } from '../composables/useSiteSettings'
+import MenuLink from './MenuLink.vue'
 
 // Only the platforms the organisation actually uses. Adding a platform means
 // adding its mark here — deliberately explicit, so an unrecognised platform
@@ -120,6 +124,7 @@ const DEFAULT_BLURB = 'Building strong Christian communities across New Zealand 
 
 export default defineComponent({
     name: 'Footer',
+    components: { MenuLink },
     setup() {
         const { settings } = useSiteSettings()
         const menuItems = ref([])
@@ -141,7 +146,7 @@ export default defineComponent({
 
         onMounted(async () => {
             try {
-                const res = await fetch('/api/menu/footer')
+                const res = await fetch('/api/menu/footer', { headers: { Accept: 'application/json' } })
                 const body = await res.json()
                 if (body.success && body.data) menuItems.value = body.data
             } catch (e) {

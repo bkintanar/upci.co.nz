@@ -62,7 +62,7 @@ export default defineComponent({
 
         const fetchUpdates = async () => {
             try {
-                const res = await fetch('/api/ags-updates')
+                const res = await fetch('/api/ags-updates', { headers: { Accept: 'application/json' } })
                 const data = await res.json()
                 if (data.success && data.data) {
                     updates.value = data.data

@@ -372,7 +372,7 @@ export default defineComponent({
             error.value = null
 
             try {
-                const response = await fetch(`/api/pages/${slug}`)
+                const response = await fetch(`/api/pages/${slug}`, { headers: { Accept: 'application/json' } })
                 const data = await response.json()
 
                 if (!data.success) {

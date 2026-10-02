@@ -15,7 +15,7 @@
                         <!-- Menu item with dropdown -->
                         <div v-if="item.children && item.children.length > 0" class="relative group">
                             <router-link
-                                v-if="item.url && item.url !== '#' && !item.url.startsWith('http')"
+                                v-if="item.url && !isPlainAnchor(item.url)"
                                 :to="item.url"
                                 class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
                                 {{ item.label }}
@@ -33,7 +33,7 @@
                                 <div class="py-2">
                                     <template v-for="child in item.children" :key="child.id">
                                         <a
-                                            v-if="child.url && (child.url.startsWith('http') || child.url === '#')"
+                                            v-if="child.url && isPlainAnchor(child.url)"
                                             :href="child.url"
                                             :target="child.open_in_new_tab ? '_blank' : '_self'"
                                             class="block px-6 py-3 text-sm text-slate-700 hover:bg-brand-green-100 hover:text-brand-green-700 transition-colors">
@@ -53,14 +53,16 @@
                                              hover flyout: a nested flyout needs the pointer
                                              to cross a gap without dropping the hover, and
                                              has no touch equivalent at all. -->
-                                        <router-link
+                                        <!-- MenuLink so an external grandchild URL leaves
+                                             the site instead of becoming an in-app path. -->
+                                        <MenuLink
                                             v-for="grandchild in (child.children || [])"
                                             :key="grandchild.id"
-                                            :to="grandchild.url"
+                                            :item="grandchild"
                                             class="flex items-center pl-12 pr-6 py-2 text-sm text-slate-600 hover:bg-brand-green-100 hover:text-brand-green-700 transition-colors">
                                             <span class="w-3 border-t border-slate-300 mr-3" aria-hidden="true"></span>
                                             {{ grandchild.label }}
-                                        </router-link>
+                                        </MenuLink>
                                     </template>
                                 </div>
                             </div>
@@ -68,7 +70,7 @@
 
                         <!-- Regular menu item (no dropdown) -->
                         <a
-                            v-else-if="item.url && (item.url.startsWith('http') || item.url === '#')"
+                            v-else-if="item.url && isPlainAnchor(item.url)"
                             :href="item.url"
                             :target="item.open_in_new_tab ? '_blank' : '_self'"
                             class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
@@ -101,7 +103,7 @@
                     <!-- Parent with children -->
                     <div v-if="item.children && item.children.length > 0" class="space-y-1">
                         <router-link
-                            v-if="item.url && item.url !== '#' && !item.url.startsWith('http')"
+                            v-if="item.url && !isPlainAnchor(item.url)"
                             :to="item.url"
                             @click="mobileMenuOpen = false"
                             class="block px-3 py-2 text-sm font-semibold text-white hover:bg-slate-600 rounded-lg transition-colors">
@@ -110,7 +112,7 @@
                         <div v-else class="text-sm font-semibold text-slate-300 px-3 py-2">{{ item.label }}</div>
                         <template v-for="child in item.children" :key="child.id">
                             <a
-                                v-if="child.url && (child.url.startsWith('http') || child.url === '#')"
+                                v-if="child.url && isPlainAnchor(child.url)"
                                 :href="child.url"
                                 :target="child.open_in_new_tab ? '_blank' : '_self'"
                                 @click="mobileMenuOpen = false"
@@ -130,21 +132,21 @@
                             <!-- Third level, indented. Mobile needs this as much as
                                  desktop: without it a grandchild is unreachable on a
                                  phone entirely. -->
-                            <router-link
+                            <MenuLink
                                 v-for="grandchild in (child.children || [])"
                                 :key="grandchild.id"
-                                :to="grandchild.url"
+                                :item="grandchild"
                                 @click="mobileMenuOpen = false"
                                 class="flex items-center pl-12 pr-6 py-2 text-sm text-slate-200 hover:bg-slate-600 rounded-lg transition-colors">
                                 <span class="w-3 border-t border-slate-500 mr-3" aria-hidden="true"></span>
                                 {{ grandchild.label }}
-                            </router-link>
+                            </MenuLink>
                         </template>
                     </div>
 
                     <!-- Regular item (no children) -->
                     <a
-                        v-else-if="item.url && (item.url.startsWith('http') || item.url === '#')"
+                        v-else-if="item.url && isPlainAnchor(item.url)"
                         :href="item.url"
                         :target="item.open_in_new_tab ? '_blank' : '_self'"
                         @click="mobileMenuOpen = false"
@@ -178,6 +180,8 @@ import { computed, defineComponent, onMounted, ref } from 'vue';
 // making this CMS-editable is the site-settings work (T9-T11).
 import upciLogo from '../../images/upci-nz-logo-nav.png';
 import { useSiteSettings } from '../composables/useSiteSettings';
+import MenuLink from './MenuLink.vue';
+import { isPlainAnchor } from '../utils/menuUrl';
 
 // Used only when /api/menu/header fails. Hard-coded on purpose: a fallback
 // that depends on the thing that just failed is not a fallback. Kept to the
@@ -194,6 +198,7 @@ const FALLBACK_MENU = [
 
 export default defineComponent({
     name: 'Navbar',
+    components: { MenuLink },
     setup() {
         const { settings } = useSiteSettings()
         // CMS value when set, bundled asset otherwise
@@ -229,6 +234,7 @@ export default defineComponent({
         })
 
         return {
+            isPlainAnchor,
             mobileMenuOpen,
             menuItems,
             loading,

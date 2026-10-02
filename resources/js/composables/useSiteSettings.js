@@ -16,7 +16,7 @@ let inFlight = null
 
 export function useSiteSettings() {
     if (!inFlight) {
-        inFlight = fetch('/api/site-settings')
+        inFlight = fetch('/api/site-settings', { headers: { Accept: 'application/json' } })
             .then((r) => (r.ok ? r.json() : null))
             .then((json) => {
                 if (json?.success) settings.value = json.data

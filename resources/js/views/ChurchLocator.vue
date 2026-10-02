@@ -309,13 +309,14 @@
                                 </div>
 
                                 <!-- Pastor -->
-                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <div v-if="selectedChurch.pastor" class="flex justify-between items-center py-2 border-b border-gray-100">
                                     <span class="text-sm text-gray-900">Pastor</span>
                                     <span class="text-sm font-medium text-gray-900">{{ selectedChurch.pastor }}</span>
                                 </div>
 
-                                <!-- Phone -->
-                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <!-- Phone. Guarded: a church with no number
+                                     rendered an empty row and a tel:null link. -->
+                                <div v-if="selectedChurch.phone" class="flex justify-between items-center py-2 border-b border-gray-100">
                                     <span class="text-sm text-gray-900">Phone</span>
                                     <a :href="`tel:${selectedChurch.phone}`" class="text-sm font-medium text-gray-900 hover:text-gray-600">
                                         {{ selectedChurch.phone }}
@@ -344,7 +345,7 @@
 
                             <!-- Action Button -->
                             <div class="flex flex-col gap-3">
-                                <a :href="`tel:${selectedChurch.phone}`"
+                                <a v-if="selectedChurch.phone" :href="`tel:${selectedChurch.phone}`"
                                    class="w-full inline-flex items-center justify-center px-4 py-3 bg-purple-600 text-white text-sm font-semibold rounded-lg hover:bg-purple-700 transition-colors">
                                     Call Church
                                 </a>
@@ -359,7 +360,16 @@
 
                         <!-- Right side - Map -->
                         <div class="w-full md:w-1/2 flex-shrink-0">
-                            <div ref="modalMapContainer" class="w-full h-full min-h-[500px]"></div>
+                            <!-- Only mount the map for a church with usable
+                                 coordinates. L.map() with a NaN centre throws
+                                 "Invalid LatLng" and left a blank column. -->
+                            <div v-if="isMappable(selectedChurch)" ref="modalMapContainer" class="w-full h-full min-h-[500px]"></div>
+                            <div v-else class="w-full h-full min-h-[500px] flex flex-col items-center justify-center bg-slate-100 text-slate-500 px-6 text-center">
+                                <svg class="w-10 h-10 mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <p class="text-sm font-medium">No map location on file</p>
+                            </div>
                         </div>
                 </div>
         </Modal>
@@ -371,9 +381,9 @@
                 <p class="text-xl text-brand-green-100 mb-8 max-w-3xl mx-auto">
                     We're always looking to expand our ministry. Contact us to learn about starting a new UPCI church in your area.
                 </p>
-                <button class="bg-white text-brand-green-700 px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-100 transition-colors">
+                <router-link to="/connect-with-us" class="inline-block bg-white text-brand-green-700 px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-100 transition-colors">
                     Contact Us About Starting a Church
-                </button>
+                </router-link>
             </div>
         </section>
     </div>
@@ -427,7 +437,9 @@ L.Icon.Default.mergeOptions({
                 // up and there is no duplicate request.
                 const searchQuery = ref(typeof route.query.search === 'string' ? route.query.search : '')
                 const selectedRegion = ref(typeof route.query.region === 'string' ? route.query.region : '')
-                const selectedServiceDays = ref(queryList(route.query.service_day))
+                // Also reads the bracketed form, in case a link was built from
+                // the API's `service_day[]` convention rather than the mirror.
+                const selectedServiceDays = ref(queryList(route.query.service_day ?? route.query['service_day[]']))
                 const { setPageMeta } = usePageMeta()
                 setPageMeta('Find a Church', 'Find your nearest UPCI church in New Zealand, by region or by name.')
                 const selectedChurch = ref(null)
@@ -442,6 +454,23 @@ L.Icon.Default.mergeOptions({
                 let map = null
                 let modalMap = null
                 let markers = []
+
+                // Every API value interpolated into Leaflet popup HTML goes
+                // through this. bindPopup() takes an HTML string, and church
+                // name/address/city/region are editable by local admins, so
+                // raw interpolation was a stored XSS on a public page.
+                const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => (
+                    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+
+                // Sent on every API call so Laravel answers errors (422, 404,
+                // 429) as JSON rather than an HTML page or a redirect.
+                const jsonHeaders = { headers: { Accept: 'application/json' } }
+
+                // Stale-response guard. Each fetchChurches() call takes a
+                // sequence number, and only the latest one may write results,
+                // so a slow earlier search can't overwrite a newer one.
+                let churchRequestSeq = 0
+                let searchDebounce = null
 
                 // Calculate distance between two coordinates using Haversine formula
                 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -525,6 +554,7 @@ L.Icon.Default.mergeOptions({
 
                 // Fetch churches from API
                 const fetchChurches = async () => {
+                    const seq = ++churchRequestSeq
                     loading.value = true
                     try {
                         const params = new URLSearchParams()
@@ -533,13 +563,20 @@ L.Icon.Default.mergeOptions({
                         // free-text geographic column and would never match a slug.
                         if (selectedRegion.value) params.append('organizational_region', selectedRegion.value)
                         if (selectedServiceDays.value.length > 0) {
+                            // service_day[], not service_day: PHP keeps only the
+                            // last of several same-named scalar params, so the
+                            // multi-select used to filter by the final day alone.
                             selectedServiceDays.value.forEach(day => {
-                                params.append('service_day', day)
+                                params.append('service_day[]', day)
                             })
                         }
 
-                        const response = await fetch(`/api/churches?${params}&_t=${Date.now()}&_cb=${Math.random()}`)
+                        const response = await fetch(`/api/churches?${params}&_t=${Date.now()}&_cb=${Math.random()}`, jsonHeaders)
                         const data = await response.json()
+
+                        // A newer request has been issued since this one
+                        // started; its results win, so drop these.
+                        if (seq !== churchRequestSeq) return
 
                         if (data.success) {
                             churches.value = data.data.map(church => ({
@@ -557,9 +594,11 @@ L.Icon.Default.mergeOptions({
                             }
                         }
                     } catch (error) {
-                        console.error('Error fetching churches:', error)
+                        if (seq === churchRequestSeq) console.error('Error fetching churches:', error)
                     } finally {
-                        loading.value = false
+                        // Only the latest request owns the spinner; an older
+                        // one finishing must not hide it mid-flight.
+                        if (seq === churchRequestSeq) loading.value = false
                     }
                 }
 
@@ -572,7 +611,7 @@ L.Icon.Default.mergeOptions({
                         // eight values including Rangiora and Rolleston — towns,
                         // not regions — and had no relationship to the Northern /
                         // Central / Southern structure the organisation uses.
-                        const response = await fetch(`/api/churches-organizational-regions?_t=${Date.now()}`)
+                        const response = await fetch(`/api/churches-organizational-regions?_t=${Date.now()}`, jsonHeaders)
                         const data = await response.json()
 
                         if (data.success) {
@@ -592,7 +631,7 @@ L.Icon.Default.mergeOptions({
                 // Fetch service days from API
                 const fetchServiceDays = async () => {
                     try {
-                        const response = await fetch(`/api/churches-service-days?_t=${Date.now()}`)
+                        const response = await fetch(`/api/churches-service-days?_t=${Date.now()}`, jsonHeaders)
                         const data = await response.json()
 
                         if (data.success) {
@@ -652,6 +691,7 @@ L.Icon.Default.mergeOptions({
                 })
 
                 const clearFilters = () => {
+                    clearTimeout(searchDebounce)
                     searchQuery.value = ''
                     selectedRegion.value = ''
                     selectedServiceDays.value = []
@@ -679,17 +719,28 @@ L.Icon.Default.mergeOptions({
                 }
 
                 const initializeModalMap = (church) => {
-                    if (!modalMapContainer.value || !church) return
-
-                    // Clean up existing modal map
+                    // Clean up existing modal map first, so a previous
+                    // church's map never lingers behind an unmappable one.
                     if (modalMap) {
                         modalMap.remove()
                         modalMap = null
                     }
 
+                    // No coordinates, no map: L.map() with a NaN centre throws
+                    // "Invalid LatLng". The template shows a fallback panel.
+                    if (!isMappable(church)) return
+                    if (!modalMapContainer.value) return
+
                     // Wait a bit for the DOM to be ready
                     setTimeout(() => {
                         if (!modalMapContainer.value) return
+                        // A quicker second selection may have superseded this
+                        // one during the delay; only the current church maps.
+                        if (selectedChurch.value?.id !== church.id) return
+                        if (modalMap) {
+                            modalMap.remove()
+                            modalMap = null
+                        }
 
                         // Initialize modal map centered on the selected church
                         modalMap = L.map(modalMapContainer.value, {
@@ -711,9 +762,9 @@ L.Icon.Default.mergeOptions({
                             .addTo(modalMap)
                             .bindPopup(`
                                 <div class="p-2 max-w-xs">
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">${church.name}</h3>
-                                    <p class="text-xs text-slate-600 mb-1">${church.address}</p>
-                                    <p class="text-xs text-slate-500">${church.city}, ${church.region}</p>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">${escapeHtml(church.name)}</h3>
+                                    <p class="text-xs text-slate-600 mb-1">${escapeHtml(church.address)}</p>
+                                    <p class="text-xs text-slate-500">${escapeHtml(church.city)}, ${escapeHtml(church.region)}</p>
                                 </div>
                             `, {
                                 maxWidth: 200,
@@ -723,8 +774,17 @@ L.Icon.Default.mergeOptions({
                     }, 100)
                 }
 
-                // Watch for filter changes and refetch data
-                watch([searchQuery, selectedRegion, selectedServiceDays], () => {
+                // Watch for filter changes and refetch data. The search box is
+                // debounced so typing "wellington" sends one request, not ten;
+                // region and day filters are discrete clicks and fetch at once.
+                // A pending search is cancelled by an immediate fetch, since
+                // that fetch already reads the current search term.
+                watch(searchQuery, () => {
+                    clearTimeout(searchDebounce)
+                    searchDebounce = setTimeout(fetchChurches, 300)
+                })
+                watch([selectedRegion, selectedServiceDays], () => {
+                    clearTimeout(searchDebounce)
                     fetchChurches()
                 }, { deep: true })
 
@@ -812,10 +872,10 @@ L.Icon.Default.mergeOptions({
                     .addTo(map)
                     .bindPopup(`
                         <div class="p-2 max-w-xs">
-                            <h3 class="font-bold text-slate-900 mb-1 text-sm">${church.name}</h3>
-                            <p class="text-xs text-slate-600 mb-1">${church.address}</p>
-                            <p class="text-xs text-slate-500 mb-2">${church.city}, ${church.region}</p>
-                            <button data-church-id="${church.id}"
+                            <h3 class="font-bold text-slate-900 mb-1 text-sm">${escapeHtml(church.name)}</h3>
+                            <p class="text-xs text-slate-600 mb-1">${escapeHtml(church.address)}</p>
+                            <p class="text-xs text-slate-500 mb-2">${escapeHtml(church.city)}, ${escapeHtml(church.region)}</p>
+                            <button data-church-id="${escapeHtml(church.id)}"
                                     class="js-more-info bg-brand-green-700 text-white px-2 py-1 rounded text-xs hover:bg-brand-green-900 transition-colors">
                                 More info
                             </button>
@@ -872,6 +932,10 @@ L.Icon.Default.mergeOptions({
                 })
 
         onUnmounted(() => {
+            clearTimeout(searchDebounce)
+            // Invalidate any request still in flight so it can't write into
+            // an unmounted component.
+            churchRequestSeq++
             if (map) {
                 map.remove()
                 map = null
