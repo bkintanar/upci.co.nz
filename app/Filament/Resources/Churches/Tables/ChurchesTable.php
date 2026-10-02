@@ -55,26 +55,28 @@ class ChurchesTable
                     ->label('City')
                     ->searchable()
                     ->sortable()
-                    ->visible(fn ($record) => ! empty($record->city)),
+                    ->placeholder('—')
+                    ->toggleable(),
 
-                TextColumn::make('state')
-                    ->label('State')
+                TextColumn::make('suburb')
+                    ->label('Suburb')
                     ->searchable()
                     ->sortable()
-                    ->visible(fn ($record) => ! empty($record->state)),
+                    ->placeholder('—')
+                    ->toggleable(),
 
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
                     ->copyable()
-                    ->visible(fn ($record) => ! empty($record->email))
+                    ->placeholder('—')
                     ->toggleable(),
 
                 TextColumn::make('phone')
                     ->label('Phone')
                     ->searchable()
                     ->copyable()
-                    ->visible(fn ($record) => ! empty($record->phone))
+                    ->placeholder('—')
                     ->toggleable(),
 
                 TextColumn::make('users_count')
@@ -89,7 +91,7 @@ class ChurchesTable
                     ->label('Website')
                     ->url(fn ($record) => $record->website)
                     ->openUrlInNewTab()
-                    ->visible(fn ($record) => ! empty($record->website))
+                    ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')

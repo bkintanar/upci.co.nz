@@ -23,8 +23,8 @@ class DepartmentsTable
                 TextColumn::make('events_count')->counts('events')->label('Events'),
                 TextColumn::make('is_published')
                     ->badge()
-                    ->formatStateUsing(fn ($s) => $s ? 'Published' : 'Draft')
-                    ->color(fn ($s) => $s ? 'success' : 'gray'),
+                    ->formatStateUsing(fn ($state) => $state ? 'Published' : 'Draft')
+                    ->color(fn ($state) => $state ? 'success' : 'gray'),
                 TextColumn::make('updated_at')->dateTime()->sortable()->since(),
             ])
             ->defaultSort('sort_order')

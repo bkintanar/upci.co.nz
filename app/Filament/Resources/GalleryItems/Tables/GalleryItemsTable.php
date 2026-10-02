@@ -20,8 +20,8 @@ class GalleryItemsTable
                 TextColumn::make('galleryable.name')
                     ->label('Belongs to')
                     ->placeholder('General gallery')
-                    ->badge()
-                    ->sortable(),
+                    // Not sortable: galleryable is a MorphTo, which Filament can't join to sort by.
+                    ->badge(),
 
                 IconColumn::make('is_published')
                     ->label('Published')

@@ -35,7 +35,7 @@ class EventsTable
                 TextColumn::make('start_date')->date()->sortable(),
                 TextColumn::make('end_date')->date()->placeholder('—'),
                 TextColumn::make('location')->placeholder('—'),
-                TextColumn::make('is_published')->badge()->formatStateUsing(fn ($s) => $s ? 'Published' : 'Draft')->color(fn ($s) => $s ? 'success' : 'gray'),
+                TextColumn::make('is_published')->badge()->formatStateUsing(fn ($state) => $state ? 'Published' : 'Draft')->color(fn ($state) => $state ? 'success' : 'gray'),
             ])
             ->filters([
                 //

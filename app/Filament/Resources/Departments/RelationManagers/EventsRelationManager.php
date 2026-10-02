@@ -55,8 +55,8 @@ class EventsRelationManager extends RelationManager
                 TextColumn::make('end_date')->date()->placeholder('—'),
                 TextColumn::make('is_published')
                     ->badge()
-                    ->formatStateUsing(fn ($s) => $s ? 'Published' : 'Draft')
-                    ->color(fn ($s) => $s ? 'success' : 'gray'),
+                    ->formatStateUsing(fn ($state) => $state ? 'Published' : 'Draft')
+                    ->color(fn ($state) => $state ? 'success' : 'gray'),
             ])
             ->defaultSort('start_date')
             ->headerActions([

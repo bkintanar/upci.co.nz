@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\AGSUpdates\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Table;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 
 class AGSUpdatesTable
 {
@@ -17,7 +17,7 @@ class AGSUpdatesTable
             ->columns([
                 TextColumn::make('title')->searchable()->sortable(),
                 TextColumn::make('published_at')->dateTime()->sortable()->placeholder('—'),
-                TextColumn::make('is_published')->badge()->formatStateUsing(fn ($s) => $s ? 'Published' : 'Draft')->color(fn ($s) => $s ? 'success' : 'gray'),
+                TextColumn::make('is_published')->badge()->formatStateUsing(fn ($state) => $state ? 'Published' : 'Draft')->color(fn ($state) => $state ? 'success' : 'gray'),
             ])
             ->filters([
                 //
