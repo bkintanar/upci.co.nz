@@ -3,6 +3,8 @@
 use App\Models\User;
 use Livewire\Volt\Volt as LivewireVolt;
 
+beforeEach(fn () => $this->markTestSkipped('Stale starter-kit test: Volt auth.login no longer exists (Livewire Volt isn\'t installed). Login is handled by the Filament panel at /admin/login; see tests/Feature/FilamentAuthTest.php.'));
+
 test('login screen can be rendered', function () {
     $response = $this->get('/login');
 

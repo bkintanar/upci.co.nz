@@ -3,6 +3,8 @@
 use App\Models\User;
 use Livewire\Volt\Volt;
 
+beforeEach(fn () => $this->markTestSkipped('Stale starter-kit test: the Volt settings.profile and settings.delete-user-form pages were removed and no settings/* routes exist. Profiles are edited via the Filament UserResource.'));
+
 test('profile page is displayed', function () {
     $this->actingAs($user = User::factory()->create());
 

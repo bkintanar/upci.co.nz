@@ -1,9 +1,11 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\URL;
+
+beforeEach(fn () => $this->markTestSkipped('Stale starter-kit test: email verification isn\'t a feature of this app (User doesn\'t implement MustVerifyEmail, /verify-email redirects to /admin). Filament owns auth; see tests/Feature/FilamentAuthTest.php.'));
 
 test('email verification screen can be rendered', function () {
     $user = User::factory()->unverified()->create();

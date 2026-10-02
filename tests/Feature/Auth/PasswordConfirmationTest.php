@@ -3,6 +3,8 @@
 use App\Models\User;
 use Livewire\Volt\Volt;
 
+beforeEach(fn () => $this->markTestSkipped('Stale starter-kit test: Volt auth.confirm-password no longer exists and /confirm-password redirects to /admin. Filament owns auth; see tests/Feature/FilamentAuthTest.php.'));
+
 test('confirm password screen can be rendered', function () {
     $user = User::factory()->create();
 

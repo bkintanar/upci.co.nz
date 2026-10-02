@@ -76,19 +76,25 @@ Route::get('/', function () {
     return view('app');
 })->name('home');
 
+// Auth redirects (login, forgot-password, logout, ...). These must be
+// registered before the `/cms/{slug}` and `/{any}` catch-alls, otherwise the
+// SPA catch-all shadows them and `/login` serves the Vue app instead of
+// redirecting to the Filament panel.
+require __DIR__.'/auth.php';
+
 // CMS pages route - accessible at /cms/* (supports nested paths)
 Route::get('/cms/{slug}', function () {
     return view('app');
 })->where('slug', '.*')->name('cms.page');
 
-// Catch-all route for Vue.js SPA (must be last)
+// Catch-all route for Vue.js SPA (must be last). It excludes `api` and
+// `api/*` so unknown API paths are a real 404 (rendered as JSON by the
+// exception handler) instead of the SPA's HTML with a 200.
 Route::get('/{any}', function () {
     return view('app');
-})->where('any', '.*');
+})->where('any', '^(?!api(/|$)).*');
 
 // Admin routes (protected)
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     // Admin routes will be handled by Filament
 });
-
-require __DIR__.'/auth.php';

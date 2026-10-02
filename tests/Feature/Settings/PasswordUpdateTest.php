@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Livewire\Volt\Volt;
+use Illuminate\Support\Facades\Hash;
+
+beforeEach(fn () => $this->markTestSkipped('Stale starter-kit test: the Volt settings.password page was removed and no settings/* routes exist. Passwords are changed via the Filament UserResource or the users:reset-password command.'));
 
 test('password can be updated', function () {
     $user = User::factory()->create([

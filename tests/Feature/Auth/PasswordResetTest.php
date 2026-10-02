@@ -1,9 +1,11 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Support\Facades\Notification;
 use Livewire\Volt\Volt;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Auth\Notifications\ResetPassword;
+
+beforeEach(fn () => $this->markTestSkipped('Stale starter-kit test: Volt auth.forgot-password/auth.reset-password no longer exist. Password reset is handled by the Filament panel at /admin/password-reset/request; see tests/Feature/FilamentAuthTest.php.'));
 
 test('reset password link screen can be rendered', function () {
     $response = $this->get('/forgot-password');

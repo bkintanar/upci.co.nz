@@ -2,6 +2,8 @@
 
 use Livewire\Volt\Volt;
 
+beforeEach(fn () => $this->markTestSkipped('Stale starter-kit test: Volt auth.register no longer exists and the app has no self-registration (/register redirects to /admin/login). See tests/Feature/FilamentAuthTest.php.'));
+
 test('registration screen can be rendered', function () {
     $response = $this->get('/register');
 
