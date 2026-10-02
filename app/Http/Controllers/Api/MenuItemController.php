@@ -16,7 +16,10 @@ class MenuItemController extends Controller
         $menuItems = MenuItem::active()
             ->header()
             ->topLevel()
-            ->with('children.children')
+            // Constrained at every depth so inactive rows are never even
+            // queried. active() on the top level alone let a disabled child
+            // or grandchild reach the public menu.
+            ->with(['children' => fn ($q) => $q->active()->with(['children' => fn ($q) => $q->active()])])
             ->orderBy('sort_order')
             ->get()
             ->map(function ($item) {
@@ -37,7 +40,10 @@ class MenuItemController extends Controller
         $menuItems = MenuItem::active()
             ->footer()
             ->topLevel()
-            ->with('children.children')
+            // Constrained at every depth so inactive rows are never even
+            // queried. active() on the top level alone let a disabled child
+            // or grandchild reach the public menu.
+            ->with(['children' => fn ($q) => $q->active()->with(['children' => fn ($q) => $q->active()])])
             ->orderBy('sort_order')
             ->get()
             ->map(function ($item) {
@@ -65,7 +71,12 @@ class MenuItemController extends Controller
             // this stopped at children, so a grandchild existed in the admin
             // and in the database but could never appear in the menu — SBQ
             // under Youth Ministry, JBQ under Children's.
-            'children' => $item->children->map(fn (MenuItem $child) => $this->formatMenuItem($child)),
+            // Filtered here as well as in the eager load, so any depth the
+            // load does not constrain still drops inactive items.
+            'children' => $item->children
+                ->where('is_active', true)
+                ->map(fn (MenuItem $child) => $this->formatMenuItem($child))
+                ->values(),
         ];
     }
 }

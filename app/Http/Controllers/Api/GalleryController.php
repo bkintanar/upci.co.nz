@@ -6,6 +6,7 @@ use App\Models\Region;
 use App\Models\Department;
 use App\Models\GalleryItem;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
@@ -22,8 +23,10 @@ class GalleryController extends Controller
     public function index(Request $request): JsonResponse
     {
         $request->validate([
-            'department' => ['sometimes', 'string', 'exists:departments,slug'],
-            'region' => ['sometimes', 'string', 'exists:regions,slug'],
+            // Only published owners count as existing, so a draft slug gets
+            // the same 422 as a mistyped one and does not reveal the draft.
+            'department' => ['sometimes', 'string', Rule::exists('departments', 'slug')->where('is_published', true)],
+            'region' => ['sometimes', 'string', Rule::exists('regions', 'slug')->where('is_published', true)],
             'owner' => ['sometimes', 'string', 'in:general'],
         ]);
 
@@ -35,12 +38,12 @@ class GalleryController extends Controller
             ->orderBy('sort_order');
 
         if ($request->filled('department')) {
-            $department = Department::where('slug', $request->string('department')->toString())->firstOrFail();
+            $department = Department::published()->where('slug', $request->string('department')->toString())->firstOrFail();
             $query->ownedBy($department);
         }
 
         if ($request->filled('region')) {
-            $region = Region::where('slug', $request->string('region')->toString())->firstOrFail();
+            $region = Region::published()->where('slug', $request->string('region')->toString())->firstOrFail();
             $query->ownedBy($region);
         }
 

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
 
 class EventController extends Controller
 {
@@ -17,6 +18,11 @@ class EventController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Event::published()->with(['department', 'region'])->orderBy('start_date');
+
+        // An event owned by a draft department or region is hidden along with
+        // its owner, matching DepartmentController::show, which 404s drafts.
+        // Events with no owner are unaffected.
+        $this->withPublishedOwners($query);
 
         // Requirement 9: the national calendar is a distinct list, not the
         // whole table. Validated against the enum rather than passed through,
@@ -33,7 +39,8 @@ class EventController extends Controller
         // both, and combining them is what a region page actually wants.
         if ($request->filled('region')) {
             $request->validate([
-                'region' => ['string', 'exists:regions,slug'],
+                // A draft region's slug gets the same 422 as an unknown one.
+                'region' => ['string', Rule::exists('regions', 'slug')->where('is_published', true)],
             ]);
             $query->whereHas('region', fn ($q) => $q->where('slug', $request->string('region')->toString()));
         }
@@ -87,7 +94,7 @@ class EventController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $event = Event::published()->with('region')->find($id);
+        $event = $this->withPublishedOwners(Event::published()->with('region'))->find($id);
         if (! $event) {
             return response()->json(['success' => false, 'message' => 'Event not found'], 404);
         }
@@ -110,5 +117,16 @@ class EventController extends Controller
                 ] : null,
             ],
         ]);
+    }
+
+    /**
+     * Drop events whose owning department or region is a draft. Events with
+     * no owner pass through.
+     */
+    private function withPublishedOwners(Builder $query): Builder
+    {
+        return $query
+            ->where(fn ($q) => $q->whereNull('department_id')->orWhereHas('department', fn ($d) => $d->published()))
+            ->where(fn ($q) => $q->whereNull('region_id')->orWhereHas('region', fn ($r) => $r->published()));
     }
 }
