@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRole;
+use App\Enums\AccessLevel;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -39,6 +41,19 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * A national administrator: the tier that passes canAccessPanel() and
+     * sees every region. The default state leaves access_level NULL, which
+     * the panel gate rejects on purpose.
+     */
+    public function national(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'access_level' => AccessLevel::NATIONAL,
+            'role' => UserRole::ADMINISTRATOR,
         ]);
     }
 }
