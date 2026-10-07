@@ -37,8 +37,14 @@ Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     // Each call makes two sequential blocking file_get_contents to NZ Post
     // with a 2s timeout apiece, so one request can hold a PHP-FPM worker for
     // up to 4s. Tighter limit than the group baseline.
+    //
+    // Every route-level limit below names its own counter (the third throttle
+    // argument). Unnamed, `throttle:N,1` keys on domain|ip -- the same key the
+    // group's 60/min baseline uses -- so the menu, settings and page reads the
+    // SPA makes on every page load were counted against these limits: two
+    // page views and a visitor's contact message came back 429.
     Route::post('/address-search', [ChurchController::class, 'addressSearch'])
-        ->middleware('throttle:20,1');
+        ->middleware('throttle:20,1,address-search');
 
     // CMS page routes
     Route::get('/pages', [PageController::class, 'index']);
@@ -69,7 +75,7 @@ Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     // Unauthenticated write with no captcha or honeypot — without a limit the
     // contact_messages table (and the new admin inbox) can be flooded.
     Route::post('/contact', [ContactController::class, 'store'])
-        ->middleware('throttle:5,1');
+        ->middleware('throttle:5,1,contact');
 
     // ABC first-time student enrolment. An unauthenticated write of personal
     // data, with an optional file upload, so it gets the contact form's limit.
