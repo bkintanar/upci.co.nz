@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\AGSUpdateController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\SiteSettingController;
+use App\Http\Controllers\Api\AbcEnrolmentController;
 
 // API routes (must come before catch-all route)
 // A baseline limit for the whole public API. None of these routes are
@@ -69,6 +70,11 @@ Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     // contact_messages table (and the new admin inbox) can be flooded.
     Route::post('/contact', [ContactController::class, 'store'])
         ->middleware('throttle:5,1');
+
+    // ABC first-time student enrolment. An unauthenticated write of personal
+    // data, with an optional file upload, so it gets the contact form's limit.
+    Route::post('/abc-enrolments', [AbcEnrolmentController::class, 'store'])
+        ->middleware('throttle:5,1,abc-enrolment');
 });
 
 // Frontend routes
