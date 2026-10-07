@@ -167,7 +167,7 @@ class ApostolicBibleCollegePageSeeder extends Seeder
                         'type' => 'text',
                         'data' => [
                             'heading' => null,
-                            'content' => "Whether you're joining ABC for the first time, returning for a new term, or registering for foundation-level courses, use the card that matches your situation. Each link opens the correct Google Form in a new tab.",
+                            'content' => "Whether you're joining ABC for the first time, returning for a new term, or registering for foundation-level courses, use the card that matches your situation. First-time students now register here on our site; the other options open the official Google Forms in a new tab.",
                         ],
                     ],
                     [
@@ -181,7 +181,7 @@ class ApostolicBibleCollegePageSeeder extends Seeder
                                         'title' => 'First time student',
                                         'description' => 'New to Apostolic Bible College? Complete the first-time student registration form.',
                                         'icon_svg' => 'blue-ministry',
-                                        'link_url' => 'https://forms.gle/iqVTh9YQH3nhZdw48',
+                                        'link_url' => '/apostolic-bible-college/enrollment/new-student',
                                         'link_text' => 'First Time Student Register HERE',
                                     ],
                                 ],
