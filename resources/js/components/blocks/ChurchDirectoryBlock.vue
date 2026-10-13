@@ -12,7 +12,13 @@
             >
                 <template #loading>Loading churches…</template>
 
-                <div v-for="group in groups" :key="group.slug" class="mb-10 last:mb-0">
+                <!-- Compact: name and town only, north to south, the way the
+                     homepage lists them. -->
+                <div v-if="data.compact" class="max-w-3xl">
+                    <ChurchSpine :groups="groups" />
+                </div>
+
+                <div v-for="group in groups" v-else :key="group.slug" class="mb-10 last:mb-0">
                     <!-- The region name is the organising device in D2, so it
                          carries the brand rule rather than a grey hairline. -->
                     <div v-if="grouped" class="flex items-baseline justify-between mb-4 pb-2 border-b-2 border-brand-green-700">
@@ -50,11 +56,13 @@
 <script>
 import { defineComponent, computed } from 'vue'
 import BlockState from '../BlockState.vue'
+import ChurchSpine from '../home/ChurchSpine.vue'
 import { useBlockData } from '../../composables/useBlockData'
+import { groupChurchesByRegion } from '../../utils/churches'
 
 export default defineComponent({
     name: 'ChurchDirectoryBlock',
-    components: { BlockState },
+    components: { BlockState, ChurchSpine },
     props: { data: { type: Object, required: true } },
     setup(props) {
         const url = computed(() => {
@@ -80,28 +88,12 @@ export default defineComponent({
                 return [{ slug: 'all', name: '', churches: visible.value }]
             }
 
-            const map = new Map()
-
-            visible.value.forEach((church) => {
-                const slug = church.organizational_region || 'unassigned'
-                if (!map.has(slug)) {
-                    map.set(slug, {
-                        slug,
-                        name: church.organizational_region_name || 'Not yet assigned to a region',
-                        churches: [],
-                    })
-                }
-                map.get(slug).churches.push(church)
-            })
-
             // Unassigned sorts last; everything else keeps API order, which the
             // churches endpoint now sorts by the regions table's own
             // sort_order. It did NOT before — it ordered by featured-then-name,
             // so this comment described an ordering that never existed and the
             // homepage rendered Southern above Northern.
-            return [...map.values()].sort((a, b) =>
-                (a.slug === 'unassigned' ? 1 : 0) - (b.slug === 'unassigned' ? 1 : 0)
-            )
+            return groupChurchesByRegion(visible.value)
         })
 
         return { visible, groups, grouped, loading, error, load }

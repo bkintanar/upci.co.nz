@@ -5,105 +5,118 @@ namespace Database\Seeders;
 use App\Models\Page;
 use Illuminate\Database\Seeder;
 
+/**
+ * The homepage for a fresh install: the upca-style layout authored for the live
+ * site by 2026_10_14_000002_author_the_upca_style_homepage.
+ *
+ * firstOrCreate, not create: running this against a site that already has a
+ * homepage must never overwrite what an editor has built in the CMS.
+ */
 class HomePageSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Create a CMS version of the home page
-        Page::create([
-            'title' => 'Home - UPCI New Zealand',
-            'slug' => 'home',
-            'meta_description' => 'Welcome to UPCI New Zealand. Building strong Christian communities across New Zealand through faith, fellowship, and service.',
-            'is_published' => true,
-            'sort_order' => 0,
-            'content' => [
-                // Hero Section
-                [
-                    'type' => 'hero',
-                    'data' => [
-                        'heading' => 'Welcome to UPCI New Zealand',
-                        'subheading' => 'Building strong Christian communities across New Zealand through faith, fellowship, and service.',
-                        'style' => 'gradient-slate',
-                        'button1_text' => 'Learn More',
-                        'button1_url' => '/about/upci',
-                        'button2_text' => 'Get Involved',
-                        'button2_url' => '/get-involved',
+        Page::firstOrCreate(
+            ['slug' => 'home'],
+            [
+                'title' => 'Home - UPCI New Zealand',
+                'meta_description' => 'Welcome to UPCI New Zealand. Building strong Christian communities across New Zealand through faith, fellowship, and service.',
+                'is_published' => true,
+                'sort_order' => 0,
+                'content' => [
+                    [
+                        'type' => 'hero',
+                        'data' => [
+                            'layout' => 'banner',
+                            'eyebrow' => "This year's theme",
+                            'heading' => 'Pentecost Everyday',
+                            'subheading' => 'A Sustainable Annual Harvest — Going Beyond 2026',
+                            'verse' => '“…and the Lord added to the church daily such as should be saved.” Acts 2:47',
+                            'background_image' => 'page-images/01KPYX2XHW5DRFENE0NJ918RC6.jpg',
+                            'image_alt' => null,
+                            'style' => 'gradient-blue',
+                        ],
                     ],
-                ],
-
-                // About Section with heading
-                [
-                    'type' => 'text',
-                    'data' => [
-                        'heading' => 'Our Mission',
-                        'content' => 'The United Pentecostal Church International is a Oneness Pentecostal organization with churches, ministers, and members across the globe. Our New Zealand district is committed to spreading the gospel and building strong Christian communities.',
+                    [
+                        'type' => 'cta',
+                        'data' => [
+                            'style' => 'band',
+                            'eyebrow' => 'Next',
+                            'highlight' => '24–25',
+                            'highlight_caption' => 'October',
+                            'heading' => 'Annual General Conference',
+                            'text' => 'Wellington · Saturday and Sunday',
+                            'button_text' => 'See the calendar',
+                            'button_url' => '/events',
+                        ],
                     ],
-                ],
-
-                // Three Cards - Beliefs, Community, Ministry
-                [
-                    'type' => 'cards',
-                    'data' => [
-                        'heading' => '',
-                        'items' => [
-                            [
-                                'type' => 'card',
-                                'data' => [
-                                    'title' => 'Our Beliefs',
-                                    'description' => "We believe in the Oneness of God and the necessity of baptism in Jesus' name and receiving the Holy Ghost.",
-                                    'icon_svg' => '<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>',
-                                    'link_url' => '/about/beliefs',
-                                    'link_text' => 'Learn More',
-                                ],
-                            ],
-                            [
-                                'type' => 'card',
-                                'data' => [
-                                    'title' => 'Community',
-                                    'description' => 'Join our vibrant community of believers across New Zealand, united in faith and purpose.',
-                                    'icon_svg' => '<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>',
-                                    'link_url' => '/find-church',
-                                    'link_text' => 'Find a Church',
-                                ],
-                            ],
-                            [
-                                'type' => 'card',
-                                'data' => [
-                                    'title' => 'Ministry',
-                                    'description' => "Get involved in various ministries including children, youth, men's, and women's programs.",
-                                    'icon_svg' => '<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>',
-                                    'link_url' => '/get-involved',
-                                    'link_text' => 'Get Involved',
-                                ],
-                            ],
+                    [
+                        'type' => 'feature',
+                        'data' => [
+                            'heading' => 'About the UPCI NZ',
+                            'content' => 'The United Pentecostal Church International of New Zealand is a fellowship of '
+                                .'apostolic congregations across the country, organised into the Northern, Central and '
+                                .'Southern regions.',
+                            'tagline' => 'Wherever you are, you are welcome.',
+                            'button_text' => 'Read more',
+                            'button_url' => '/about',
+                            'image' => null,
+                            'image_alt' => null,
+                            'fallback_caption' => 'Ten congregations, from Whangarei in the north to Rolleston in the south.',
+                            'image_side' => 'right',
+                            'background' => 'paper',
+                        ],
+                    ],
+                    [
+                        'type' => 'church_finder',
+                        'data' => [
+                            'heading' => 'Find a church near you',
+                            'placeholder' => 'Suburb, town or postcode',
+                            'button_text' => 'Search',
+                            'layout' => 'panel',
+                            'description' => 'Congregations across the Northern, Central and Southern regions.',
+                            'show_regions' => true,
+                            'show_directory' => true,
+                            'directory_heading' => 'Our congregations',
+                            'help_heading' => 'Not sure where to start?',
+                            'help_text' => "Tell us where you live and we'll point you to the nearest congregation.",
+                            'help_link_text' => 'Connect with us',
+                            'help_link_url' => '/connect-with-us',
+                        ],
+                    ],
+                    [
+                        'type' => 'events_feed',
+                        'data' => [
+                            'heading' => 'Coming up',
+                            'scope' => 'national',
+                            'limit' => 8,
+                            'layout' => 'cards',
+                            'more_text' => 'More events',
+                            'more_url' => '/events',
+                            'empty_message' => 'No events are scheduled at the moment.',
+                        ],
+                    ],
+                    [
+                        'type' => 'department_list',
+                        'data' => [
+                            'heading' => 'Our ministries',
+                            'layout' => 'tiles',
+                            'lede' => 'Six departments, one fellowship — each with its own page and its own place on the calendar.',
+                            'empty_message' => 'Ministry information is being updated.',
+                        ],
+                    ],
+                    [
+                        'type' => 'cta',
+                        'data' => [
+                            'heading' => 'Connect with us',
+                            'text' => "Questions, prayer requests, or looking for a church home — we'd love to hear from you.",
+                            'button_text' => 'Get in touch',
+                            'button_url' => '/connect-with-us',
+                            'style' => 'panel',
                         ],
                     ],
                 ],
-
-                // Stats Section
-                [
-                    'type' => 'text',
-                    'data' => [
-                        'heading' => 'Our Impact',
-                        'content' => "Making a difference in communities across New Zealand\n\n- **200+** Countries Worldwide\n- **6M+** Members Globally\n- **40K+** Churches Total\n- **NZ** Growing in New Zealand",
-                    ],
-                ],
-
-                // Call to Action
-                [
-                    'type' => 'cta',
-                    'data' => [
-                        'heading' => 'Ready to Get Involved?',
-                        'text' => 'Discover how you can be part of our mission and connect with your local UPCI church.',
-                        'button_text' => 'Explore Ministries',
-                        'button_url' => '/get-involved',
-                        'style' => 'blue',
-                    ],
-                ],
-            ],
-        ]);
+            ]
+        );
     }
 }

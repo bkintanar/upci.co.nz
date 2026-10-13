@@ -83,6 +83,9 @@ class EventController extends Controller
                 'slug' => $event->department->slug,
                 'name' => $event->department->name,
                 'color_theme' => $event->department->color_theme,
+                // The white mark, for the homepage's event tiles, which sit on
+                // the department's own dark hue.
+                'logo_light_path' => $event->department->logo_light_path,
             ] : null,
         ]);
 

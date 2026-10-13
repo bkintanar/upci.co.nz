@@ -65,8 +65,32 @@
 
 
         <div v-for="(block, index) in page.content" :key="index">
+            <!-- Banner hero (homepage, direction D2): the theme artwork shown
+                 whole, never cropped or darkened. Its words are baked into the
+                 image, so they are repeated as real text below it: visible on
+                 phones, where the image's small type is illegible, and kept for
+                 screen readers from 768px up. The image is then decorative. -->
+            <section v-if="block.type === 'hero' && block.data.layout === 'banner'" class="bg-brand-paper" :aria-labelledby="`banner-${index}`">
+                <img
+                    v-if="block.data.background_image"
+                    :src="getImageUrl(block.data.background_image)"
+                    :alt="block.data.image_alt || ''"
+                    fetchpriority="high"
+                    class="block w-full h-auto"
+                />
+                <div :class="['max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-7 border-b border-brand-grey-200', block.data.background_image ? 'md:sr-only' : '']">
+                    <p v-if="block.data.eyebrow" class="text-xs font-bold tracking-[0.12em] uppercase text-brand-green-700">{{ block.data.eyebrow }}</p>
+                    <h1 :id="`banner-${index}`" class="mt-1.5 text-[34px] leading-none font-extrabold tracking-[-0.02em] text-brand-ink">{{ block.data.heading }}</h1>
+                    <p v-if="block.data.subheading" class="mt-2 text-lg font-semibold leading-snug text-brand-ink">{{ block.data.subheading }}</p>
+                    <p v-if="block.data.verse" class="mt-2.5 text-[15px] leading-normal italic text-brand-muted">
+                        {{ splitVerse(block.data.verse).quote }}
+                        <cite v-if="splitVerse(block.data.verse).cite" class="not-italic font-semibold whitespace-nowrap">{{ splitVerse(block.data.verse).cite }}</cite>
+                    </p>
+                </div>
+            </section>
+
             <!-- Hero Section -->
-            <section v-if="block.type === 'hero'" :class="getHeroClasses(block.data.style)" class="relative text-white overflow-hidden">
+            <section v-else-if="block.type === 'hero'" :class="getHeroClasses(block.data.style)" class="relative text-white overflow-hidden">
                 <div v-if="block.data.background_image" class="absolute inset-0">
                     <img :src="getImageUrl(block.data.background_image)" alt="" class="w-full h-full object-cover" />
                     <div class="absolute inset-0 bg-black bg-opacity-50"></div>
@@ -147,6 +171,50 @@
                 </div>
             </section>
 
+            <!-- Slim band (homepage): what is next, on ink with a clay rule.
+                 Content, not code — the owner updates it in the admin when the
+                 date passes. -->
+            <section
+                v-else-if="block.type === 'cta' && block.data.style === 'band'"
+                class="bg-brand-ink text-white border-t-[3px] border-brand-clay-600"
+                :aria-label="block.data.eyebrow ? `${block.data.eyebrow}: ${block.data.heading}` : block.data.heading"
+            >
+                <div :class="['max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-x-[18px] md:gap-x-7 gap-y-1 items-center py-5', bandGrid(block.data)]">
+                    <p v-if="block.data.eyebrow" class="col-span-full md:col-span-1 text-xs font-bold tracking-[0.14em] uppercase text-brand-clay-600">{{ block.data.eyebrow }}</p>
+                    <p v-if="block.data.highlight" class="flex flex-col md:flex-row md:items-baseline md:gap-2.5 leading-none pr-[18px] md:pr-7 border-r border-white/20">
+                        <b class="text-[40px] md:text-[44px] font-extrabold tracking-[-0.03em] text-brand-clay-600">{{ block.data.highlight }}</b>
+                        <span v-if="block.data.highlight_caption" class="mt-1.5 md:mt-0 text-[13px] font-bold tracking-[0.12em] uppercase">{{ block.data.highlight_caption }}</span>
+                    </p>
+                    <div class="min-w-0">
+                        <p class="text-xl md:text-2xl font-bold leading-tight">{{ block.data.heading }}</p>
+                        <p v-if="block.data.text" class="mt-0.5 text-[15px] leading-snug text-white/80">{{ block.data.text }}</p>
+                    </div>
+                    <MenuLink
+                        v-if="block.data.button_text && block.data.button_url"
+                        :item="{ url: block.data.button_url }"
+                        :class="['col-span-full md:col-span-1 mt-3.5 md:mt-0 w-full md:w-auto', ctaButton('clay')]"
+                    >{{ block.data.button_text }} <ArrowIcon /></MenuLink>
+                </div>
+            </section>
+
+            <!-- Split panel (homepage): heading, sentence and button side by
+                 side on pale green. -->
+            <section
+                v-else-if="block.type === 'cta' && block.data.style === 'panel'"
+                class="bg-brand-green-100"
+                :aria-labelledby="`panel-${index}`"
+            >
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-[18px] py-12 lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-10 lg:py-14">
+                    <h2 :id="`panel-${index}`" class="text-[30px] lg:text-4xl leading-tight font-extrabold tracking-[-0.02em] text-brand-green-900 lg:pr-10 lg:border-r-[3px] lg:border-[color:oklch(0.34_0.07_143_/_0.25)]">{{ block.data.heading }}</h2>
+                    <p v-if="block.data.text" class="text-[19px] leading-normal text-brand-ink max-w-[46ch]">{{ block.data.text }}</p>
+                    <MenuLink
+                        v-if="block.data.button_text && block.data.button_url"
+                        :item="{ url: block.data.button_url }"
+                        :class="['justify-self-start lg:justify-self-end', ctaButton('green')]"
+                    >{{ block.data.button_text }} <ArrowIcon /></MenuLink>
+                </div>
+            </section>
+
             <!-- Call to Action -->
             <section v-else-if="block.type === 'cta'" :class="getCtaClasses(block.data.style)" class="py-16 text-white">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -221,10 +289,14 @@
                  homepage renders no h1 at all. That is not hypothetical: a
                  full-site sweep caught exactly this, which is the same symptom
                  that exposed the rejected Direction B homepage. -->
-            <ChurchFinderBlock v-else-if="block.type === 'church_finder'" :data="block.data" :is-first="index === 0 && isHome" />
+            <!-- flush-top: on the homepage these sit on one paper ground in a
+                 run, so a block that follows another on the same ground drops
+                 its top padding rather than doubling the gap. -->
+            <FeatureBlock v-else-if="block.type === 'feature'" :data="block.data" :flush-top="flushTop(index)" />
+            <ChurchFinderBlock v-else-if="block.type === 'church_finder'" :data="block.data" :is-first="index === 0 && isHome" :flush-top="flushTop(index)" />
             <ChurchDirectoryBlock v-else-if="block.type === 'church_directory'" :data="block.data" />
-            <EventsFeedBlock v-else-if="block.type === 'events_feed'" :data="block.data" />
-            <DepartmentListBlock v-else-if="block.type === 'department_list'" :data="block.data" />
+            <EventsFeedBlock v-else-if="block.type === 'events_feed'" :data="block.data" :flush-top="flushTop(index)" />
+            <DepartmentListBlock v-else-if="block.type === 'department_list'" :data="block.data" :flush-top="flushTop(index)" />
             <RegionListBlock v-else-if="block.type === 'region_list'" :data="block.data" />
             <GalleryBlock v-else-if="block.type === 'gallery'" :data="block.data" />
             <StatisticsBlock v-else-if="block.type === 'statistics'" :data="block.data" />
@@ -293,6 +365,9 @@ import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Modal from '../components/Modal.vue';
 import PageHeader from '../components/layout/PageHeader.vue';
+import MenuLink from '../components/MenuLink.vue';
+import ArrowIcon from '../components/home/ArrowIcon.vue';
+import FeatureBlock from '../components/blocks/FeatureBlock.vue';
 import ChurchFinderBlock from '../components/blocks/ChurchFinderBlock.vue';
 import ChurchDirectoryBlock from '../components/blocks/ChurchDirectoryBlock.vue';
 import EventsFeedBlock from '../components/blocks/EventsFeedBlock.vue';
@@ -301,12 +376,16 @@ import RegionListBlock from '../components/blocks/RegionListBlock.vue';
 import GalleryBlock from '../components/blocks/GalleryBlock.vue';
 import StatisticsBlock from '../components/blocks/StatisticsBlock.vue';
 import { usePageMeta, currentPageTitle, breadcrumbSuppressed } from '../composables/usePageMeta';
+import { ctaButton } from '../utils/theme';
 
 export default defineComponent({
     name: 'CmsPage',
     components: {
         Modal,
         PageHeader,
+        MenuLink,
+        ArrowIcon,
+        FeatureBlock,
         ChurchFinderBlock,
         ChurchDirectoryBlock,
         EventsFeedBlock,
@@ -415,6 +494,42 @@ export default defineComponent({
                 'solid-indigo': 'bg-brand-green-700',
             }
             return styles[style] || styles['gradient-slate']
+        }
+
+        // The band's grid has a column per part it actually shows; literal
+        // strings so Tailwind emits them.
+        const BAND_GRIDS = {
+            'eyebrow+highlight': 'grid-cols-[auto_1fr] md:grid-cols-[auto_auto_1fr_auto]',
+            highlight: 'grid-cols-[auto_1fr] md:grid-cols-[auto_1fr_auto]',
+            eyebrow: 'grid-cols-1 md:grid-cols-[auto_1fr_auto]',
+            none: 'grid-cols-1 md:grid-cols-[1fr_auto]',
+        }
+
+        const bandGrid = (data) => {
+            if (data.eyebrow && data.highlight) return BAND_GRIDS['eyebrow+highlight']
+            if (data.highlight) return BAND_GRIDS.highlight
+            if (data.eyebrow) return BAND_GRIDS.eyebrow
+            return BAND_GRIDS.none
+        }
+
+        // "“…saved.” Acts 2:47" -> the quotation and its reference, so the
+        // reference can be set as a citation.
+        const splitVerse = (verse) => {
+            const match = String(verse || '').match(/^(.*[”"])\s*(.+)$/s)
+            return match ? { quote: match[1], cite: match[2] } : { quote: verse, cite: '' }
+        }
+
+        // Blocks that sit on the paper ground with their own vertical padding.
+        const onPaper = (block) => Boolean(block) && (
+            (block.type === 'feature' && block.data?.background === 'paper')
+            || (block.type === 'church_finder' && block.data?.layout === 'panel')
+            || (block.type === 'events_feed' && block.data?.layout === 'cards')
+            || (block.type === 'department_list' && block.data?.layout === 'tiles')
+        )
+
+        const flushTop = (index) => {
+            const blocks = page.value?.content || []
+            return index > 0 && onPaper(blocks[index]) && onPaper(blocks[index - 1])
         }
 
         const getCtaClasses = (style) => {
@@ -607,6 +722,10 @@ export default defineComponent({
             getImageUrl,
             getHeroClasses,
             getCtaClasses,
+            bandGrid,
+            splitVerse,
+            flushTop,
+            ctaButton,
             sectionBackground,
             isStatsBlock,
             twoColumnGrid,

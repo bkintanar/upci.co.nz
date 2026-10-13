@@ -178,6 +178,10 @@ test('text and card blocks carry explicit presentation, not inferred', function 
                 // two_column hard-coded an even split and a forced grey panel;
                 // both are now the author's choice.
                 'two_column' => ['ratio', 'right_panel'],
+                // A new block, always written through the form or a migration
+                // that sets both. The layout keys added to older block types
+                // are deliberately optional: missing means today's rendering.
+                'feature' => ['image_side', 'background'],
                 default => [],
             };
 

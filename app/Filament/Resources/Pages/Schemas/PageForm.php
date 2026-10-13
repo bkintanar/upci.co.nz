@@ -107,6 +107,27 @@ class PageForm
                                                 'solid-indigo' => 'Solid Indigo',
                                             ])
                                             ->default('gradient-slate'),
+                                        // 'banner' shows the image whole (for artwork with words in
+                                        // it); 'overlay' is the original darkened backdrop. A block
+                                        // saved before this field existed renders as 'overlay'.
+                                        Select::make('layout')
+                                            ->label('Layout')
+                                            ->options([
+                                                'overlay' => 'Text over a darkened image',
+                                                'banner' => 'Banner image shown whole',
+                                            ])
+                                            ->default('overlay')
+                                            ->required(),
+                                        TextInput::make('image_alt')
+                                            ->label('Image description (alt text)')
+                                            ->maxLength(255)
+                                            ->helperText('For a banner with words in it, type those words.'),
+                                        TextInput::make('eyebrow')
+                                            ->label('Small label above the heading (banner layout)')
+                                            ->maxLength(100),
+                                        TextInput::make('verse')
+                                            ->label('Verse or line under the subheading (banner layout)')
+                                            ->maxLength(255),
                                         TextInput::make('button1_text')
                                             ->label('Primary Button Text')
                                             ->maxLength(50)
@@ -235,6 +256,59 @@ class PageForm
                                     ->icon('heroicon-o-view-columns')
                                     ->columns(2),
 
+                                // Text beside a large photo, like the sister site's "About"
+                                // section. With no photo yet it shows a designed panel rather
+                                // than an empty box or a stock image.
+                                Builder\Block::make('feature')
+                                    ->label('Text beside a photo')
+                                    ->icon('heroicon-o-photo')
+                                    ->schema([
+                                        TextInput::make('heading')
+                                            ->label('Heading')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->columnSpanFull(),
+                                        MarkdownEditor::make('content')
+                                            ->label('Text')
+                                            ->columnSpanFull(),
+                                        TextInput::make('tagline')
+                                            ->label('Closing line, emphasised')
+                                            ->maxLength(255)
+                                            ->columnSpanFull(),
+                                        TextInput::make('button_text')
+                                            ->label('Button text')
+                                            ->maxLength(50),
+                                        TextInput::make('button_url')
+                                            ->label('Button link')
+                                            ->maxLength(255),
+                                        FileUpload::make('image')
+                                            ->label('Photo')
+                                            ->image()
+                                            ->imageEditor()
+                                            ->disk('public')
+                                            ->visibility('public')
+                                            ->directory('page-images')
+                                            ->maxSize(5120)
+                                            ->helperText('Optional. Until a photo is added, a designed panel is shown.'),
+                                        TextInput::make('image_alt')
+                                            ->label('Photo description (alt text)')
+                                            ->maxLength(255),
+                                        TextInput::make('fallback_caption')
+                                            ->label('Caption shown until a photo is added')
+                                            ->maxLength(255),
+                                        Select::make('image_side')
+                                            ->label('Photo side')
+                                            ->options(['right' => 'Right', 'left' => 'Left'])
+                                            ->default('right')
+                                            ->required(),
+                                        Select::make('background')
+                                            ->label('Background')
+                                            ->options(['white' => 'White', 'slate' => 'Light grey', 'paper' => 'Paper'])
+                                            ->default('white')
+                                            ->required(),
+                                    ])
+                                    ->columns(2),
+
                                 Builder\Block::make('cta')
                                     ->label('Call to Action')
                                     ->schema([
@@ -254,6 +328,17 @@ class PageForm
                                             ->label('Button URL')
                                             ->required()
                                             ->maxLength(255),
+                                        // Used by the slim band: a small label ("Next"), a large
+                                        // figure ("24–25") and a caption under it ("October").
+                                        TextInput::make('eyebrow')
+                                            ->label('Small label (band)')
+                                            ->maxLength(50),
+                                        TextInput::make('highlight')
+                                            ->label('Large figure (band)')
+                                            ->maxLength(20),
+                                        TextInput::make('highlight_caption')
+                                            ->label('Caption under the figure (band)')
+                                            ->maxLength(50),
                                         Select::make('style')
                                             ->label('Background Style')
                                             ->options([
@@ -261,6 +346,8 @@ class PageForm
                                                 'indigo' => 'Indigo',
                                                 'purple' => 'Purple',
                                                 'gray' => 'Gray',
+                                                'band' => 'Slim band',
+                                                'panel' => 'Split panel',
                                             ])
                                             ->default('blue'),
                                     ])
@@ -412,6 +499,38 @@ class PageForm
                                             ->label('Button text')
                                             ->default('Find a church')
                                             ->maxLength(50),
+                                        Select::make('layout')
+                                            ->label('Layout')
+                                            ->options(['band' => 'Band', 'panel' => 'Panel with region links'])
+                                            ->default('band')
+                                            ->required(),
+                                        Textarea::make('description')
+                                            ->label('Description')
+                                            ->rows(2)
+                                            ->maxLength(255),
+                                        Toggle::make('show_regions')
+                                            ->label('Show region links (panel layout)')
+                                            ->default(true),
+                                        Toggle::make('show_directory')
+                                            ->label('List the congregations beside it (panel layout)')
+                                            ->default(false),
+                                        TextInput::make('directory_heading')
+                                            ->label('Congregations heading')
+                                            ->default('Our congregations')
+                                            ->maxLength(255),
+                                        TextInput::make('help_heading')
+                                            ->label('Help box heading (panel layout)')
+                                            ->maxLength(255),
+                                        Textarea::make('help_text')
+                                            ->label('Help box text')
+                                            ->rows(2)
+                                            ->maxLength(500),
+                                        TextInput::make('help_link_text')
+                                            ->label('Help box link text')
+                                            ->maxLength(50),
+                                        TextInput::make('help_link_url')
+                                            ->label('Help box link')
+                                            ->maxLength(255),
                                     ])
                                     ->icon('heroicon-o-magnifying-glass'),
 
@@ -426,6 +545,9 @@ class PageForm
                                         Toggle::make('group_by_region')
                                             ->label('Group by region')
                                             ->default(true),
+                                        Toggle::make('compact')
+                                            ->label('Compact list')
+                                            ->default(false),
                                         TextInput::make('limit')
                                             ->label('Maximum shown')
                                             ->numeric()
@@ -461,6 +583,19 @@ class PageForm
                                             ->label('Upcoming only')
                                             ->default(true)
                                             ->helperText('Hides events whose date has passed.'),
+                                        Select::make('layout')
+                                            ->label('Layout')
+                                            ->options(['list' => 'List', 'cards' => 'Cards in a scrolling row'])
+                                            ->default('list')
+                                            ->required(),
+                                        TextInput::make('more_text')
+                                            ->label('"More" link text (cards layout)')
+                                            ->default('More events')
+                                            ->maxLength(50),
+                                        TextInput::make('more_url')
+                                            ->label('"More" link (cards layout)')
+                                            ->default('/events')
+                                            ->maxLength(255),
                                         TextInput::make('empty_message')
                                             ->label('If there is nothing to show')
                                             ->default('No events are scheduled at the moment.')
@@ -473,6 +608,14 @@ class PageForm
                                     ->schema([
                                         TextInput::make('heading')->label('Heading')->maxLength(255),
                                         Toggle::make('show_logos')->label('Show logos')->default(true),
+                                        Select::make('layout')
+                                            ->label('Layout')
+                                            ->options(['cards' => 'Cards', 'tiles' => 'Colour tiles'])
+                                            ->default('cards')
+                                            ->required(),
+                                        TextInput::make('lede')
+                                            ->label('Introduction line')
+                                            ->maxLength(255),
                                         TextInput::make('limit')->label('Maximum shown')->numeric(),
                                         TextInput::make('empty_message')
                                             ->label('If there is nothing to show')
