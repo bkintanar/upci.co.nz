@@ -206,22 +206,22 @@ class ChurchForm
 
                         Grid::make(2)
                             ->schema([
+                                // ->boolean() rather than ->options([1 => …, 0 => …]): the
+                                // model casts these columns to booleans, and since Filament
+                                // 4.x a Select discards a loaded value that is not one of its
+                                // option keys (false is not 0), so saving a church wrote NULL
+                                // into a NOT NULL column. boolean() adds the state cast that
+                                // maps true/false to the 1/0 options and back.
                                 Select::make('is_active')
                                     ->label('Church Status')
-                                    ->options([
-                                        1 => 'Active',
-                                        0 => 'Inactive',
-                                    ])
-                                    ->default(1)
+                                    ->boolean('Active', 'Inactive')
+                                    ->default(true)
                                     ->required(),
 
                                 Select::make('is_featured')
                                     ->label('Featured Church')
-                                    ->options([
-                                        1 => 'Yes',
-                                        0 => 'No',
-                                    ])
-                                    ->default(0),
+                                    ->boolean('Yes', 'No')
+                                    ->default(false),
                             ]),
                     ])
                     ->collapsible()

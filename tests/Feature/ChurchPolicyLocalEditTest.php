@@ -132,7 +132,7 @@ test('a local user sees the leadership field disabled and no other church leader
 
     editChurchPage($this->myChurch)
         // Fields inside collapsible sections are keyed by their section.
-        ->assertFormFieldIsDisabled('church-leadership::data::section.assigned_leadership')
+        ->assertFormFieldIsDisabled('assigned_leadership')
         ->assertDontSee($otherPastor->name);
 });
 
@@ -228,7 +228,7 @@ test('local and regional users cannot move a church to another region', function
     $this->actingAs($actor);
 
     editChurchPage($this->myChurch)
-        ->assertFormFieldIsDisabled('church-information::data::section.region_id')
+        ->assertFormFieldIsDisabled('region_id')
         ->set('data.region_id', $this->regionSouth->id)
         ->set('data.name', 'Renamed')
         ->call('save')
