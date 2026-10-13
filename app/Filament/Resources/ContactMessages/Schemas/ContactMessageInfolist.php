@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\ContactMessages\Schemas;
 
 use Filament\Schemas\Schema;
+use App\Models\ContactMessage;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use App\Filament\Resources\Shared\TextLines;
 use Filament\Infolists\Components\TextEntry;
 
 class ContactMessageInfolist
@@ -27,6 +29,11 @@ class ContactMessageInfolist
                         // unauthenticated public endpoint.
                         TextEntry::make('message')
                             ->label('')
+                            // Keeps the sender's line breaks and paragraphs
+                            // without rendering any HTML: one line per row,
+                            // each escaped (see TextLines).
+                            ->state(fn (ContactMessage $record) => TextLines::split($record->message))
+                            ->listWithLineBreaks()
                             ->columnSpanFull(),
                     ])
                     ->columnSpanFull(),

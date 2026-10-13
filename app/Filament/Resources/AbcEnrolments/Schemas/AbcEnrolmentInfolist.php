@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\AbcEnrolments\Schemas;
 
+use App\Models\AbcEnrolment;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use App\Filament\Resources\Shared\TextLines;
 use Filament\Infolists\Components\TextEntry;
 
 /**
@@ -13,8 +15,8 @@ use Filament\Infolists\Components\TextEntry;
  *
  * Escaped by default. Do not add ->html() or swap any entry for a
  * markdown/rich renderer -- the content comes from an unauthenticated public
- * endpoint. Long answers keep their line breaks via whitespace-pre-line
- * instead.
+ * endpoint. Long answers keep their line breaks by being listed one line per
+ * row (see TextLines), so each line is still escaped like any other state.
  */
 class AbcEnrolmentInfolist
 {
@@ -106,7 +108,8 @@ class AbcEnrolmentInfolist
     {
         return TextEntry::make($field)
             ->label($label)
-            ->extraAttributes(['class' => 'whitespace-pre-line'])
+            ->state(fn (AbcEnrolment $record) => TextLines::split($record->{$field}))
+            ->listWithLineBreaks()
             ->columnSpanFull();
     }
 }

@@ -69,6 +69,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Display Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Where the people reading the admin are. Timestamps are still stored and
+    | compared in UTC (above); this only changes how date-times are shown in
+    | the admin, so an enrolment received at 12:38pm on 14 October in New
+    | Zealand no longer reads "13 Oct, 11:38pm". Form pickers are deliberately
+    | left in UTC; see AdminPanelProvider::boot().
+    |
+    */
+
+    'display_timezone' => env('APP_DISPLAY_TIMEZONE', 'Pacific/Auckland'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |
