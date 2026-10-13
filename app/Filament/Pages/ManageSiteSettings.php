@@ -11,6 +11,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
@@ -88,6 +89,12 @@ class ManageSiteSettings extends Page implements HasForms
                     ->schema([
                         TextInput::make('contact_email')->email()->maxLength(255),
                         TextInput::make('footer_blurb')->label('Footer blurb')->maxLength(500),
+                        Textarea::make('postal_address')
+                            ->label('Postal address')
+                            ->rows(3)
+                            ->maxLength(500)
+                            ->helperText('Shown in the site footer. Leave empty to hide.')
+                            ->columnSpanFull(),
                     ])
                     ->columns(2),
 

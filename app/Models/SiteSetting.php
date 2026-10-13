@@ -13,6 +13,7 @@ class SiteSetting extends Model
         'header_logo_path',
         'footer_logo_path',
         'contact_email',
+        'postal_address',
         'footer_blurb',
         'social_links',
     ];

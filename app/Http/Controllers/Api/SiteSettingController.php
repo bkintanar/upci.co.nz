@@ -23,6 +23,7 @@ class SiteSettingController extends Controller
                 'header_logo_url' => $this->url($settings->header_logo_path),
                 'footer_logo_url' => $this->url($settings->footer_logo_path),
                 'contact_email' => $settings->contact_email,
+                'postal_address' => $settings->postal_address,
                 'footer_blurb' => $settings->footer_blurb,
                 'social_links' => $settings->social_links ?? [],
             ],
