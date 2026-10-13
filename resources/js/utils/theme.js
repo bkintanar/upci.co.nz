@@ -47,6 +47,54 @@ export function departmentHeroClasses(theme) {
     return DEPARTMENT_THEMES[theme] || DEPARTMENT_THEMES.blue
 }
 
+// Flat department fills and text, for swatches, the six-colour ribbon and the
+// "Next · …" tags on the homepage's ministry rows. Same keys as above, same
+// reason for literal strings. Text uses the 700, which holds 4.5:1 on paper.
+const DEPARTMENT_SWATCHES = {
+    blue: 'bg-brand-dept-blue-700',
+    green: 'bg-brand-dept-green-700',
+    pink: 'bg-brand-dept-pink-700',
+    yellow: 'bg-brand-dept-yellow-700',
+    purple: 'bg-brand-dept-purple-700',
+    indigo: 'bg-brand-dept-indigo-700',
+}
+
+const DEPARTMENT_TEXT = {
+    blue: 'text-brand-dept-blue-700',
+    green: 'text-brand-dept-green-700',
+    pink: 'text-brand-dept-pink-700',
+    yellow: 'text-brand-dept-yellow-700',
+    purple: 'text-brand-dept-purple-700',
+    indigo: 'text-brand-dept-indigo-700',
+}
+
+/**
+ * The six department hues in the departments' own order (Men's, Ladies,
+ * Missions, Youth, Children's, Prayer). The ribbon is a brand device, not a
+ * data view, so it does not wait on /api/departments.
+ */
+export const DEPARTMENT_RIBBON = ['green', 'pink', 'purple', 'yellow', 'indigo', 'blue']
+
+/**
+ * Flat fill for a department's colour_theme, falling back to blue.
+ *
+ * @param {string|null|undefined} theme
+ * @returns {string}
+ */
+export function departmentSwatchClasses(theme) {
+    return DEPARTMENT_SWATCHES[theme] || DEPARTMENT_SWATCHES.blue
+}
+
+/**
+ * Text colour for a department's colour_theme, falling back to blue.
+ *
+ * @param {string|null|undefined} theme
+ * @returns {string}
+ */
+export function departmentTextClasses(theme) {
+    return DEPARTMENT_TEXT[theme] || DEPARTMENT_TEXT.blue
+}
+
 /**
  * The brand surfaces. Direction B is plain and institutional — flat fills and
  * a rule, not gradients and shadows.
@@ -108,6 +156,28 @@ export function button(kind) {
         case 'primary':
         default:
             return 'inline-flex items-center px-5 py-3 font-semibold text-white bg-brand-green-700 hover:bg-brand-green-900 transition-colors'
+    }
+}
+
+/**
+ * The homepage's square, uppercase, tracked buttons (direction D2, after the
+ * Church of Scotland). Separate from button() above, which the rest of the
+ * site uses and which keeps its sentence-case voice.
+ *
+ * @param {'green'|'clay'|'line'} kind
+ * @returns {string}
+ */
+export function ctaButton(kind) {
+    const base = 'inline-flex items-center justify-center gap-2.5 min-h-12 px-[22px] rounded-sm text-sm font-bold tracking-[0.07em] uppercase whitespace-nowrap no-underline transition-colors'
+
+    switch (kind) {
+        case 'clay':
+            return `${base} bg-brand-clay-600 text-brand-ink hover:bg-brand-paper`
+        case 'line':
+            return `${base} border-2 border-white/70 text-white hover:bg-white/10`
+        case 'green':
+        default:
+            return `${base} bg-brand-green-700 text-white hover:bg-brand-green-900`
     }
 }
 

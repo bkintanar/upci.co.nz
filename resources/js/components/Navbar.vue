@@ -1,51 +1,52 @@
 <template>
-    <nav class="bg-slate-800 shadow-lg border-b border-slate-700 sticky top-0 z-50">
+    <!-- Direction D1's bar (owner's choice, 2026-10-14: "the menu from D1,
+         where I can clearly see it"): brand green-900 with plain white links,
+         an underline on hover, and the log-in as an outlined pill. Stays h-20
+         (80px): the ABC enrolment page's running head is pinned under it with
+         --sticky-top: 80px. -->
+    <nav class="bg-brand-green-900 text-white sticky top-0 z-50" aria-label="Main">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20 gap-4">
-                        <div class="flex items-center">
-                            <router-link to="/" class="flex-shrink-0 flex items-center group">
-                                <img :src="headerLogo"
-                                     alt="UPCI New Zealand"
-                                     class="h-14 w-auto group-hover:scale-105 transition-transform duration-300">
-                            </router-link>
-                        </div>
+            <div class="flex justify-between items-center h-20 gap-5">
+                <router-link to="/" class="shrink-0 flex items-center">
+                    <img :src="headerLogo" alt="UPCI New Zealand — home" class="h-14 xl:h-[62px] w-auto">
+                </router-link>
 
-                <div v-if="!loading" class="hidden min-[1400px]:flex items-center flex-nowrap">
-                    <template v-for="item in menuItems" :key="item.id">
-                        <!-- Menu item with dropdown -->
-                        <div v-if="item.children && item.children.length > 0" class="relative group">
+                <ul v-if="!loading" class="hidden xl:flex items-center gap-[clamp(14px,1.45vw,22px)] text-[14.5px] font-semibold">
+                    <li v-for="item in menuItems" :key="item.id" :class="hasChildren(item) ? 'relative group' : ''">
+                        <!-- Menu item with dropdown. Opens on hover and on keyboard
+                             focus (focus-within), so tabbing reaches the children. -->
+                        <template v-if="hasChildren(item)">
                             <router-link
                                 v-if="item.url && !isPlainAnchor(item.url)"
                                 :to="item.url"
-                                class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
+                                class="inline-flex items-center gap-1.5 py-2 whitespace-nowrap hover:underline decoration-2 underline-offset-[7px]">
                                 {{ item.label }}
-                                <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
+                                <span class="w-0 h-0 border-x-4 border-x-transparent border-t-[5px] border-t-current" aria-hidden="true"></span>
                             </router-link>
-                            <button v-else class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold flex items-center whitespace-nowrap transition-colors duration-200">
+                            <button v-else type="button" class="inline-flex items-center gap-1.5 py-2 whitespace-nowrap font-semibold hover:underline decoration-2 underline-offset-[7px]">
                                 {{ item.label }}
-                                <svg class="ml-2 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
+                                <span class="w-0 h-0 border-x-4 border-x-transparent border-t-[5px] border-t-current" aria-hidden="true"></span>
                             </button>
-                            <div class="absolute left-0 mt-2 w-72 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 border border-slate-100">
-                                <div class="py-2">
+                            <!-- pt-2 instead of a margin: the gap belongs to the
+                                 panel, so the pointer never crosses dead space
+                                 and drops the hover on its way down. -->
+                            <div class="absolute left-0 top-full pt-2 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 z-50">
+                                <div class="py-2 bg-white text-brand-ink rounded-sm shadow-xl border-t-[3px] border-brand-clay-600">
                                     <template v-for="child in item.children" :key="child.id">
                                         <a
                                             v-if="child.url && isPlainAnchor(child.url)"
                                             :href="child.url"
                                             :target="child.open_in_new_tab ? '_blank' : '_self'"
-                                            class="block px-6 py-3 text-sm text-slate-700 hover:bg-brand-green-100 hover:text-brand-green-700 transition-colors">
+                                            class="block px-6 py-3 text-sm hover:bg-brand-green-100 hover:text-brand-green-900 transition-colors">
                                             <div class="font-semibold">{{ child.label }}</div>
-                                            <div v-if="child.description" class="text-xs text-slate-500">{{ child.description }}</div>
+                                            <div v-if="child.description" class="text-xs font-normal text-brand-muted">{{ child.description }}</div>
                                         </a>
                                         <router-link
                                             v-else-if="child.url"
                                             :to="child.url"
-                                            class="block px-6 py-3 text-sm text-slate-700 hover:bg-brand-green-100 hover:text-brand-green-700 transition-colors">
+                                            class="block px-6 py-3 text-sm hover:bg-brand-green-100 hover:text-brand-green-900 transition-colors">
                                             <div class="font-semibold">{{ child.label }}</div>
-                                            <div v-if="child.description" class="text-xs text-slate-500">{{ child.description }}</div>
+                                            <div v-if="child.description" class="text-xs font-normal text-brand-muted">{{ child.description }}</div>
                                         </router-link>
 
                                         <!-- Third level, e.g. SBQ under Youth Ministry.
@@ -59,74 +60,81 @@
                                             v-for="grandchild in (child.children || [])"
                                             :key="grandchild.id"
                                             :item="grandchild"
-                                            class="flex items-center pl-12 pr-6 py-2 text-sm text-slate-600 hover:bg-brand-green-100 hover:text-brand-green-700 transition-colors">
-                                            <span class="w-3 border-t border-slate-300 mr-3" aria-hidden="true"></span>
+                                            class="flex items-center pl-12 pr-6 py-2 text-sm font-medium text-brand-muted hover:bg-brand-green-100 hover:text-brand-green-900 transition-colors">
+                                            <span class="w-3 border-t border-brand-grey-400 mr-3" aria-hidden="true"></span>
                                             {{ grandchild.label }}
                                         </MenuLink>
                                     </template>
                                 </div>
                             </div>
-                        </div>
+                        </template>
+
+                        <!-- Minister's Log-in: an outlined pill, set apart from
+                             the public destinations. -->
+                        <MenuLink
+                            v-else-if="isLogin(item)"
+                            :item="item"
+                            class="inline-flex items-center px-4 py-2 whitespace-nowrap border-[1.5px] border-white rounded-full hover:bg-white hover:text-brand-green-900 transition-colors">
+                            {{ item.label }}
+                        </MenuLink>
 
                         <!-- Regular menu item (no dropdown) -->
-                        <a
-                            v-else-if="item.url && isPlainAnchor(item.url)"
-                            :href="item.url"
-                            :target="item.open_in_new_tab ? '_blank' : '_self'"
-                            class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
+                        <MenuLink
+                            v-else
+                            :item="item"
+                            class="inline-flex items-center py-2 whitespace-nowrap hover:underline decoration-2 underline-offset-[7px]">
                             {{ item.label }}
-                        </a>
-                        <router-link
-                            v-else-if="item.url"
-                            :to="item.url"
-                            class="text-white hover:text-brand-green-100 px-2 lg:px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors duration-200">
-                            {{ item.label }}
-                        </router-link>
-                    </template>
-                </div>
+                        </MenuLink>
+                    </li>
+                </ul>
 
-                <!-- Mobile menu button -->
-                <div class="min-[1400px]:hidden flex items-center">
-                    <button @click="toggleMobileMenu" class="text-white hover:text-brand-green-100 p-2 rounded-lg hover:bg-slate-700 transition-colors">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                </div>
+                <!-- Mobile menu button: a labelled pill, not a bare icon. -->
+                <button
+                    type="button"
+                    class="xl:hidden inline-flex items-center gap-2.5 min-h-11 px-4 rounded-full border-[1.5px] border-white font-bold hover:bg-white hover:text-brand-green-900 transition-colors"
+                    :aria-expanded="mobileMenuOpen ? 'true' : 'false'"
+                    aria-controls="mobile-menu"
+                    @click="toggleMobileMenu">
+                    <svg class="w-[18px] h-[14px]" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path v-if="!mobileMenuOpen" d="M0 1h18M0 7h18M0 13h18" />
+                        <path v-else d="M3 1l12 12M15 1L3 13" />
+                    </svg>
+                    {{ mobileMenuOpen ? 'Close' : 'Menu' }}
+                </button>
             </div>
         </div>
 
-                <!-- Mobile menu -->
-                <div v-show="mobileMenuOpen" class="min-[1400px]:hidden bg-slate-700 border-t border-slate-600">
-            <div v-if="!loading" class="px-4 pt-4 pb-6 space-y-2">
+        <!-- Mobile menu -->
+        <div v-show="mobileMenuOpen" id="mobile-menu" class="xl:hidden bg-brand-green-900 border-t border-white/15">
+            <div v-if="!loading" class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6 space-y-1">
                 <template v-for="item in menuItems" :key="item.id">
                     <!-- Parent with children -->
-                    <div v-if="item.children && item.children.length > 0" class="space-y-1">
+                    <div v-if="hasChildren(item)" class="space-y-1">
                         <router-link
                             v-if="item.url && !isPlainAnchor(item.url)"
                             :to="item.url"
                             @click="mobileMenuOpen = false"
-                            class="block px-3 py-2 text-sm font-semibold text-white hover:bg-slate-600 rounded-lg transition-colors">
+                            class="block px-3 py-2 text-base font-semibold text-white hover:bg-white/10 rounded-sm transition-colors">
                             {{ item.label }}
                         </router-link>
-                        <div v-else class="text-sm font-semibold text-slate-300 px-3 py-2">{{ item.label }}</div>
+                        <div v-else class="px-3 pt-3 pb-1 text-xs font-bold tracking-[0.12em] uppercase text-white/70">{{ item.label }}</div>
                         <template v-for="child in item.children" :key="child.id">
                             <a
                                 v-if="child.url && isPlainAnchor(child.url)"
                                 :href="child.url"
                                 :target="child.open_in_new_tab ? '_blank' : '_self'"
                                 @click="mobileMenuOpen = false"
-                                class="block px-6 py-3 text-sm text-white hover:bg-slate-600 rounded-lg transition-colors">
+                                class="block px-6 py-2.5 text-base text-white hover:bg-white/10 rounded-sm transition-colors">
                                 <div class="font-semibold">{{ child.label }}</div>
-                                <div v-if="child.description" class="text-xs text-slate-400">{{ child.description }}</div>
+                                <div v-if="child.description" class="text-sm text-white/75">{{ child.description }}</div>
                             </a>
                             <router-link
                                 v-else-if="child.url"
                                 :to="child.url"
                                 @click="mobileMenuOpen = false"
-                                class="block px-6 py-3 text-sm text-white hover:bg-slate-600 rounded-lg transition-colors">
+                                class="block px-6 py-2.5 text-base text-white hover:bg-white/10 rounded-sm transition-colors">
                                 <div class="font-semibold">{{ child.label }}</div>
-                                <div v-if="child.description" class="text-xs text-slate-400">{{ child.description }}</div>
+                                <div v-if="child.description" class="text-sm text-white/75">{{ child.description }}</div>
                             </router-link>
 
                             <!-- Third level, indented. Mobile needs this as much as
@@ -137,29 +145,29 @@
                                 :key="grandchild.id"
                                 :item="grandchild"
                                 @click="mobileMenuOpen = false"
-                                class="flex items-center pl-12 pr-6 py-2 text-sm text-slate-200 hover:bg-slate-600 rounded-lg transition-colors">
-                                <span class="w-3 border-t border-slate-500 mr-3" aria-hidden="true"></span>
+                                class="flex items-center pl-12 pr-6 py-2 text-base text-white/90 hover:bg-white/10 rounded-sm transition-colors">
+                                <span class="w-3 border-t border-white/40 mr-3" aria-hidden="true"></span>
                                 {{ grandchild.label }}
                             </MenuLink>
                         </template>
                     </div>
 
+                    <MenuLink
+                        v-else-if="isLogin(item)"
+                        :item="item"
+                        @click="mobileMenuOpen = false"
+                        class="inline-flex items-center mt-3 ml-3 px-4 py-2 text-base font-semibold border-[1.5px] border-white rounded-full hover:bg-white hover:text-brand-green-900 transition-colors">
+                        {{ item.label }}
+                    </MenuLink>
+
                     <!-- Regular item (no children) -->
-                    <a
-                        v-else-if="item.url && isPlainAnchor(item.url)"
-                        :href="item.url"
-                        :target="item.open_in_new_tab ? '_blank' : '_self'"
+                    <MenuLink
+                        v-else
+                        :item="item"
                         @click="mobileMenuOpen = false"
-                        class="block px-3 py-3 text-sm text-white hover:bg-slate-600 rounded-lg transition-colors font-semibold">
+                        class="block px-3 py-2.5 text-base font-semibold text-white hover:bg-white/10 rounded-sm transition-colors">
                         {{ item.label }}
-                    </a>
-                    <router-link
-                        v-else-if="item.url"
-                        :to="item.url"
-                        @click="mobileMenuOpen = false"
-                        class="block px-3 py-3 text-sm text-white hover:bg-slate-600 rounded-lg transition-colors font-semibold">
-                        {{ item.label }}
-                    </router-link>
+                    </MenuLink>
                 </template>
             </div>
         </div>
@@ -208,6 +216,11 @@ export default defineComponent({
         const menuItems = ref([])
         const loading = ref(true)
 
+        const hasChildren = (item) => Array.isArray(item.children) && item.children.length > 0
+
+        // The back-office entry, wherever the CMS menu puts it.
+        const isLogin = (item) => /^\/admin(\/|$)/.test(item.url || '')
+
         const toggleMobileMenu = () => {
             mobileMenuOpen.value = !mobileMenuOpen.value
         }
@@ -235,6 +248,8 @@ export default defineComponent({
 
         return {
             isPlainAnchor,
+            hasChildren,
+            isLogin,
             mobileMenuOpen,
             menuItems,
             loading,

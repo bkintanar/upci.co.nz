@@ -1,103 +1,92 @@
 <template>
-    <footer class="bg-slate-900 text-white">
-        <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="md:col-span-2">
-                    <div class="flex items-center mb-6">
-                        <img :src="footerLogo"
-                             alt="UPCI New Zealand"
-                             class="h-24 w-auto mr-6 drop-shadow-lg">
-                    </div>
-                    <p class="text-slate-300 mb-6 max-w-md leading-relaxed">
-                        {{ blurb }}
-                    </p>
-
-                    <!-- Requirement 8: social links come from site settings.
-                         These used to be three hard-coded icons all pointing at
-                         "#" — two Twitter bird variants and a Pinterest, none of
-                         them live. Removing the markup alone would have left the
-                         same problem one edit away; driving it from settings
-                         means there is no Twitter entry to render in the first
-                         place. -->
-                    <div v-if="socialLinks.length" class="flex space-x-4">
-                        <a
-                            v-for="link in socialLinks"
-                            :key="link.platform"
-                            :href="link.url"
-                            target="_blank"
-                            rel="noopener"
-                            :aria-label="platformLabel(link.platform)"
-                            class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-brand-green-700 transition-colors"
-                        >
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path :d="iconPath(link.platform)" />
-                            </svg>
-                        </a>
-                    </div>
+    <!-- Direction D2's footer: a deep green-to-ink ground under the six-colour
+         ribbon, ruled column heads, chevron quick links, and a contact column
+         with the ministers' log-in. -->
+    <footer class="bg-gradient-to-br from-brand-green-900 via-brand-green-900 to-brand-ink text-white">
+        <DepartmentRibbon />
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid gap-10 pt-14 pb-10 md:grid-cols-[4fr_5fr_3fr] md:gap-14 md:pt-[72px]">
+                <div>
+                    <img :src="footerLogo" alt="UPCI New Zealand" class="h-16 w-auto">
+                    <p class="mt-[18px] text-base leading-relaxed text-white/85 max-w-[38ch]">{{ blurb }}</p>
                 </div>
 
-                <div>
-                    <h3 class="text-lg font-semibold mb-6">Quick Links</h3>
-                    <!-- Driven by the footer menu rows so the footer and header
-                         cannot drift apart. Falls back to nothing rather than to
-                         a stale hard-coded list. -->
-                    <ul v-if="quickLinks.length" class="space-y-3">
+                <!-- Driven by the footer menu rows so the footer and header
+                     cannot drift apart. Falls back to nothing rather than to
+                     a stale hard-coded list. -->
+                <nav v-if="quickLinks.length" :aria-labelledby="quickLinksId">
+                    <h2 :id="quickLinksId" class="mb-4 pb-3 text-xl font-medium border-b-2 border-white/55">Quick links</h2>
+                    <ul class="grid grid-cols-2 gap-x-6 gap-y-1">
                         <li v-for="link in quickLinks" :key="link.id">
                             <!-- MenuLink, not router-link: an external quick link
                                  (a Facebook page, say) must leave the site rather
                                  than become an in-app path. -->
-                            <MenuLink :item="link" class="text-slate-300 hover:text-white transition-colors">
-                                {{ link.label }}
-                            </MenuLink>
+                            <MenuLink
+                                :item="link"
+                                class="relative inline-block py-1.5 pl-4 text-[15px] leading-snug text-white/90 hover:underline underline-offset-[3px] before:content-[''] before:absolute before:left-px before:top-[13px] before:w-1.5 before:h-1.5 before:border-t-2 before:border-r-2 before:border-brand-clay-600 before:rotate-45"
+                            >{{ link.label }}</MenuLink>
                         </li>
                     </ul>
-                </div>
+                </nav>
 
                 <div>
-                    <h3 class="text-lg font-semibold mb-6">Contact</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-start">
-                            <svg class="w-5 h-5 text-brand-green-100 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <div>
-                                <p class="text-slate-300 text-sm">New Zealand</p>
-                                <router-link to="/find-church" class="text-slate-400 text-xs hover:text-white transition-colors">
-                                    Find your local church
-                                </router-link>
-                            </div>
+                    <h2 class="mb-4 pb-3 text-xl font-medium border-b-2 border-white/55">Contact</h2>
+                    <p class="mb-[22px]"><a href="/admin" :class="ctaButton('line')">Ministers' log-in</a></p>
+                    <!-- Email and postal address come from Site Settings and are
+                         left out until they are set: an empty row or a made-up
+                         address would be worse than none. -->
+                    <dl v-if="contactEmail || postalAddress" class="grid gap-3.5">
+                        <div v-if="contactEmail">
+                            <dt class="text-xs font-bold tracking-[0.12em] uppercase text-white/70">Email</dt>
+                            <dd class="mt-0.5 text-base"><a :href="`mailto:${contactEmail}`" class="hover:underline underline-offset-[3px] break-words">{{ contactEmail }}</a></dd>
                         </div>
-                        <div v-if="contactEmail" class="flex items-start">
-                            <svg class="w-5 h-5 text-brand-green-100 mt-1 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
-                            <div>
-                                <a :href="`mailto:${contactEmail}`" class="text-slate-300 text-sm hover:text-white transition-colors">
-                                    {{ contactEmail }}
-                                </a>
-                                <p class="text-slate-400 text-xs">General inquiries</p>
-                            </div>
+                        <div v-if="postalAddress">
+                            <dt class="text-xs font-bold tracking-[0.12em] uppercase text-white/70">Postal address</dt>
+                            <dd class="mt-0.5 text-base whitespace-pre-line">{{ postalAddress }}</dd>
                         </div>
-                    </div>
+                    </dl>
+                    <p v-else>
+                        <router-link to="/connect-with-us" class="text-base text-white/90 hover:underline underline-offset-[3px]">
+                            Get in touch through the website
+                        </router-link>
+                    </p>
                 </div>
             </div>
 
-            <div class="border-t border-slate-800 mt-12 pt-8">
-                <!-- The Privacy Policy / Terms / Cookie Policy links that sat
-                     here were all href="#". No such pages exist, so they were
-                     three dead links promising documents the site does not
-                     have. Removed rather than left pointing nowhere. -->
-                <p class="text-slate-400 text-sm text-center md:text-left">
-                    &copy; {{ currentYear }} UPCI New Zealand. All rights reserved.
-                </p>
+            <!-- The Privacy Policy / Terms / Cookie Policy links that sat
+                 here were all href="#". No such pages exist, so they were
+                 three dead links promising documents the site does not
+                 have. Removed rather than left pointing nowhere. -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-5 pb-7 border-t border-white/20 text-sm text-white/80">
+                <p>&copy; {{ currentYear }} UPCI New Zealand</p>
+
+                <!-- Requirement 8: social links come from site settings.
+                     These used to be three hard-coded icons all pointing at
+                     "#" — two Twitter bird variants and a Pinterest, none of
+                     them live. Driving them from settings means there is no
+                     Twitter entry to render in the first place. -->
+                <div v-if="socialLinks.length" class="flex gap-2">
+                    <a
+                        v-for="link in socialLinks"
+                        :key="link.platform"
+                        :href="link.url"
+                        target="_blank"
+                        rel="noopener"
+                        :aria-label="`UPCI NZ on ${platformLabel(link.platform)}`"
+                        class="inline-grid place-items-center w-9 h-9 bg-white text-brand-green-900 rounded-sm hover:bg-brand-clay-600 hover:text-brand-ink transition-colors"
+                    >
+                        <svg class="w-[18px] h-[18px]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path :d="iconPath(link.platform)" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </footer>
 </template>
 
 <script>
-import { defineComponent, computed, ref, onMounted } from 'vue'
+import { defineComponent, computed, ref, onMounted, useId } from 'vue'
 // New UPCI NZ mark from the 2026 logo pack, white variant — both the
 // navbar and footer sit on dark surfaces, and the standard mark sets its
 // wordmark in black. PNG rather than SVG deliberately: the SVG export
@@ -109,6 +98,8 @@ import { defineComponent, computed, ref, onMounted } from 'vue'
 import upciLogo from '../../images/upci-nz-logo-footer.png'
 import { useSiteSettings } from '../composables/useSiteSettings'
 import MenuLink from './MenuLink.vue'
+import DepartmentRibbon from './home/DepartmentRibbon.vue'
+import { ctaButton } from '../utils/theme'
 
 // Only the platforms the organisation actually uses. Adding a platform means
 // adding its mark here — deliberately explicit, so an unrecognised platform
@@ -119,12 +110,14 @@ const ICONS = {
     instagram: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z',
 }
 
+// Shortened for the D2 footer (owner-approved 2026-10-14); Site Settings can
+// still replace it.
 const DEFAULT_BLURB = 'Building strong Christian communities across New Zealand through faith, '
-    + 'fellowship, and service. Join us in spreading the gospel and making a difference in our communities.'
+    + 'fellowship, and service.'
 
 export default defineComponent({
     name: 'Footer',
-    components: { MenuLink },
+    components: { MenuLink, DepartmentRibbon },
     setup() {
         const { settings } = useSiteSettings()
         const menuItems = ref([])
@@ -132,6 +125,8 @@ export default defineComponent({
         const footerLogo = computed(() => settings.value?.footer_logo_url || upciLogo)
         const blurb = computed(() => settings.value?.footer_blurb || DEFAULT_BLURB)
         const contactEmail = computed(() => settings.value?.contact_email || null)
+        const postalAddress = computed(() => settings.value?.postal_address?.trim() || null)
+        const quickLinksId = useId()
 
         // Only links with a mark we actually ship. An unknown platform is
         // skipped rather than rendered as an empty square.
@@ -158,7 +153,10 @@ export default defineComponent({
 
         const currentYear = computed(() => new Date().getFullYear())
 
-        return { currentYear, footerLogo, blurb, contactEmail, socialLinks, quickLinks, iconPath, platformLabel }
+        return {
+            currentYear, footerLogo, blurb, contactEmail, postalAddress, socialLinks, quickLinks,
+            quickLinksId, iconPath, platformLabel, ctaButton,
+        }
     }
 })
 </script>

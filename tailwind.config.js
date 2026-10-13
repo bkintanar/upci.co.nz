@@ -27,6 +27,10 @@
 // brand fills stay at print density rather than going screen-fluorescent.
 const brand = {
   ink: 'oklch(0.18 0.01 150)',
+  // Ink at roughly 75% on paper, for secondary text. Passes 4.5:1 on paper,
+  // where grey-600 only just does. (The homepage D2 direction uses it for
+  // ledes, meta lines and towns.)
+  muted: 'oklch(0.40 0.008 150)',
   paper: 'oklch(0.98 0.005 95)',
   green: {
     100: 'oklch(0.93 0.03 143)',
