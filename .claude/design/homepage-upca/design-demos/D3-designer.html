@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UPCI NZ — Home · D3 Livery</title>
+<!--
+  DIRECTION D3 · "Best designer, unlimited budget" → Studio Dumbar (The Hague / Rotterdam).
+
+  Why Dumbar: their Dutch Police identity (1993) unified two merged, previously autonomous forces under one
+  sober, durable system whose striping made the organisation visible everywhere. A national church federation
+  of congregations + six ministries has the same problem: many parts, one body, must be seen and trusted.
+
+  Principles applied:
+    1. A livery, not decoration — one stripe of the six department hues carries the identity
+       (top strip on every page, the ministries band, the closing rule). Nothing else is ornamental.
+    2. Sober, honest, durable — flat brand colour, square corners, no shadows, no trend effects;
+       typography (Figtree 800 / 400) does the hierarchy.
+    3. Design as public wayfinding — the congregations are drawn as a route line, north to south,
+       the way a transport system signs its stations.
+    4. Unity of merged bodies — six hues share one L/C and converge on one ink ground.
+    5. A wink inside the system (Gert Dumbar's humour) — the line turns into a ferry crossing at Cook Strait.
+
+  Grid: the page's side gutter is 5.5vw, which is exactly where the theme banner's dark frame sits
+  (x = 117/2128 and 2009/2128). The navbar logo, the next-event band and every section align to the banner.
+
+  Tailwind 3 notes: tokens map to theme.extend.colors (ink, paper, green-100/700/900, clay-600, grey-200/400/600,
+  dept-{blue,green,pink,yellow,purple,indigo}-{700,900}). Gutter = px-[max(20px,5.5vw)]. Everything below is
+  flex/grid, aspect-*, border-*, bg-gradient-to-*, opacity — no custom shapes beyond small absolutely positioned divs.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: oklch(0.18 0.01 150);
+    --paper: oklch(0.98 0.005 95);
+    --g100: oklch(0.93 0.03 143);
+    --g700: oklch(0.47 0.09 143);
+    --g900: oklch(0.34 0.07 143);
+    --clay: oklch(0.62 0.12 55);
+    --grey200: oklch(0.90 0.005 150);
+    --grey400: oklch(0.72 0.005 150);
+    --grey600: oklch(0.55 0.005 150);
+    /* department hue angles (L/C fixed by the brand) */
+    --h-men: 143; --h-ladies: 10; --h-missions: 325; --h-youth: 70; --h-children: 275; --h-prayer: 220;
+    --gutter: max(20px, 5.5vw);
+    --font: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 17px/1.55 var(--font);
+    font-feature-settings: "tnum" 0;
+  }
+  @media (min-width: 768px) { body { font-size: 18px; } }
+  img { max-width: 100%; }
+  h1, h2, h3, h4, p { margin: 0; }
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--clay); outline-offset: 3px; }
+
+  .sr-only {
+    position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--ink); color: var(--paper);
+    padding: 10px 14px; font-weight: 700; text-decoration: none; }
+  .skip:focus { top: 12px; }
+
+  .wrap { padding-inline: var(--gutter); }
+
+  .label { font: 700 13px/1.2 var(--font); letter-spacing: .12em; text-transform: uppercase; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .6em;
+    min-height: 52px; padding: 0 24px; border: 2px solid transparent;
+    font: 700 16px/1 var(--font); text-decoration: none; cursor: pointer; white-space: nowrap;
+    transition: background-color .15s, color .15s, border-color .15s;
+  }
+  .btn--green { background: var(--g700); color: var(--paper); }
+  .btn--green:hover { background: var(--g900); }
+  .btn--ink { background: var(--ink); color: var(--paper); }
+  .btn--ink:hover { background: var(--g900); }
+  .btn--line { border-color: currentColor; background: transparent; }
+  .btn--line:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn--clay { background: var(--clay); color: var(--ink); }
+  .btn--clay:hover { background: var(--paper); }
+  .arrow { display: inline-block; transition: transform .15s; }
+  a:hover .arrow { transform: translateX(3px); }
+
+  h2.section-title { font: 800 34px/1.04 var(--font); letter-spacing: -.025em; }
+  @media (min-width: 1024px) { h2.section-title { font-size: 46px; } }
+
+  /* ───────────────────────── 1 · LIVERY STRIP (scrolls away) ───────────────────────── */
+  .livery { background: var(--ink); }
+  .livery ul {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: none;                     /* Tailwind: [scrollbar-width:none] */
+  }
+  .livery ul::-webkit-scrollbar { display: none; }
+  .livery li { flex: 1 0 124px; scroll-snap-align: start; }
+  .livery a {
+    display: flex; align-items: center; justify-content: center; height: 60px;
+    background: oklch(0.47 0.09 var(--h)); transition: background-color .15s;
+  }
+  .livery a:hover { background: oklch(0.34 0.07 var(--h)); }
+  .livery a:focus-visible { outline-offset: -5px; outline-color: var(--paper); }
+  .livery img { height: 46px; width: auto; display: block; }
+  @media (min-width: 768px) {
+    .livery a { height: 72px; }
+    .livery img { height: 58px; }
+  }
+
+  /* ───────────────────────── 2 · NAVBAR (sticky) ───────────────────────── */
+  .nav { position: sticky; top: 0; z-index: 40; background: var(--g900); color: var(--paper); }
+  .nav__bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 64px; }
+  .nav__logo { display: block; flex: none; }
+  .nav__logo img { display: block; height: 50px; width: auto; }
+  .nav__links { display: none; }
+  .nav__links ul { display: flex; align-items: center; gap: 22px; }
+  .nav__links a {
+    display: inline-flex; align-items: center; gap: 5px; padding: 6px 0;
+    font: 600 15px/1.2 var(--font); text-decoration: none; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+  }
+  .nav__links a:hover { border-bottom-color: var(--clay); }
+  .nav__links svg { opacity: .8; }
+  .nav__links a.nav__login { padding: 9px 14px; border: 2px solid oklch(0.98 0.005 95 / .45); }
+  .nav__links a.nav__login:hover { background: var(--paper); color: var(--g900); border-color: var(--paper); }
+
+  .nav__menu summary {
+    list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+    min-height: 44px; padding: 0 14px; border: 2px solid oklch(0.98 0.005 95 / .45);
+    font: 700 15px/1 var(--font);
+  }
+  .nav__menu summary::-webkit-details-marker { display: none; }
+  .bars { display: inline-grid; gap: 4px; width: 18px; }
+  .bars i { display: block; height: 2px; background: currentColor; }
+  .nav__menu[open] .nav__drop { display: block; }
+  .nav__drop {
+    display: none; position: absolute; left: 0; right: 0; top: 100%;
+    background: var(--g900); border-top: 1px solid oklch(0.98 0.005 95 / .15); padding: 8px var(--gutter) 20px;
+  }
+  .nav__drop a { display: block; padding: 12px 0; font-weight: 600; text-decoration: none;
+    border-bottom: 1px solid oklch(0.98 0.005 95 / .12); }
+  @media (min-width: 768px) {
+    .nav__bar { height: 80px; }
+    .nav__logo img { height: 62px; }
+  }
+  @media (min-width: 1280px) {
+    .nav__links { display: block; }
+    .nav__menu { display: none; }
+  }
+
+  /* ───────────────────────── 3 · THEME BANNER ───────────────────────── */
+  .theme__img { display: block; width: 100%; height: auto; }   /* whole, uncropped, never darkened */
+  .theme__text { padding-top: 28px; padding-bottom: 30px; }
+  .theme__text h1 { font: 800 44px/0.98 var(--font); letter-spacing: -.03em; color: var(--g900); }
+  .theme__sub { margin-top: 12px; font: 600 19px/1.35 var(--font); }
+  .theme__verse { margin-top: 14px; font: italic 400 16px/1.5 var(--font); color: var(--grey600); }
+  .theme__verse cite { font-style: normal; font-weight: 700; white-space: nowrap; }
+  @media (min-width: 768px) {
+    .theme__text { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  }
+
+  /* ───────────────────────── 4 · NEXT-EVENT BAND ───────────────────────── */
+  .next { background: var(--clay); color: var(--ink); }
+  .next :focus-visible { outline-color: var(--ink); }
+  .next__bar { display: grid; gap: 6px; padding-top: 22px; padding-bottom: 24px; }
+  .next__label { display: flex; align-items: center; gap: 10px; }
+  .next__label::before { content: ""; width: 10px; height: 10px; background: var(--ink); }
+  .next__date { display: none; }
+  .next__what h2 { font: 800 26px/1.1 var(--font); letter-spacing: -.02em; margin-top: 4px; }
+  .next__what p { font: 600 17px/1.4 var(--font); }
+  .next .btn { margin-top: 14px; width: 100%; }
+  @media (min-width: 900px) {
+    .next__bar {
+      grid-template-columns: auto auto 1fr auto; align-items: center; column-gap: 32px;
+      padding-top: 0; padding-bottom: 0; min-height: 116px;
+    }
+    .next__label { grid-column: 1 / -1; display: none; }
+    .next__date {
+      display: grid; grid-template-columns: auto; align-content: center; gap: 2px;
+      padding-right: 32px; border-right: 2px solid oklch(0.18 0.01 150 / .28); align-self: stretch;
+      justify-content: start; padding-block: 18px;
+    }
+    .next__date .label { display: flex; align-items: center; gap: 10px; }
+    .next__date .label::before { content: ""; width: 10px; height: 10px; background: var(--ink); }
+    .next__days { font: 800 54px/0.92 var(--font); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+    .next__what { grid-column: 2 / 4; }
+    .next__what h2 { font-size: 30px; margin-top: 0; }
+    .next .btn { margin-top: 0; width: auto; }
+  }
+
+  /* ───────────────────────── 5 · ABOUT ───────────────────────── */
+  .about { display: grid; gap: 36px; padding-top: 64px; padding-bottom: 72px; }
+  .about__text p { margin-top: 18px; max-width: 34em; }
+  .about__welcome { font: 700 24px/1.25 var(--font); color: var(--g700); letter-spacing: -.01em; }
+  .about__text .btn { margin-top: 28px; }
+  .about__media { margin: 0; }
+  .poster { background: var(--g900); color: var(--paper); display: flex; flex-direction: column; height: 100%; }
+  .poster__head { padding: 26px 24px 24px; }
+  .poster__kicker { color: var(--g100); }
+  .poster__line { margin-top: 12px; font: 800 34px/1.02 var(--font); letter-spacing: -.03em; }
+  .poster__places { margin-top: auto; }
+  .poster__places img { display: block; width: 100%; height: auto; }
+  .poster__captions { display: flex; flex-wrap: wrap; gap: 2px 14px; padding: 10px 24px 16px;
+    font: 600 13px/1.4 var(--font); color: var(--g100); }
+  .about__photo { display: none; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; object-position: 50% 40%; }
+  @media (min-width: 1024px) {
+    .about { grid-template-columns: 4fr 8fr; column-gap: 64px; align-items: center; padding-top: 104px; padding-bottom: 112px; }
+    .about__media { aspect-ratio: 3 / 2; }
+    .about__photo { height: 100%; }
+    .poster__head { padding: 36px 40px 0; }
+    .poster__line { font-size: 52px; }
+    /* captions sit under their own slice of the collage: widths are the collage's real panel widths (px of 2128) */
+    .poster__captions { display: grid; grid-template-columns: 282fr 429fr 470fr 460fr 487fr; gap: 0; padding: 0 0 2px; }
+    .poster__captions li { padding: 10px 12px 12px; border-left: 1px solid oklch(0.93 0.03 143 / .3); }
+    .poster__captions li:first-child { border-left: 0; }
+  }
+
+  /* demo states: A = nothing uploaded (default), B = html[data-photos] */
+  [data-photos] .state-a { display: none !important; }
+  [data-photos] .about__photo { display: block; }
+  .state-b { display: none; }
+  [data-photos] .state-b { display: block; }
+
+  /* ───────────────────────── 6+7 · FIND A CHURCH + THE LINE ───────────────────────── */
+  .find { background: var(--g100); padding-top: 64px; padding-bottom: 72px; }
+  .find__grid { display: grid; gap: 52px; }
+  .find__panel > p { margin-top: 14px; max-width: 26em; }
+  .search { display: flex; margin-top: 26px; }
+  .search input {
+    flex: 1 1 auto; min-width: 0; height: 56px; padding: 0 12px 0 14px; border: 2px solid var(--ink); border-right: 0;
+    background: var(--paper); color: var(--ink); font: 400 16px/1 var(--font); border-radius: 0;
+  }
+  .search input::placeholder { color: var(--grey600); opacity: 1; }
+  .search input:focus-visible { outline-offset: 0; }
+  .search .btn { min-height: 56px; border-radius: 0; padding: 0 20px; }
+  @media (min-width: 768px) { .search input { font-size: 17px; padding-left: 16px; } .search .btn { padding: 0 26px; } }
+
+  .regions { margin-top: 30px; border-top: 2px solid var(--ink); }
+  .regions a {
+    display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px;
+    padding: 15px 2px; border-bottom: 1px solid oklch(0.34 0.07 143 / .25); text-decoration: none;
+  }
+  .regions a:hover .regions__name { text-decoration: underline; text-underline-offset: 4px; }
+  .regions__name { font: 700 18px/1.25 var(--font); }
+  .regions__dots { display: flex; gap: 5px; }
+  .regions__dots i { width: 11px; height: 11px; border-radius: 50%; border: 3px solid var(--g700); background: var(--paper); }
+  .regions__n {
+    min-width: 34px; height: 34px; display: grid; place-items: center; background: var(--g900); color: var(--paper);
+    font: 800 17px/1 var(--font); font-variant-numeric: tabular-nums;
+  }
+
+  .line-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+  .line-head h3 { font: 800 24px/1.1 var(--font); letter-spacing: -.015em; }
+  .line-head p { color: var(--g900); font-weight: 600; font-size: 15px; }
+
+  /* The route. One continuous 4px line; rows place their marker on it.
+     Mobile columns: [node 32][text]. Desktop: [geography 168][node 56][church]. */
+  .route { position: relative; --geo: 0px; --node: 32px; padding-top: 10px; }
+  .route::before {
+    content: ""; position: absolute; top: 26px; bottom: 16px; width: 4px;
+    left: calc(var(--geo) + var(--node) / 2 - 2px); background: var(--g700);
+  }
+  .r { position: relative; display: grid; grid-template-columns: var(--node) 1fr; }
+  .r > * { min-width: 0; }
+
+  /* termini */
+  .r--end { height: 32px; align-items: center; }
+  .r--end .mk { grid-column: 1; justify-self: center; width: 20px; height: 4px; background: var(--g700); }
+  .r--end .txt { grid-column: 2; color: var(--g900); }
+  /* island labels */
+  .r--island { padding: 14px 0 4px; }
+  .r--island .txt { grid-column: 2; color: var(--g900); font: 700 12px/1.3 var(--font); letter-spacing: .12em; text-transform: uppercase; }
+  .r--island .txt span { display: block; font-weight: 600; letter-spacing: .04em; text-transform: none; font-size: 13px; font-style: italic; }
+  /* region interchanges */
+  .r--region { padding: 24px 0 8px; align-items: center; }
+  /* interchange badge = the same numbered square as the region links in the panel */
+  .r--region .mk { grid-column: 1; justify-self: center; display: grid; place-items: center; width: 30px; height: 30px;
+    background: var(--g900); color: var(--paper); font: 800 15px/1 var(--font); font-variant-numeric: tabular-nums;
+    box-shadow: 0 0 0 4px var(--g100); position: relative; z-index: 1; }
+  .r--region h4 { grid-column: 2; font: 800 20px/1.15 var(--font); letter-spacing: -.01em; padding-left: 4px; }
+  /* stations */
+  .stop { padding: 9px 0; }
+  .stop .dot { grid-column: 1; grid-row: 1 / span 2; justify-self: center; margin-top: 4px; width: 15px; height: 15px;
+    border-radius: 50%; background: var(--paper); border: 3.5px solid var(--g700); position: relative; z-index: 1;
+    transition: background-color .15s; }
+  .stop .name { grid-column: 2; grid-row: 1; padding-left: 4px; font: 600 17px/1.35 var(--font); text-decoration: none; }
+  .stop .town { grid-column: 2; grid-row: 2; padding-left: 4px; font: 500 15px/1.35 var(--font); color: var(--g900); }
+  .stop:hover .dot { background: var(--g700); }
+  .stop .name:hover { text-decoration: underline; text-underline-offset: 3px; }
+  /* Cook Strait: the solid line becomes a ferry crossing */
+  .r--strait { padding: 2px 0; min-height: 66px; align-items: center; }
+  .r--strait .gap { grid-column: 1; justify-self: center; align-self: stretch; width: 0;
+    border-left: 4px dashed var(--g700); background: var(--g100); position: relative; z-index: 1; }
+  .r--strait .txt { grid-column: 2; padding-left: 4px; font: italic 500 15px/1.35 var(--font); color: var(--g900); }
+
+  @media (min-width: 768px) {
+    .route { --geo: 168px; --node: 56px; }
+    .r { grid-template-columns: var(--geo) var(--node) 1fr; }
+    .r--end .mk, .r--region .mk { grid-column: 2; }
+    .r--end .txt, .r--region h4 { grid-column: 3; }
+    .r--island .txt { grid-column: 1; text-align: right; padding-right: 18px; }
+    .stop { padding: 10px 0; align-items: start; }
+    .stop .dot { grid-column: 2; grid-row: 1; margin-top: 5px; }
+    .stop .name { grid-column: 3; grid-row: 1; font-size: 18px; }
+    .stop .town { grid-column: 1; grid-row: 1; text-align: right; padding: 2px 18px 0 0; font-size: 16px; }
+    .r--strait .gap { grid-column: 2; }
+    .r--strait .txt { grid-column: 3; }
+  }
+  @media (min-width: 1024px) {
+    .find { padding-top: 104px; padding-bottom: 112px; }
+    .find__grid { grid-template-columns: 5fr 7fr; column-gap: 80px; align-items: start; }
+    .find__panel { position: sticky; top: 112px; }
+  }
+
+  /* ───────────────────────── 8 · COMING UP ───────────────────────── */
+  .coming { padding-top: 64px; padding-bottom: 64px; }
+  .coming__head { display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+  .more { font: 700 16px/1.2 var(--font); color: var(--g700); text-decoration: none; white-space: nowrap; padding: 6px 0; }
+  .more:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .events {
+    margin-top: 28px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter);
+    scrollbar-width: thin; scrollbar-color: var(--g700) var(--grey200);
+  }
+  .events__list { display: flex; gap: 16px; width: max-content; padding: 4px var(--gutter) 22px; }
+  .events:focus-visible { outline-offset: -3px; }
+  .ev { flex: 0 0 auto; width: 72vw; max-width: 300px; scroll-snap-align: start; }
+  .ev > a { display: block; text-decoration: none; }
+  .ev__tile {
+    position: relative; aspect-ratio: 1 / 1; display: flex; flex-direction: column; padding: 18px 20px 16px;
+    background: oklch(0.47 0.09 var(--h)); color: var(--paper); overflow: hidden;
+  }
+  .ev__tile--nat { background: var(--clay); color: var(--ink); }
+  .ev__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; min-height: 32px; }
+  .ev__top img { height: 32px; width: auto; display: block; }
+  .ev__num { margin-top: auto; font: 800 80px/.84 var(--font); letter-spacing: -.045em; font-variant-numeric: tabular-nums; }
+  .ev__month { margin-top: 8px; font: 700 22px/1.1 var(--font); letter-spacing: -.01em; }
+  .ev__foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px;
+    padding-top: 10px; border-top: 2px solid currentColor; }
+  .ev__foot .label { font-size: 12px; letter-spacing: .1em; }
+  .chip { flex: none; padding: 4px 7px; background: var(--paper); color: var(--ink); font: 700 12px/1 var(--font);
+    letter-spacing: .08em; text-transform: uppercase; }
+  .ev__title { margin-top: 14px; font: 700 17px/1.3 var(--font); }
+  .ev > a:hover .ev__title { text-decoration: underline; text-underline-offset: 3px; }
+  .ev__where { margin-top: 4px; font-size: 15px; color: var(--grey600); }
+  /* state B: uploaded flyer. Any aspect: contain over a blurred copy of itself. */
+  .ev__flyer { position: absolute; inset: 0; background: var(--ink); }
+  .ev__flyer img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ev__flyer .bg { object-fit: cover; filter: blur(18px) saturate(1.1); transform: scale(1.2); opacity: .7; }
+  .ev__flyer .fg { object-fit: contain; }
+  .ev__flyer .chip { position: absolute; left: 12px; top: 12px; }
+  [data-photos] .ev__tile.has-flyer > :not(.ev__flyer) { visibility: hidden; }
+  @media (min-width: 768px) { .ev { width: 280px; } }
+  @media (min-width: 1024px) {
+    .coming { padding-top: 104px; padding-bottom: 96px; }
+    .events { margin-top: 36px; }
+    .events__list { gap: 20px; }
+  }
+
+  /* ───────────────────────── 9 · MINISTRIES: the livery, full size ───────────────────────── */
+  .ministries__head { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding-bottom: 28px; }
+  .band { display: grid; grid-template-columns: 1fr; }
+  .band a {
+    display: grid; grid-template-columns: 128px 1fr auto; align-items: center; gap: 18px; min-height: 100px;
+    padding: 14px var(--gutter); color: var(--paper); text-decoration: none;
+    background: linear-gradient(to right, oklch(0.47 0.09 var(--h)) 0%, oklch(0.34 0.07 var(--h)) 62%, var(--ink) 100%);
+  }
+  .band img { width: 128px; height: auto; display: block; }
+  .band .name { font: 700 18px/1.25 var(--font); }
+  .band a:hover .name { text-decoration: underline; text-underline-offset: 4px; }
+  .band a:focus-visible { outline-color: var(--paper); outline-offset: -6px; }
+  @media (min-width: 1024px) {
+    .band { grid-template-columns: repeat(6, 1fr); }
+    .band a {
+      grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; align-items: start; gap: 0;
+      min-height: 312px; padding: 34px 26px 28px;
+      background: linear-gradient(to bottom, oklch(0.47 0.09 var(--h)) 0%, oklch(0.34 0.07 var(--h)) 58%, var(--ink) 100%);
+    }
+    .band img { width: 100%; max-width: 210px; justify-self: center; }
+    .band .name { grid-row: 3; font-size: 19px; }
+    .band .go { grid-row: 4; margin-top: 8px; font: 600 15px/1.2 var(--font); color: var(--g100); }
+  }
+  .band .go { display: none; }
+  @media (min-width: 1024px) { .band .go { display: block; } .band .chev { display: none; } }
+  .band .chev { font-size: 22px; line-height: 1; }
+
+  /* ───────────────────────── 10 + 11 · CONNECT + FOOTER on one ink ground ───────────────────────── */
+  .ground { background: var(--ink); color: var(--paper); }
+  .connect { display: grid; gap: 18px; padding-top: 64px; padding-bottom: 64px; }
+  .connect h2 { font: 800 40px/1 var(--font); letter-spacing: -.03em; }
+  .connect p { font-size: 19px; line-height: 1.5; color: var(--grey200); max-width: 30em; }
+  .connect .btn { justify-self: start; margin-top: 8px; }
+  .connect :focus-visible, .foot :focus-visible { outline-color: var(--clay); }
+  @media (min-width: 1024px) {
+    .connect { grid-template-columns: 5fr 7fr; column-gap: 80px; align-items: end; padding-top: 104px; padding-bottom: 96px; }
+    .connect h2 { font-size: 64px; }
+    .connect .copy { display: grid; gap: 24px; }
+    .connect p { font-size: 22px; }
+  }
+
+  .foot { display: grid; gap: 40px; padding-top: 48px; padding-bottom: 32px;
+    border-top: 1px solid oklch(0.98 0.005 95 / .16); }
+  .foot__logo { display: block; height: 60px; width: auto; }
+  .foot__blurb { margin-top: 18px; color: var(--grey400); font-size: 16px; max-width: 26em; }
+  .fb { margin-top: 20px; display: inline-grid; place-items: center; width: 44px; height: 44px;
+    border: 2px solid oklch(0.98 0.005 95 / .35); color: var(--paper); }
+  .fb:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+  .foot h3 { color: var(--grey400); margin-bottom: 14px; }
+  .foot__links { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 24px; }
+  .foot__links a { display: inline-block; padding: 6px 0; font-size: 16px; color: var(--grey200); text-decoration: none; }
+  .foot__links a:hover { color: var(--paper); text-decoration: underline; text-underline-offset: 3px; }
+  .foot__contact { display: grid; gap: 18px; align-content: start; justify-items: start; }
+  .foot__contact .btn { min-height: 48px; }
+  .faint { color: var(--grey400); font-style: italic; font-size: 15px; }
+  .postal { font-size: 16px; color: var(--grey200); font-style: normal; }
+  .postal span { display: block; color: var(--grey400); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+  .foot__base { padding-bottom: 28px; font-size: 14px; color: var(--grey400); }
+  .rule { display: flex; height: 10px; }
+  .rule i { flex: 1; background: oklch(0.47 0.09 var(--h)); }
+  @media (min-width: 1024px) {
+    .foot { grid-template-columns: 5fr 4fr 3fr; column-gap: 64px; padding-top: 64px; padding-bottom: 48px; }
+  }
+
+  /* ───────────────────────── DEMO TOGGLE (not part of the design) ───────────────────────── */
+  .demo { position: fixed; right: 12px; bottom: 12px; z-index: 90; display: flex; max-width: calc(100vw - 24px);
+    background: var(--paper); border: 2px solid var(--ink); font: 600 12px/1.2 var(--font); }
+  .demo button { font: inherit; border: 0; padding: 8px 10px; background: transparent; color: var(--ink); cursor: pointer; }
+  .demo button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- 1 · Department strip: the livery. Every page; scrolls away. Order fixed by the owner. -->
+<nav class="livery" aria-label="Departments">
+  <ul>
+    <li style="--h: var(--h-men)"><a href="/departments/mens"><img src="../assets/logos/UPCINZ-MEN-03-WHITE-TRANSPARENT.svg" width="112" height="56" alt="National Men's Department"></a></li>
+    <li style="--h: var(--h-ladies)"><a href="/departments/ladies"><img src="../assets/logos/UPCINZ-LADIES-03-WHITE-TRANSPARENT.svg" width="112" height="56" alt="Ladies Ministries"></a></li>
+    <li style="--h: var(--h-missions)"><a href="/departments/missions"><img src="../assets/logos/UPCINZ-MISSIONS-03-WHITE-TRANSPARENT.svg" width="112" height="56" alt="Home Missions Department"></a></li>
+    <li style="--h: var(--h-youth)"><a href="/departments/youth"><img src="../assets/logos/UPCINZ-YOUTH-03-WHITE-TRANSPARENT.svg" width="112" height="56" alt="Youth Ministry"></a></li>
+    <li style="--h: var(--h-children)"><a href="/departments/childrens"><img src="../assets/logos/UPCINZ-CHILDREN-03-WHITE-TRANSPARENT.svg" width="112" height="56" alt="Children's Ministry"></a></li>
+    <li style="--h: var(--h-prayer)"><a href="/departments/prayer"><img src="../assets/logos/UPCINZ-PRAYER-03-WHITE-TRANSPARENT.svg" width="112" height="56" alt="Prayer Ministry"></a></li>
+  </ul>
+</nav>
+
+<!-- 2 · Navbar: fern green-900, sticky -->
+<header class="nav">
+  <div class="wrap nav__bar">
+    <a class="nav__logo" href="/"><img src="../assets/upci-nz-logo-nav.png" width="56" height="62" alt="UPCI NZ Ministries, home"></a>
+    <nav class="nav__links" aria-label="Main">
+      <ul>
+        <li><a href="/about">About the UPCI NZ <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg></a></li>
+        <li><a href="/departments">Departments <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg></a></li>
+        <li><a href="/regions">Regions</a></li>
+        <li><a href="/find-a-church">Find a Church</a></li>
+        <li><a href="/apostolic-bible-college">Apostolic Bible College</a></li>
+        <li><a href="/calendar-of-events">Calendar of Events</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/connect-with-us">Connect with Us</a></li>
+        <li><a class="nav__login" href="/admin/login">Minister's Log-in</a></li>
+      </ul>
+    </nav>
+    <details class="nav__menu">
+      <summary>Menu <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span></summary>
+      <nav class="nav__drop" aria-label="Main (mobile)">
+        <a href="/about">About the UPCI NZ</a><a href="/departments">Departments</a><a href="/regions">Regions</a>
+        <a href="/find-a-church">Find a Church</a><a href="/apostolic-bible-college">Apostolic Bible College</a>
+        <a href="/calendar-of-events">Calendar of Events</a><a href="/gallery">Gallery</a>
+        <a href="/connect-with-us">Connect with Us</a><a href="/admin/login">Minister's Log-in</a>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- 3 · Theme banner: shown whole. Its words are baked in, so the real text follows (visible on phones only). -->
+  <section class="theme" aria-labelledby="theme-title">
+    <img class="theme__img" src="../assets/banner-pentecost-everyday.jpg" width="2128" height="788" alt="">
+    <div class="theme__text wrap">
+      <h1 id="theme-title">Pentecost Everyday</h1>
+      <p class="theme__sub">A Sustainable Annual Harvest — Going Beyond 2026</p>
+      <p class="theme__verse">“…and the Lord added to the church daily such as should be saved.” <cite>Acts 2:47</cite></p>
+    </div>
+  </section>
+
+  <!-- 4 · Next-event band: harvest clay, aligned to the banner's frame -->
+  <section class="next" aria-labelledby="next-title">
+    <div class="wrap next__bar">
+      <p class="next__label label">Next up</p>
+      <p class="next__date"><span class="label">Next up</span><span class="next__days">24–25 Oct</span></p>
+      <div class="next__what">
+        <h2 id="next-title">Annual General Conference</h2>
+        <p>24–25 October · Wellington</p>
+      </div>
+      <a class="btn btn--ink" href="/calendar-of-events">See the calendar <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- 5 · About -->
+  <section class="about wrap" aria-labelledby="about-title">
+    <div class="about__text">
+      <h2 class="section-title" id="about-title">About the UPCI NZ</h2>
+      <p>The United Pentecostal Church International of New Zealand is a fellowship of apostolic congregations across the country, organised into the Northern, Central and Southern regions.</p>
+      <p class="about__welcome">Wherever you are, you are welcome.</p>
+      <a class="btn btn--green" href="/about">Read more <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+    <figure class="about__media">
+      <!-- State A: designed fallback. Real places, each captioned under its own slice of the collage. -->
+      <div class="poster state-a">
+        <div class="poster__head">
+          <p class="label poster__kicker">Northern · Central · Southern</p>
+          <p class="poster__line">Three regions,<br>one fellowship.</p>
+        </div>
+        <div class="poster__places">
+          <img src="../assets/nz-landmarks-collage.jpg" width="2128" height="788" loading="lazy"
+               alt="Five New Zealand places: the Sky Tower in Auckland, the Beehive in Wellington, ChristChurch Cathedral, a bridge over the Waikato River in Hamilton, and the coast at Tauranga.">
+          <ol class="poster__captions" aria-hidden="true">
+            <li>Auckland</li><li>Wellington</li><li>Christchurch</li><li>Hamilton</li><li>Tauranga</li>
+          </ol>
+        </div>
+      </div>
+      <!-- State B: the uploaded photo, cropped to the 3:2 frame -->
+      <img class="about__photo" src="../assets/mens-camp-group.png" width="1915" height="709" loading="lazy"
+           alt="Men of UPCI NZ churches gathered on terraced seating at a camp">
+    </figure>
+  </section>
+
+  <!-- 6 + 7 · Find a church + Our congregations, drawn as one line from north to south -->
+  <section class="find" aria-labelledby="find-title">
+    <div class="wrap find__grid">
+      <div class="find__panel">
+        <h2 class="section-title" id="find-title">Find a church near you</h2>
+        <p>Congregations across the Northern, Central and Southern regions.</p>
+        <form class="search" role="search" action="/find-a-church" method="get">
+          <label class="sr-only" for="church-q">Suburb, town or postcode</label>
+          <input id="church-q" name="q" type="search" placeholder="Suburb, town or postcode" autocomplete="postal-code">
+          <button class="btn btn--green" type="submit">Search</button>
+        </form>
+        <!-- counts are live from the API; dots = one per congregation -->
+        <ul class="regions">
+          <li><a href="/regions/northern" aria-label="Northern Region (4 congregations)"><span class="regions__name">Northern Region</span><span class="regions__dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="regions__n" aria-hidden="true">4</span></a></li>
+          <li><a href="/regions/central" aria-label="Central Region (2 congregations)"><span class="regions__name">Central Region</span><span class="regions__dots" aria-hidden="true"><i></i><i></i></span><span class="regions__n" aria-hidden="true">2</span></a></li>
+          <li><a href="/regions/southern" aria-label="Southern Region (4 congregations)"><span class="regions__name">Southern Region</span><span class="regions__dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="regions__n" aria-hidden="true">4</span></a></li>
+        </ul>
+      </div>
+
+      <div class="find__line">
+        <div class="line-head">
+          <h3>Our congregations</h3>
+          <p>North to south</p>
+        </div>
+        <div class="route">
+          <div class="r r--end" aria-hidden="true"><span class="mk"></span><span class="txt label">North</span></div>
+          <div class="r r--island"><p class="txt">North Island <span>Te Ika-a-Māui</span></p></div>
+
+          <section aria-labelledby="rg-n">
+            <div class="r r--region"><span class="mk" aria-hidden="true">4</span><h4 id="rg-n">Northern Region<span class="sr-only"> (4 congregations)</span></h4></div>
+            <ol>
+              <li class="r stop"><a class="name" href="/churches/daystar-fellowship">Daystar Fellowship</a><span class="town">Whangarei</span><span class="dot" aria-hidden="true"></span></li>
+              <li class="r stop"><a class="name" href="/churches/sspf">Southside Pentecostal Fellowship (SSPF)</a><span class="town">Auckland</span><span class="dot" aria-hidden="true"></span></li>
+              <li class="r stop"><a class="name" href="/churches/nz-family-in-christ">New Zealand Family in Christ Church - UPCI NZ</a><span class="town">Auckland</span><span class="dot" aria-hidden="true"></span></li>
+              <li class="r stop"><a class="name" href="/churches/grace-fellowship">Grace Fellowship - A UPCINZ Church</a><span class="town">Hamilton</span><span class="dot" aria-hidden="true"></span></li>
+            </ol>
+          </section>
+
+          <section aria-labelledby="rg-c">
+            <div class="r r--region"><span class="mk" aria-hidden="true">2</span><h4 id="rg-c">Central Region<span class="sr-only"> (2 congregations)</span></h4></div>
+            <ol>
+              <li class="r stop"><a class="name" href="/churches/alc">Apostolic Life Church (ALC)</a><span class="town">Tauranga</span><span class="dot" aria-hidden="true"></span></li>
+              <li class="r stop"><a class="name" href="/churches/storehouse-chapel">Storehouse Chapel</a><span class="town">Hamilton</span><span class="dot" aria-hidden="true"></span></li>
+            </ol>
+          </section>
+
+          <section aria-labelledby="rg-s">
+            <div class="r r--region"><span class="mk" aria-hidden="true">4</span><h4 id="rg-s">Southern Region<span class="sr-only"> (4 congregations)</span></h4></div>
+            <ol>
+              <li class="r stop"><a class="name" href="/churches/church-triumphant">Church Triumphant Wellington</a><span class="town">Wellington</span><span class="dot" aria-hidden="true"></span></li>
+            </ol>
+            <div class="r r--strait"><span class="gap" aria-hidden="true"></span><p class="txt">Cook Strait · Te Moana-o-Raukawa</p></div>
+            <div class="r r--island"><p class="txt">South Island <span>Te Waipounamu</span></p></div>
+            <ol start="2">
+              <li class="r stop"><a class="name" href="/churches/por">The Pentecostals of Rangiora (POR)</a><span class="town">Rangiora</span><span class="dot" aria-hidden="true"></span></li>
+              <li class="r stop"><a class="name" href="/churches/aoc">Apostolics of Christchurch (AOC)</a><span class="town">Christchurch</span><span class="dot" aria-hidden="true"></span></li>
+              <li class="r stop"><a class="name" href="/churches/lighthouse-rolleston">Lighthouse of Jesus Christ - Rolleston</a><span class="town">Rolleston</span><span class="dot" aria-hidden="true"></span></li>
+            </ol>
+          </section>
+
+          <div class="r r--end" aria-hidden="true"><span class="mk"></span><span class="txt label">South</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · Coming up: date-led tiles, horizontal scroll-snap, no autoplay -->
+  <section class="coming" aria-labelledby="coming-title">
+    <div class="wrap coming__head">
+      <h2 class="section-title" id="coming-title">Coming up</h2>
+      <a class="more" href="/calendar-of-events">More events <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+    <div class="events" role="region" aria-label="Upcoming events" tabindex="0"><ol class="events__list">
+      <li class="ev" style="--h: var(--h-prayer)"><a href="/events/22-day-prayer-fasting">
+        <div class="ev__tile">
+          <div class="ev__top"><span class="label">Thu – Thu</span><img src="../assets/logos/UPCINZ-PRAYER-03-WHITE-TRANSPARENT.svg" width="64" height="32" alt=""></div>
+          <p class="ev__num">1–22</p><p class="ev__month">October</p>
+          <div class="ev__foot"><span class="label">Prayer Ministry</span><span class="chip">On now</span></div>
+        </div>
+        <h3 class="ev__title">PM – 22 Day Prayer &amp; Fasting (General Conference)</h3>
+        <p class="ev__where">Nationwide</p>
+      </a></li>
+
+      <li class="ev"><a href="/events/executive-board-meeting">
+        <div class="ev__tile ev__tile--nat">
+          <div class="ev__top"><span class="label">Thursday</span></div>
+          <p class="ev__num">22</p><p class="ev__month">October</p>
+          <div class="ev__foot"><span class="label">National</span></div>
+        </div>
+        <h3 class="ev__title">Executive Board Meeting</h3>
+        <p class="ev__where">Wellington</p>
+      </a></li>
+
+      <li class="ev"><a href="/events/agm-ministers-seminar">
+        <div class="ev__tile ev__tile--nat">
+          <div class="ev__top"><span class="label">Friday</span></div>
+          <p class="ev__num">23</p><p class="ev__month">October</p>
+          <div class="ev__foot"><span class="label">National</span></div>
+        </div>
+        <h3 class="ev__title">Annual General Meeting (AGM) &amp; Ministers Seminar</h3>
+        <p class="ev__where">Wellington</p>
+      </a></li>
+
+      <li class="ev"><a href="/events/annual-general-conference">
+        <div class="ev__tile ev__tile--nat has-flyer">
+          <div class="ev__top"><span class="label">Sat – Sun</span></div>
+          <p class="ev__num">24–25</p><p class="ev__month">October</p>
+          <div class="ev__foot"><span class="label">National</span></div>
+          <!-- State B: uploaded flyer (banner as stand-in) -->
+          <div class="ev__flyer state-b">
+            <img class="bg" src="../assets/banner-pentecost-everyday.jpg" alt="" loading="lazy">
+            <img class="fg" src="../assets/banner-pentecost-everyday.jpg" alt="" loading="lazy">
+            <span class="chip">24–25 Oct</span>
+          </div>
+        </div>
+        <h3 class="ev__title">Annual General Conference</h3>
+        <p class="ev__where">Wellington</p>
+      </a></li>
+
+      <li class="ev" style="--h: var(--h-missions)"><a href="/events/mission-sunday-promotion-nov">
+        <div class="ev__tile">
+          <div class="ev__top"><span class="label">Sunday</span><img src="../assets/logos/UPCINZ-MISSIONS-03-WHITE-TRANSPARENT.svg" width="64" height="32" alt=""></div>
+          <p class="ev__num">1</p><p class="ev__month">November</p>
+          <div class="ev__foot"><span class="label">Home Missions</span></div>
+        </div>
+        <h3 class="ev__title">Mission Sunday Promotion</h3>
+        <p class="ev__where">Nationwide</p>
+      </a></li>
+
+      <li class="ev" style="--h: var(--h-men)"><a href="/events/mens-online-virtual-training">
+        <div class="ev__tile">
+          <div class="ev__top"><span class="label">Saturday</span><img src="../assets/logos/UPCINZ-MEN-03-WHITE-TRANSPARENT.svg" width="64" height="32" alt=""></div>
+          <p class="ev__num">14</p><p class="ev__month">November</p>
+          <div class="ev__foot"><span class="label">Men's Department</span><span class="chip">Online</span></div>
+        </div>
+        <h3 class="ev__title">MM – Men's Online Virtual Training</h3>
+        <p class="ev__where">Nationwide (online)</p>
+      </a></li>
+
+      <li class="ev" style="--h: var(--h-children)"><a href="/events/cm-promotion">
+        <div class="ev__tile">
+          <div class="ev__top"><span class="label">Sunday</span><img src="../assets/logos/UPCINZ-CHILDREN-03-WHITE-TRANSPARENT.svg" width="64" height="32" alt=""></div>
+          <p class="ev__num">22</p><p class="ev__month">November</p>
+          <div class="ev__foot"><span class="label">Children's Ministry</span></div>
+        </div>
+        <h3 class="ev__title">CM – Promotion</h3>
+        <p class="ev__where">Nationwide</p>
+      </a></li>
+
+      <li class="ev" style="--h: var(--h-missions)"><a href="/events/mission-sunday-promotion-dec">
+        <div class="ev__tile">
+          <div class="ev__top"><span class="label">Sunday</span><img src="../assets/logos/UPCINZ-MISSIONS-03-WHITE-TRANSPARENT.svg" width="64" height="32" alt=""></div>
+          <p class="ev__num">6</p><p class="ev__month">December</p>
+          <div class="ev__foot"><span class="label">Home Missions</span></div>
+        </div>
+        <h3 class="ev__title">Mission Sunday Promotion</h3>
+        <p class="ev__where">Nationwide</p>
+      </a></li>
+    </ol></div>
+  </section>
+
+  <!-- 9 · Our ministries: the strip again, at full size; six hues converging on one ink ground -->
+  <section class="ministries" aria-labelledby="min-title">
+    <div class="wrap ministries__head">
+      <h2 class="section-title" id="min-title">Our ministries</h2>
+      <a class="more" href="/departments">All departments <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+    <ul class="band">
+      <li style="--h: var(--h-men)"><a href="/departments/mens"><img src="../assets/logos/UPCINZ-MEN-03-WHITE-TRANSPARENT.svg" width="210" height="105" alt="" loading="lazy"><span class="name">National Men's Department</span><span class="go">Visit the department →</span><span class="chev" aria-hidden="true">→</span></a></li>
+      <li style="--h: var(--h-ladies)"><a href="/departments/ladies"><img src="../assets/logos/UPCINZ-LADIES-03-WHITE-TRANSPARENT.svg" width="210" height="105" alt="" loading="lazy"><span class="name">Ladies Ministries</span><span class="go">Visit the department →</span><span class="chev" aria-hidden="true">→</span></a></li>
+      <li style="--h: var(--h-missions)"><a href="/departments/missions"><img src="../assets/logos/UPCINZ-MISSIONS-03-WHITE-TRANSPARENT.svg" width="210" height="105" alt="" loading="lazy"><span class="name">Home Missions Department</span><span class="go">Visit the department →</span><span class="chev" aria-hidden="true">→</span></a></li>
+      <li style="--h: var(--h-youth)"><a href="/departments/youth"><img src="../assets/logos/UPCINZ-YOUTH-03-WHITE-TRANSPARENT.svg" width="210" height="105" alt="" loading="lazy"><span class="name">Youth Ministry</span><span class="go">Visit the department →</span><span class="chev" aria-hidden="true">→</span></a></li>
+      <li style="--h: var(--h-children)"><a href="/departments/childrens"><img src="../assets/logos/UPCINZ-CHILDREN-03-WHITE-TRANSPARENT.svg" width="210" height="105" alt="" loading="lazy"><span class="name">Children's Ministry</span><span class="go">Visit the department →</span><span class="chev" aria-hidden="true">→</span></a></li>
+      <li style="--h: var(--h-prayer)"><a href="/departments/prayer"><img src="../assets/logos/UPCINZ-PRAYER-03-WHITE-TRANSPARENT.svg" width="210" height="105" alt="" loading="lazy"><span class="name">Prayer Ministry</span><span class="go">Visit the department →</span><span class="chev" aria-hidden="true">→</span></a></li>
+    </ul>
+  </section>
+
+</main>
+
+<div class="ground">
+  <!-- 10 · Connect with us -->
+  <section class="connect wrap" aria-labelledby="connect-title">
+    <h2 id="connect-title">Connect with us</h2>
+    <div class="copy">
+      <p>Questions, prayer requests, or looking for a church home — we'd love to hear from you.</p>
+      <a class="btn btn--clay" href="/connect-with-us">Get in touch <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- 11 · Footer -->
+  <footer class="foot wrap">
+    <div>
+      <img class="foot__logo" src="../assets/upci-nz-logo-footer.png" width="151" height="60" alt="UPCI NZ Ministries" loading="lazy">
+      <p class="foot__blurb">Building strong Christian communities across New Zealand through faith, fellowship, and service.</p>
+      <a class="fb" href="https://www.facebook.com/" aria-label="UPCI NZ on Facebook">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.5 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.3c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21h3.1z"/></svg>
+      </a>
+    </div>
+    <nav aria-labelledby="ql-title">
+      <h3 class="label" id="ql-title">Quick links</h3>
+      <ul class="foot__links">
+        <li><a href="/about">About UPCI</a></li>
+        <li><a href="/about/beliefs">Our Beliefs</a></li>
+        <li><a href="/about/leadership">Leadership</a></li>
+        <li><a href="/regions">Regions</a></li>
+        <li><a href="/departments">Departments</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/find-a-church">Find a Church</a></li>
+        <li><a href="/calendar-of-events">Calendar of Events</a></li>
+        <li><a href="/connect-with-us">Connect with Us</a></li>
+      </ul>
+    </nav>
+    <div class="foot__contact">
+      <h3 class="label" style="margin-bottom:0">Contact</h3>
+      <a class="btn btn--line" href="/admin/login">Ministers' log-in</a>
+      <p class="faint">Contact email to be set</p>
+      <!-- EXAMPLE ONLY: "PO Box 00000, Wellington" is a stand-in until the real postal address is entered in Site Settings. -->
+      <address class="postal"><span>Postal address</span>PO Box 00000, Wellington</address>
+    </div>
+  </footer>
+  <p class="foot__base wrap">© 2026 UPCI New Zealand</p>
+  <div class="rule" aria-hidden="true">
+    <i style="--h: var(--h-men)"></i><i style="--h: var(--h-ladies)"></i><i style="--h: var(--h-missions)"></i>
+    <i style="--h: var(--h-youth)"></i><i style="--h: var(--h-children)"></i><i style="--h: var(--h-prayer)"></i>
+  </div>
+</div>
+
+<!-- Demo toggle (presentation only; not part of the design) -->
+<div class="demo" role="group" aria-label="Demo photo state">
+  <button type="button" data-photos="off" aria-pressed="true">Today (no photos uploaded)</button>
+  <button type="button" data-photos="on" aria-pressed="false">With photos</button>
+</div>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var buttons = document.querySelectorAll('.demo button');
+    function apply(on) {
+      if (on) { root.setAttribute('data-photos', ''); } else { root.removeAttribute('data-photos'); }
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String((b.dataset.photos === 'on') === on)); });
+    }
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var on = b.dataset.photos === 'on';
+        apply(on);
+        try { history.replaceState(null, '', on ? '#photos' : location.pathname + location.search); } catch (e) {}
+      });
+    });
+    window.addEventListener('hashchange', function () { apply(location.hash === '#photos'); });
+    apply(location.hash === '#photos');
+  })();
+</script>
+</body>
+</html>
