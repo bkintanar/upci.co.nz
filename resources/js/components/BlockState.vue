@@ -21,7 +21,7 @@
     </div>
 
     <!-- Empty: correct, not broken. Uses the author's own wording. -->
-    <p v-else-if="isEmpty" class="py-10 text-center text-slate-500">
+    <p v-else-if="isEmpty" :class="emptyClass">
         {{ emptyMessage || 'Nothing to show here yet.' }}
     </p>
 
@@ -52,6 +52,10 @@ export default defineComponent({
         items: { type: Array, default: () => [] },
         emptyMessage: { type: [String, null], default: null },
         onRetry: { type: [Function, null], default: null },
+        // How the empty line looks. The default is every block's existing
+        // look; the gallery sets its own so it sits under a left-aligned
+        // heading.
+        emptyClass: { type: String, default: 'py-10 text-center text-slate-500' },
     },
     setup(props) {
         // Only empty once a load has actually finished, or the empty message

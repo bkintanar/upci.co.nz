@@ -40,7 +40,7 @@
             :region="activeTab.region"
             :general="activeTab.general"
             :heading="null"
-            section-class="py-12 bg-white"
+            section-class="py-12 bg-brand-paper"
             empty-message="No photos in this gallery yet."
         />
 

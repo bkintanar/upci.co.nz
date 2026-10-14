@@ -2,13 +2,14 @@
     <Teleport to="body">
         <dialog
             ref="dialogEl"
-            class="modal-dialog"
+            :class="['modal-dialog', dialogClass]"
             :aria-label="label"
             @close="onNativeClose"
             @click="onBackdropClick"
         >
             <div ref="panelEl" :class="['modal-panel', panelClass]" @click.stop>
                 <button
+                    v-if="showClose"
                     type="button"
                     class="modal-close"
                     aria-label="Close"
@@ -53,6 +54,12 @@ export default defineComponent({
         // Lets a caller widen the panel; the locator needs room for a map
         // beside the details.
         panelClass: { type: String, default: '' },
+        // A dialog with its own close control (the photo viewer's square
+        // "Close") turns this one off. The default keeps every existing modal
+        // as it was.
+        showClose: { type: Boolean, default: true },
+        // For a different backdrop, e.g. the photo viewer's ink.
+        dialogClass: { type: String, default: '' },
     },
     emits: ['update:modelValue'],
     setup(props, { emit }) {
@@ -172,6 +179,42 @@ export default defineComponent({
 
 .modal-panel--wide {
     max-width: 56rem;
+}
+
+/* The photo viewer (PhotoViewer.vue): the one dark room in a paper house.
+   Defined here rather than in PhotoViewer so it is guaranteed to come after
+   .modal-panel in the cascade. The panel is solid ink and sized to the photo,
+   so the backdrop around it stays clickable and closes the viewer, and no page
+   text shows through behind the caption. */
+.modal-dialog--photo::backdrop {
+    background: oklch(0.18 0.01 150 / 0.96);
+}
+
+.modal-panel.modal-panel--photo {
+    background: oklch(0.18 0.01 150);
+    color: #fff;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0.75rem;
+    /* min-content: the panel takes the photo's width (at least 360px for the
+       controls) and a long caption wraps under it instead of stretching it. */
+    width: min-content;
+    min-width: min(360px, 92vw);
+    max-width: 92vw;
+    max-height: none;
+    overflow: visible;
+    overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .modal-dialog--photo[open],
+    .modal-dialog--photo[open]::backdrop {
+        animation: modal-photo-fade 0.18s ease-out;
+    }
+
+    @keyframes modal-photo-fade {
+        from { opacity: 0; }
+    }
 }
 
 .modal-close {
