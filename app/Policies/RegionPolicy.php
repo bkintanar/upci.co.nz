@@ -20,9 +20,12 @@ use App\Models\Region;
  */
 class RegionPolicy
 {
+    // Regions are national and regional data. A local admin is scoped to a
+    // church and saw an empty Regions page; it is now hidden from them
+    // (owner, 2026-10-15).
     public function viewAny(User $user): bool
     {
-        return (bool) $user->access_level;
+        return $user->isNational() || $user->isRegional();
     }
 
     public function view(User $user, Region $region): bool

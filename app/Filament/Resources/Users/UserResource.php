@@ -34,9 +34,15 @@ class UserResource extends Resource
     // regional presbyter, typically) got a 404 on their own edit page.
     protected static function localScope(): Closure
     {
+        // Themselves and their church's members (no admin access), the only
+        // people a local admin outranks. A national board member or another
+        // admin who attends the church is not their data (owner, 2026-10-15:
+        // tighten local admins the same way as regional ones).
         return fn (Builder $q, int $churchId) => $q->where(fn (Builder $w) => $w
             ->whereKey(auth()->id())
-            ->orWhere('church_id', $churchId));
+            ->orWhere(fn (Builder $o) => $o
+                ->where('church_id', $churchId)
+                ->whereNull('access_level')));
     }
 
     protected static function regionalScope(): Closure
