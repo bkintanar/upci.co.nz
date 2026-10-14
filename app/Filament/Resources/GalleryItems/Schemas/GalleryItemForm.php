@@ -9,8 +9,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\MorphToSelect;
+use App\Filament\Resources\Shared\PhotoUpload;
 
 class GalleryItemForm
 {
@@ -22,19 +22,11 @@ class GalleryItemForm
                     ->schema([
                         TextInput::make('title')->maxLength(255),
                         Textarea::make('description')->rows(3),
-                        FileUpload::make('image_path')
-                            ->image()
-                            // FILESYSTEM_DISK is `local`, and Filament v4 decides default
-                            // visibility by literal disk-name match — without these the file
-                            // lands in storage/app/private and is unservable.
-                            ->disk('public')
-                            ->visibility('public')
-                            // ->image() alone accepts image/svg+xml, which can carry script
-                            // and executes on our origin once the file is web-served.
-                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                            ->maxSize(5120)
-                            ->directory('gallery')
-                            ->required(),
+                        // Public disk with explicit visibility, jpeg/png/webp
+                        // only (never SVG), resized in the browser: the same
+                        // rules as every other photo field. PhotoUpload says
+                        // why each one exists.
+                        PhotoUpload::make('image_path', 'gallery')->required(),
                         // Replaces a free-text `department` box that defaulted
                         // to the string "general". One gallery, three owners:
                         // leaving this blank IS the general gallery, which is

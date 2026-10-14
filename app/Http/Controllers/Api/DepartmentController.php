@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Department;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class DepartmentController extends Controller
 {
@@ -56,6 +57,16 @@ class DepartmentController extends Controller
                 'id' => $a->id,
                 'title' => $a->title,
                 'content' => $a->content,
+                // A bare disk-relative path, like hero_image and logo_path
+                // below. The description only travels with a photo: the admin
+                // requires one for a photo, but a description typed with no
+                // photo still saves, and it must not reach the page.
+                'image_path' => $a->image_path,
+                'image_alt' => $a->image_path ? $a->image_alt : null,
+                // The page lays a tall flyer beside its words and a wide
+                // photo across the line, so it needs the shape before the
+                // image loads; the sizes also stop the layout jumping.
+                ...$this->imageSize($a->image_path),
                 'published_at' => $a->published_at?->toIso8601String(),
             ]);
 
@@ -90,5 +101,26 @@ class DepartmentController extends Controller
                 'events' => $events,
             ],
         ]);
+    }
+
+    /**
+     * Pixel size of an image on the public disk, read from the file's header.
+     * Unknown (no photo, or a missing file) is null rather than a guess, and
+     * the page then uses the layout that shows any photo whole.
+     *
+     * @return array{image_width: int|null, image_height: int|null}
+     */
+    private function imageSize(?string $path): array
+    {
+        $size = null;
+
+        if ($path && Storage::disk('public')->exists($path)) {
+            $size = @getimagesize(Storage::disk('public')->path($path)) ?: null;
+        }
+
+        return [
+            'image_width' => $size[0] ?? null,
+            'image_height' => $size[1] ?? null,
+        ];
     }
 }

@@ -12,8 +12,10 @@ use Filament\Schemas\Components\Grid;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
+use App\Filament\Resources\Shared\PhotoUpload;
 use Filament\Resources\RelationManagers\RelationManager;
 
 class AnnouncementsRelationManager extends RelationManager
@@ -32,6 +34,23 @@ class AnnouncementsRelationManager extends RelationManager
                         MarkdownEditor::make('content')
                             ->toolbarButtons(['bold', 'italic', 'link', 'heading', 'bulletList', 'orderedList', 'blockquote'])
                             ->columnSpanFull(),
+                        // One optional photo: before this, authors pasted a
+                        // Facebook link or embed into the body because there
+                        // was nowhere to put the image itself.
+                        PhotoUpload::make('image_path', 'announcements')
+                            ->label('Photo')
+                            ->imageEditor()
+                            ->helperText('Optional. A flyer or a photo from the event. It shows whole on the department page, never cropped.')
+                            ->columnSpanFull(),
+                        TextInput::make('image_alt')
+                            ->label('Photo description')
+                            ->maxLength(255)
+                            ->requiredWith('image_path')
+                            // The default reads "The image alt field is required
+                            // when image path is present."
+                            ->validationMessages(['required_with' => 'Describe the photo for people who cannot see it.'])
+                            ->helperText('Say what the photo shows, for people who cannot see it — e.g. "Flyer: Junior Bible Quizzing, 14 March, Hamilton".')
+                            ->columnSpanFull(),
                         Grid::make(2)->schema([
                             DateTimePicker::make('published_at')
                                 ->default(now())
@@ -48,6 +67,10 @@ class AnnouncementsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
+                ImageColumn::make('image_path')
+                    ->label('Photo')
+                    ->disk('public')
+                    ->height(40),
                 TextColumn::make('title')->searchable()->sortable(),
                 TextColumn::make('published_at')->dateTime()->sortable()->placeholder('—'),
                 // Three states, not two. Now that published_at actually gates

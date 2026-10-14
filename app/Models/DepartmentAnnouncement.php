@@ -11,6 +11,8 @@ class DepartmentAnnouncement extends Model
         'department_id',
         'title',
         'content',
+        'image_path',
+        'image_alt',
         'published_at',
         'is_published',
         'sort_order',
