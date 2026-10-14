@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\Department;
 use App\Models\User;
+use App\Models\Department;
 
 /**
  * Departments are national reference data: all authenticated admin users
@@ -11,14 +11,17 @@ use App\Models\User;
  */
 class DepartmentPolicy
 {
+    // National data: regional and local users see only their own region's
+    // or church's data (owner, 2026-10-15). They could open departments
+    // read-only before; the public site still shows every department.
     public function viewAny(User $user): bool
     {
-        return (bool) $user->access_level;
+        return $user->isNational();
     }
 
     public function view(User $user, Department $department): bool
     {
-        return (bool) $user->access_level;
+        return $user->isNational();
     }
 
     public function create(User $user): bool

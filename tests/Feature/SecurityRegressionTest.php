@@ -454,7 +454,12 @@ test('a regional user gets a 403 on a national user edit page', function () {
     $regional = regressionUser('regional', ['region_id' => $this->region->id]);
     $national = regressionUser('national', ['church_id' => $this->church->id]);
 
-    $this->actingAs($regional)->get("/admin/users/{$national->id}/edit")->assertForbidden();
+    // Refused either way. Since 2026-10-15 ("regional pastors should only see
+    // their data nothing more") a higher-ranked user is no longer in the
+    // regional user's list at all, so the record is not found (404) rather
+    // than found and forbidden (403); the page no longer confirms the account
+    // exists. The test name is kept so its history reads straight.
+    $this->actingAs($regional)->get("/admin/users/{$national->id}/edit")->assertNotFound();
 });
 
 test('a regional user cannot update a regional peer in their region', function () {

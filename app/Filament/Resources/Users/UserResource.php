@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users;
 use Closure;
 use BackedEnum;
 use App\Models\User;
+use App\Enums\AccessLevel;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -41,10 +42,17 @@ class UserResource extends Resource
     protected static function regionalScope(): Closure
     {
         // Deliberately not orWhere('region_id', ...): that would list regional
-        // peers, whom UserPolicy::update refuses anyway.
+        // peers, whom UserPolicy::update refuses anyway. For the same reason,
+        // only people of lower rank (local admins and members) are listed: a
+        // national board member who attends a church in the region is not the
+        // regional user's data (owner, 2026-10-15).
         return fn (Builder $q, int $regionId) => $q->where(fn (Builder $w) => $w
             ->whereKey(auth()->id())
-            ->orWhereHas('church', fn (Builder $c) => $c->where('region_id', $regionId)));
+            ->orWhere(fn (Builder $o) => $o
+                ->whereHas('church', fn (Builder $c) => $c->where('region_id', $regionId))
+                ->where(fn (Builder $r) => $r
+                    ->whereNull('access_level')
+                    ->orWhere('access_level', AccessLevel::LOCAL->value))));
     }
 
     public static function form(Schema $schema): Schema

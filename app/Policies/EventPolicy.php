@@ -20,7 +20,16 @@ class EventPolicy
 
     public function view(User $user, Event $event): bool
     {
-        return $user->isNational() || $user->isRegional();
+        if ($user->isNational()) {
+            return true;
+        }
+
+        // Their own region's events only; national and other regions' events
+        // are not theirs to see. null === null would otherwise let a regional
+        // user with no region see every event without a region.
+        return $user->isRegional()
+            && $user->region_id !== null
+            && $event->region_id === $user->region_id;
     }
 
     public function create(User $user): bool

@@ -8,6 +8,7 @@ use App\Models\GalleryItem;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\GalleryItems\Pages\EditGalleryItem;
 use App\Filament\Resources\GalleryItems\Pages\ViewGalleryItem;
 use App\Filament\Resources\GalleryItems\Pages\ListGalleryItems;
@@ -30,6 +31,25 @@ class GalleryItemResource extends Resource
      * manager the owner is fixed to their own region. Here the owner comes
      * from the form, which a regional user cannot set.
      */
+    /**
+     * A regional user lists only their own region's photos. The policy already
+     * stopped them opening or editing anyone else's, but the list showed
+     * every photo, general and department ones included (owner, 2026-10-15:
+     * regional pastors see their data and nothing more).
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if ($user && ! $user->isNational()) {
+            $query->where('galleryable_type', 'region')
+                ->where('galleryable_id', $user->isRegional() ? ($user->region_id ?? -1) : -1);
+        }
+
+        return $query;
+    }
+
     public static function canCreate(): bool
     {
         return (bool) auth()->user()?->isNational() && parent::canCreate();
