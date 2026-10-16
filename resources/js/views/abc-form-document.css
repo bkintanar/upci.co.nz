@@ -1,0 +1,200 @@
+/*
+ * The D3 "application as a document" design (.claude/design/abc-enrolment/
+ * direction-approved.md), shared by the college's two forms: Form ABC-1, the
+ * new-student enrolment, and Form ABC-2, the pastor's reference. Each view
+ * loads it with <style scoped src>, so it stays scoped to that view.
+ *
+ * Moved verbatim out of AbcNewStudentEnrolment.vue on 2026-10-17; only the
+ * select rule below is new. Rules that only Form ABC-1 uses (progression
+ * ladder, running head, honeypot, fees, clauses) stay in that view.
+ */
+
+/* Ported from design-demos/D3-application-document.html. Brand tokens only;
+   error red is for error states and nowhere else. */
+.abc {
+    --ink: oklch(0.18 0.01 150);
+    --paper: oklch(0.98 0.005 95);
+    --green-100: oklch(0.93 0.03 143);
+    --green-700: oklch(0.47 0.09 143);
+    --green-900: oklch(0.34 0.07 143);
+    --clay-600: oklch(0.62 0.12 55);
+    --grey-200: oklch(0.90 0.005 95);
+    --grey-400: oklch(0.72 0.005 95);
+    --grey-600: oklch(0.55 0.005 95);
+    --error: oklch(0.52 0.17 27);
+    --white: #fff;
+    --gutter: 72px;   /* hanging clause-number column */
+    --measure: 880px;
+    --field: 52px;
+    --sticky-top: 80px; /* the site navbar is sticky and h-20 */
+
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 17px;
+    line-height: 1.5;
+    padding-bottom: 96px;
+}
+.abc a { color: var(--green-900); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.abc a:hover { color: var(--ink); }
+.abc :focus-visible { outline: 3px solid var(--green-700); outline-offset: 2px; }
+:deep(.vh) { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.email { font-weight: 600; user-select: all; }
+
+.doc { max-width: var(--measure); margin: 0 auto; padding: 0 24px; }
+
+/* Masthead */
+.mast { padding-top: 56px; }
+.mast__rule { height: 6px; background: var(--ink); }
+.mast__ref { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px solid var(--ink); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+.mast__ref span:last-child { color: var(--green-900); }
+.mast h1 { margin: 48px 0 0; font-weight: 800; font-size: clamp(44px, 7vw, 80px); line-height: .98; letter-spacing: -.025em; text-wrap: balance; }
+.mast h1 .sub { display: block; margin-top: 14px; font-size: .46em; line-height: 1.1; font-weight: 300; letter-spacing: -.01em; color: var(--green-700); }
+.mast__meta { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0 40px; margin: 40px 0 0; padding: 12px 0; border-top: 1px solid var(--grey-400); border-bottom: 1px solid var(--grey-400); font-size: 14px; }
+.mast__meta dt { color: var(--grey-600); font-weight: 500; }
+.mast__meta dd { margin: 0; font-weight: 600; }
+.intro { margin: 40px 0 0; font-size: 20px; line-height: 1.55; max-width: 44em; }
+.intro p { margin: 0; }
+
+/* Error summary sits where D3 put it: top of the form. Focusing it scrolls
+   it to the top of the viewport, so clear the sticky navbar and running head. */
+.errsum-wrap { margin-top: 40px; }
+.errsum-wrap :deep([role="alert"]) { scroll-margin-top: calc(var(--sticky-top) + 64px); }
+
+/* Section opener */
+.sec { margin-top: 104px; scroll-margin-top: calc(var(--sticky-top) + 64px); }
+.sec:first-of-type { margin-top: 64px; }
+.opener { display: grid; grid-template-columns: var(--gutter) 1fr; align-items: end; border-top: 2px solid var(--ink); padding-top: 8px; }
+.opener__n { font-size: 128px; line-height: .78; font-weight: 300; letter-spacing: -.05em; color: var(--green-700); font-variant-numeric: tabular-nums; margin-left: -6px; padding-top: 16px; }
+.opener__t { padding-bottom: 4px; }
+.opener__k { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green-900); margin: 0 0 6px; }
+.opener h2 { margin: 0; font-size: 36px; line-height: 1.08; font-weight: 800; letter-spacing: -.015em; text-wrap: balance; }
+.opener__p { margin: 8px 0 0; font-size: 16px; color: var(--grey-600); font-weight: 500; }
+.opener + .body { border-top: 1px solid var(--grey-400); margin-top: 24px; }
+
+/* Questions */
+.q { display: grid; grid-template-columns: var(--gutter) 1fr; padding: 24px 0; border-bottom: 1px solid var(--grey-200); scroll-margin-top: calc(var(--sticky-top) + 64px); }
+.q:last-child { border-bottom: 0; }
+.q > * { min-width: 0; }
+.qn { font-size: 14px; font-weight: 600; color: var(--grey-600); font-variant-numeric: tabular-nums; padding-top: 2px; }
+.l, legend { display: block; font-size: 16px; font-weight: 600; line-height: 1.4; margin: 0 0 10px; padding: 0; max-width: 40em; }
+.l.inline { display: inline; }
+:deep(.req) { color: var(--ink); font-weight: 700; margin-left: 2px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.help { font-size: 15px; margin: 0 0 12px; max-width: 40em; }
+.opt-note { font-weight: 500; color: var(--grey-600); }
+
+input[type=text], input[type=email], input[type=tel], input[type=date], textarea {
+    display: block; width: 100%; height: var(--field); padding: 0 14px; font: inherit; font-size: 17px; color: var(--ink);
+    background: var(--white); border: 1px solid var(--grey-600); border-radius: 2px; appearance: none; -webkit-appearance: none;
+}
+textarea { height: auto; min-height: 128px; padding: 12px 14px; line-height: 1.5; resize: vertical; }
+textarea.short { min-height: 104px; }
+input:focus-visible, textarea:focus-visible { outline: 3px solid var(--green-700); outline-offset: 1px; border-color: var(--green-700); }
+.w-s { max-width: 240px; }
+.w-m { max-width: 400px; }
+.w-l { max-width: 560px; }
+.gap { margin-top: 10px; }
+
+/* A native select, dressed like the text inputs: Form ABC-1's church (4.5). */
+select {
+    display: block; width: 100%; height: var(--field); padding: 0 44px 0 14px; font: inherit; font-size: 17px; color: var(--ink);
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23252a27' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 16px center;
+    border: 1px solid var(--grey-600); border-radius: 2px; appearance: none; -webkit-appearance: none; cursor: pointer;
+}
+select:focus-visible { outline: 3px solid var(--green-700); outline-offset: 1px; border-color: var(--green-700); }
+.is-error select[aria-invalid="true"] { border: 2px solid var(--error); }
+
+/* Options */
+:deep(.opts) { display: flex; flex-wrap: wrap; gap: 8px; }
+:deep(.opt) { position: relative; display: flex; align-items: center; gap: 12px; min-height: 52px; min-width: 132px; padding: 12px 18px 12px 14px; background: var(--white); border: 1px solid var(--grey-600); border-radius: 2px; cursor: pointer; font-size: 17px; line-height: 1.3; }
+:deep(.opt input) { width: 22px; height: 22px; margin: 0; accent-color: var(--green-700); flex: none; }
+:deep(.opt:has(input:checked)) { border-color: var(--green-700); box-shadow: inset 0 0 0 1px var(--green-700); background: var(--green-100); }
+:deep(.opt:has(input:focus-visible)) { outline: 3px solid var(--green-700); outline-offset: 2px; }
+.opts--list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.opts--list .opt { min-width: 0; font-size: 16px; }
+.opt small { display: block; font-size: 14px; color: var(--grey-600); font-weight: 500; }
+
+/* Follow-ups: numbered sub-clauses, not callout boxes */
+.follow { margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--grey-400); }
+.follow .qn { display: inline-block; margin-right: 8px; }
+.follow .follow { margin-top: 20px; }
+.file { display: block; font-size: 16px; padding: 12px; background: var(--white); border: 1px dashed var(--grey-600); max-width: 560px; width: 100%; }
+
+/* Field errors */
+:deep(.err-msg) { color: var(--error); font-weight: 700; font-size: 15px; margin: 0 0 8px; }
+.is-error > .qn { color: var(--error); }
+.is-error input[aria-invalid="true"], .is-error textarea[aria-invalid="true"] { border: 2px solid var(--error); }
+/* Only the options of the group that failed: aria-describedby is set on a
+   fieldset exactly when its own field has an error. */
+fieldset[aria-describedby] > :deep(.opts) > .opt { border: 2px solid var(--error); }
+
+/* The signature block */
+.bar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 20px; background: var(--ink); color: var(--paper); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.sig { margin: 48px 0 0 var(--gutter); background: var(--white); border: 1px solid var(--ink); }
+.sig__body { padding: 32px 28px 28px; display: grid; grid-template-columns: 1.7fr 1fr; gap: 32px 40px; }
+.sig__body > * { min-width: 0; }
+.sig__f label { display: block; font-size: 15px; font-weight: 600; line-height: 1.4; margin: 0 0 4px; min-height: 42px; }
+.sig__line { display: flex; align-items: flex-end; gap: 10px; border-bottom: 2px solid var(--ink); }
+.sig__line .x { font-size: 28px; font-weight: 300; line-height: 1; padding-bottom: 10px; color: var(--grey-600); }
+.sig__line input { border: 0; border-radius: 0; height: 64px; padding: 0 2px; font-size: 28px; font-weight: 500; font-style: italic; letter-spacing: -.005em; background: transparent; }
+.sig__line input.date { font-size: 22px; font-style: normal; }
+.sig__line input:focus-visible { outline: none; }
+.sig__line:focus-within { border-bottom-color: var(--green-700); box-shadow: 0 3px 0 0 var(--green-700); }
+.sig__f.is-error .sig__line { border-bottom: 3px solid var(--error); }
+.sig__f.is-error .sig__line input { border: 0; }
+.sig__cap { margin: 8px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--grey-600); }
+.sig__echo { grid-column: 1 / -1; margin: 0; padding-top: 20px; border-top: 1px solid var(--grey-200); font-size: 16px; }
+
+/* Submit */
+.privacy { margin: 40px 0 0 var(--gutter); font-size: 15px; max-width: 42em; padding-top: 16px; border-top: 1px solid var(--grey-400); }
+.privacy b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+.general-error { margin: 24px 0 0 var(--gutter); padding: 12px 16px; border-left: 4px solid var(--error); background: var(--white); font-size: 16px; }
+.submit { margin: 28px 0 0 var(--gutter); display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.btn { font: inherit; font-size: 18px; font-weight: 700; color: var(--paper); background: var(--green-700); border: 0; border-radius: 2px; min-height: 60px; padding: 0 36px; cursor: pointer; display: inline-flex; align-items: center; gap: 14px; }
+.btn:hover { background: var(--green-900); }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+.btn span { font-weight: 400; }
+.colophon { margin: 72px 0 0; border-top: 6px solid var(--ink); padding-top: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+
+/* Success receipt */
+.success { margin: 64px 0 0; }
+.receipt { border: 1px solid var(--ink); background: var(--white); }
+.receipt .bar { background: var(--green-700); }
+.receipt__body { padding: 40px 32px 36px; display: grid; grid-template-columns: var(--gutter) 1fr; }
+.receipt__n { font-size: 96px; font-weight: 300; line-height: .8; color: var(--green-700); }
+.receipt h2 { margin: 0; font-size: 32px; line-height: 1.2; font-weight: 800; letter-spacing: -.01em; max-width: 20em; }
+.receipt h2:focus { outline: none; }
+.receipt p { margin: 16px 0 0; font-size: 18px; }
+
+/* Phone */
+@media (max-width: 760px) {
+    .abc { --gutter: 0px; font-size: 16px; }
+    .doc { padding: 0 16px; }
+    .mast { padding-top: 32px; }
+    .mast h1 { margin-top: 32px; }
+    .mast__meta { grid-template-columns: auto 1fr; gap: 4px 16px; }
+    .mast__meta div { display: contents; }
+    .intro { font-size: 18px; margin-top: 28px; }
+    .sec { margin-top: 80px; }
+    .opener { grid-template-columns: auto 1fr; gap: 16px; }
+    .opener__n { font-size: 88px; margin-left: -4px; }
+    .opener h2 { font-size: 28px; }
+    .opener__p { font-size: 15px; }
+    .q { display: block; padding: 20px 0; }
+    .q > .qn { display: block; margin-bottom: 4px; font-size: 13px; }
+    :deep(.opts .opt) { flex: 1 1 120px; }
+    .opts--list { grid-template-columns: 1fr; }
+    .sig { margin-left: 0; }
+    .sig__body { grid-template-columns: 1fr; padding: 24px 18px; }
+    .sig__f label { min-height: 0; }
+    .sig__line input { font-size: 24px; }
+    .privacy, .submit, .general-error { margin-left: 0; }
+    .btn { width: 100%; justify-content: center; }
+    .receipt__body { grid-template-columns: 1fr; padding: 28px 20px; }
+    .receipt__n { font-size: 72px; margin-bottom: 16px; }
+    .receipt h2 { font-size: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sec, .q { scroll-behavior: auto; }
+}

@@ -27,7 +27,7 @@
                         <div class="receipt__n" aria-hidden="true">✓</div>
                         <div>
                             <h2 id="success-heading" ref="successHeading" tabindex="-1">Thank you — your enrolment has been received.</h2>
-                            <p>The Apostolic Bible College will be in touch by email.</p>
+                            <p>The Apostolic Bible College will be in touch by email. Your pastor will be emailed a short reference questionnaire.</p>
                             <p><router-link to="/apostolic-bible-college">Back to the Apostolic Bible College</router-link></p>
                         </div>
                     </div>
@@ -296,35 +296,48 @@
                                     <YesNo v-model="form[question.field]" :name="question.field" />
                                 </fieldset>
                             </div>
+                            <!-- A dropdown rather than fourteen boxes (owner, 2026-10-17).
+                                 Choosing a church fills in 4.6 when the college has that
+                                 church's pastor on file. -->
                             <div :class="q('church_name', 'church_name_other')">
                                 <span class="qn">4.5</span>
-                                <fieldset :aria-describedby="describedBy('church_name')">
-                                    <legend>What is the name of the church you currently attend?<Req /></legend>
+                                <div>
+                                    <label class="l" for="church_name">What is the name of the church you currently attend?<Req /></label>
                                     <FieldError :errors="errors" field="church_name" />
-                                    <div class="opts opts--list">
-                                        <label v-for="(church, i) in churches" :key="church.value" class="opt">
-                                            <input :id="i === 0 ? 'church_name' : `church_name-${i + 1}`" v-model="form.church_name" type="radio" name="church_name" :value="church.value">
-                                            <span>{{ church.name }}<small>{{ church.town }}</small></span>
-                                        </label>
-                                        <label class="opt">
-                                            <input id="church_name-other" v-model="form.church_name" type="radio" name="church_name" value="other">
-                                            <span>Other</span>
-                                        </label>
-                                    </div>
+                                    <select id="church_name" v-model="form.church_name" class="w-l" :aria-invalid="invalid('church_name')" :aria-describedby="describedBy('church_name')">
+                                        <option value="" disabled>Select your church</option>
+                                        <option v-for="church in churches" :key="church.value" :value="church.value">{{ church.name }}, {{ church.town }}</option>
+                                        <option value="other">Other (not listed)</option>
+                                    </select>
                                     <div v-if="form.church_name === 'other'" class="follow">
                                         <span class="qn">4.5a</span>
                                         <label class="l inline" for="church_name_other">Church name<Req /></label>
                                         <FieldError :errors="errors" field="church_name_other" />
                                         <input id="church_name_other" v-model="form.church_name_other" type="text" class="w-l gap" :aria-invalid="invalid('church_name_other')" :aria-describedby="describedBy('church_name_other')">
                                     </div>
-                                </fieldset>
+                                </div>
                             </div>
-                            <div :class="q('pastor_name')">
+                            <div :class="q('pastor_name', 'pastor_email')">
                                 <span class="qn">4.6</span>
                                 <div>
                                     <label class="l" for="pastor_name">Who is your church pastor?<Req /></label>
+                                    <p v-if="pastorFilled" id="pastor_name-hint" class="help">Filled in from your church's details. Change it if someone else is your pastor.</p>
                                     <FieldError :errors="errors" field="pastor_name" />
-                                    <input id="pastor_name" v-model="form.pastor_name" type="text" class="w-l" :aria-invalid="invalid('pastor_name')" :aria-describedby="describedBy('pastor_name')">
+                                    <input id="pastor_name" v-model="form.pastor_name" type="text" class="w-l" autocomplete="off" :aria-invalid="invalid('pastor_name')" :aria-describedby="describedBy('pastor_name', pastorFilled ? 'pastor_name-hint' : null)">
+                                    <!-- Says aloud what the dropdown just filled in, without
+                                         moving focus off it. In the page from the start, so
+                                         screen readers are already listening. -->
+                                    <p class="vh" role="status" aria-live="polite">{{ pastorStatus }}</p>
+                                    <!-- The college emails the pastor a reference questionnaire
+                                         (Form ABC-2). Asked only when it has no address for the
+                                         pastor named above. -->
+                                    <div v-if="needsPastorEmail" class="follow">
+                                        <span class="qn">4.6a</span>
+                                        <label class="l inline" for="pastor_email">Your pastor's email address<Req /></label>
+                                        <p id="pastor_email-hint" class="help gap">The college will email your pastor a short reference questionnaire.</p>
+                                        <FieldError :errors="errors" field="pastor_email" />
+                                        <input id="pastor_email" v-model="form.pastor_email" type="email" class="w-l" autocomplete="off" :aria-invalid="invalid('pastor_email')" :aria-describedby="describedBy('pastor_email', 'pastor_email-hint')">
+                                    </div>
                                 </div>
                             </div>
                             <div :class="q('attendance_duration')">
@@ -447,9 +460,10 @@
 </template>
 
 <script>
-import { computed, defineComponent, h, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, defineComponent, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import ErrorSummary from '../components/layout/ErrorSummary.vue'
 import { usePageMeta } from '../composables/usePageMeta'
+import { FieldError, Req, YesNo, formatDate, localDate } from './abc-form-parts'
 
 /**
  * The church list, in the Google Form's order. MUST stay identical to
@@ -472,40 +486,16 @@ const CHURCHES = [
     'House of Mercy (Tokoroa)',
 ]
 
-// "Required" said in words as well as the asterisk, for screen readers.
-const Req = () => [
-    h('span', { class: 'req', 'aria-hidden': 'true' }, '*'),
-    h('span', { class: 'vh' }, ' (required)'),
-]
+// Req, FieldError, YesNo, localDate and formatDate are shared with Form
+// ABC-2, the pastor's reference (abc-form-parts.js).
 
-// The server's first message for a field, id'd so the input can point at it.
-const FieldError = (props) => props.errors?.[props.field]?.length
-    ? h('p', { class: 'err-msg', id: `${props.field}-error` }, [h('span', { class: 'vh' }, 'Error: '), props.errors[props.field][0]])
-    : null
-FieldError.props = ['errors', 'field']
-
-// Yes/No radios. The first radio carries the field name as its id, so the
-// error summary's #field link lands on the group.
-const YesNo = (props, { emit }) => h('div', { class: 'opts' }, ['yes', 'no'].map((value) =>
-    h('label', { class: 'opt' }, [
-        h('input', {
-            id: value === 'yes' ? props.name : `${props.name}-no`,
-            type: 'radio',
-            name: props.name,
-            value,
-            checked: props.modelValue === value,
-            onChange: () => emit('update:modelValue', value),
-        }),
-        value === 'yes' ? 'Yes' : 'No',
-    ])
-))
-YesNo.props = ['modelValue', 'name']
-YesNo.emits = ['update:modelValue']
-
-const localDate = (d = new Date()) => {
-    const pad = (n) => String(n).padStart(2, '0')
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
+// Whether two names are the same pastor, as people write them ("Pastor
+// Chester Kebasen", "ps. chester kebasen"). Mirrors AbcEnrolment::samePastor,
+// which decides on the server whether the pastor's email is on file.
+const pastorKey = (name) => String(name || '').toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, '').replace(/\s+/g, ' ').trim()
+    .replace(/^(?:(?:pastor|ps|rev|reverend)\s+)+/, '')
+const samePastor = (a, b) => pastorKey(a) !== '' && pastorKey(a) === pastorKey(b)
 
 export default defineComponent({
     name: 'AbcNewStudentEnrolment',
@@ -523,7 +513,7 @@ export default defineComponent({
             reason_for_attending: '', attended_upci_bible_school: '', has_learning_difficulties: '',
             learning_difficulty: '', learning_difficulty_other: '', wants_ministerial_licence: '',
             read_articles_of_faith: '', baptised_in_jesus_name: '', received_holy_ghost: '',
-            church_name: '', church_name_other: '', pastor_name: '', attendance_duration: '',
+            church_name: '', church_name_other: '', pastor_name: '', pastor_email: '', attendance_duration: '',
             ministry_involvement: '', agreement_name: '', agreement_date: today, website: '',
         })
         const transcript = ref(null)
@@ -553,6 +543,47 @@ export default defineComponent({
             const match = value.match(/^(.*) \(([^)]+)\)$/)
             return { value, name: match ? match[1] : value, town: match ? match[2] : '' }
         })
+
+        // Each listed church's pastor, from the CMS: { "Grace Fellowship
+        // (Hamilton)": { pastor_name, pastor_on_file } }. Names only; the
+        // college never publishes a pastor's email address.
+        const pastors = ref({})
+        const suggestedPastor = computed(() => pastors.value[form.church_name] || null)
+
+        // The name last filled in from the dropdown. A name the applicant
+        // typed themselves is never overwritten.
+        const lastFilled = ref('')
+        const pastorFilled = computed(() => lastFilled.value !== '' && form.pastor_name === lastFilled.value)
+        const pastorStatus = ref('')
+
+        watch(() => form.church_name, () => {
+            if (form.pastor_name.trim() !== '' && form.pastor_name !== lastFilled.value) return
+            const name = suggestedPastor.value?.pastor_name || ''
+            form.pastor_name = name
+            lastFilled.value = name
+            pastorStatus.value = name ? `Pastor filled in: ${name}` : ''
+        })
+
+        // 4.6a, the pastor's email, whenever the college cannot reach the
+        // pastor named in 4.6 from its own records: Other, a church with no
+        // pastor email on file, or someone other than the pastor on file. The
+        // API applies the same rule, and its error shows the question too.
+        const needsPastorEmail = computed(() => {
+            if (errors.value.pastor_email) return true
+            if (!form.church_name) return false
+            const onFile = suggestedPastor.value
+            return form.church_name === 'other' || !onFile?.pastor_on_file || !samePastor(form.pastor_name, onFile.pastor_name)
+        })
+
+        const loadPastors = async () => {
+            try {
+                const response = await fetch('/api/abc-enrolments/pastors', { headers: { Accept: 'application/json' } })
+                if (response.ok) pastors.value = (await response.json()).data || {}
+            } catch (e) {
+                // Without the list the form still works: nothing is filled
+                // in, and 4.6a asks for the pastor's email.
+            }
+        }
 
         const learningDifficulties = {
             hearing: 'Hearing',
@@ -586,7 +617,8 @@ export default defineComponent({
             [
                 ...spiritualQuestions.map((question) => question.field), 'church_name',
                 ...(form.church_name === 'other' ? ['church_name_other'] : []),
-                'pastor_name', 'attendance_duration', 'ministry_involvement',
+                'pastor_name', ...(needsPastorEmail.value ? ['pastor_email'] : []),
+                'attendance_duration', 'ministry_involvement',
             ],
             ['agreement_name', 'agreement_date'],
         ])
@@ -615,12 +647,6 @@ export default defineComponent({
         const q = (...fields) => ['q', { 'is-error': fields.some((field) => errors.value[field]) }]
         const invalid = (field) => (errors.value[field] ? 'true' : null)
         const describedBy = (field, extra = null) => [errors.value[field] ? `${field}-error` : null, extra].filter(Boolean).join(' ') || null
-
-        const formatDate = (value) => {
-            if (!value) return '—'
-            const [y, m, d] = value.split('-').map(Number)
-            return new Date(y, m - 1, d).toLocaleDateString('en-NZ', { day: 'numeric', month: 'long', year: 'numeric' })
-        }
 
         const pickTranscript = (event) => {
             const file = event.target.files?.[0] ?? null
@@ -689,6 +715,7 @@ export default defineComponent({
         onMounted(() => {
             setPageMeta('New Student Enrolment - Apostolic Bible College', 'Enrol as a first-time student at the Apostolic Bible College of UPCI New Zealand.')
             window.addEventListener('scroll', onScroll, { passive: true })
+            loadPastors()
         })
         onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 
@@ -696,6 +723,7 @@ export default defineComponent({
             form, errors, generalError, sending, submitted, successHeading, today,
             sections, levels, churches, learningDifficulties, spiritualQuestions,
             sectionDone, current, goToSection, q, invalid, describedBy,
+            pastorFilled, pastorStatus, needsPastorEmail,
             formatDate, pickTranscript, submit,
             returningFormUrl: 'https://forms.gle/9nEDxXdJgGbtwr5m9',
         }
@@ -703,52 +731,11 @@ export default defineComponent({
 })
 </script>
 
+<style scoped src="./abc-form-document.css"></style>
+
 <style scoped>
-/* Ported from design-demos/D3-application-document.html. Brand tokens only;
-   error red is for error states and nowhere else. */
-.abc {
-    --ink: oklch(0.18 0.01 150);
-    --paper: oklch(0.98 0.005 95);
-    --green-100: oklch(0.93 0.03 143);
-    --green-700: oklch(0.47 0.09 143);
-    --green-900: oklch(0.34 0.07 143);
-    --clay-600: oklch(0.62 0.12 55);
-    --grey-200: oklch(0.90 0.005 95);
-    --grey-400: oklch(0.72 0.005 95);
-    --grey-600: oklch(0.55 0.005 95);
-    --error: oklch(0.52 0.17 27);
-    --white: #fff;
-    --gutter: 72px;   /* hanging clause-number column */
-    --measure: 880px;
-    --field: 52px;
-    --sticky-top: 80px; /* the site navbar is sticky and h-20 */
-
-    background: var(--paper);
-    color: var(--ink);
-    font-size: 17px;
-    line-height: 1.5;
-    padding-bottom: 96px;
-}
-.abc a { color: var(--green-900); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.abc a:hover { color: var(--ink); }
-.abc :focus-visible { outline: 3px solid var(--green-700); outline-offset: 2px; }
-:deep(.vh) { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.email { font-weight: 600; user-select: all; }
-
-.doc { max-width: var(--measure); margin: 0 auto; padding: 0 24px; }
-
-/* Masthead */
-.mast { padding-top: 56px; }
-.mast__rule { height: 6px; background: var(--ink); }
-.mast__ref { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px solid var(--ink); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
-.mast__ref span:last-child { color: var(--green-900); }
-.mast h1 { margin: 48px 0 0; font-weight: 800; font-size: clamp(44px, 7vw, 80px); line-height: .98; letter-spacing: -.025em; text-wrap: balance; }
-.mast h1 .sub { display: block; margin-top: 14px; font-size: .46em; line-height: 1.1; font-weight: 300; letter-spacing: -.01em; color: var(--green-700); }
-.mast__meta { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0 40px; margin: 40px 0 0; padding: 12px 0; border-top: 1px solid var(--grey-400); border-bottom: 1px solid var(--grey-400); font-size: 14px; }
-.mast__meta dt { color: var(--grey-600); font-weight: 500; }
-.mast__meta dd { margin: 0; font-weight: 600; }
-.intro { margin: 40px 0 0; font-size: 20px; line-height: 1.55; max-width: 44em; }
-.intro p { margin: 0; }
+/* Form ABC-1 only. The design both college forms share is in
+   abc-form-document.css. */
 
 /* Progression ladder */
 .prog { margin: 72px 0 0; }
@@ -783,72 +770,8 @@ export default defineComponent({
 .runhead li.done a { background: var(--green-100); border-color: var(--green-700); }
 .runhead li a[aria-current="step"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 
-/* Error summary sits where D3 put it: top of the form. Focusing it scrolls
-   it to the top of the viewport, so clear the sticky navbar and running head. */
-.errsum-wrap { margin-top: 40px; }
-.errsum-wrap :deep([role="alert"]) { scroll-margin-top: calc(var(--sticky-top) + 64px); }
-
 /* Honeypot */
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-
-/* Section opener */
-.sec { margin-top: 104px; scroll-margin-top: calc(var(--sticky-top) + 64px); }
-.sec:first-of-type { margin-top: 64px; }
-.opener { display: grid; grid-template-columns: var(--gutter) 1fr; align-items: end; border-top: 2px solid var(--ink); padding-top: 8px; }
-.opener__n { font-size: 128px; line-height: .78; font-weight: 300; letter-spacing: -.05em; color: var(--green-700); font-variant-numeric: tabular-nums; margin-left: -6px; padding-top: 16px; }
-.opener__t { padding-bottom: 4px; }
-.opener__k { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green-900); margin: 0 0 6px; }
-.opener h2 { margin: 0; font-size: 36px; line-height: 1.08; font-weight: 800; letter-spacing: -.015em; text-wrap: balance; }
-.opener__p { margin: 8px 0 0; font-size: 16px; color: var(--grey-600); font-weight: 500; }
-.opener + .body { border-top: 1px solid var(--grey-400); margin-top: 24px; }
-
-/* Questions */
-.q { display: grid; grid-template-columns: var(--gutter) 1fr; padding: 24px 0; border-bottom: 1px solid var(--grey-200); scroll-margin-top: calc(var(--sticky-top) + 64px); }
-.q:last-child { border-bottom: 0; }
-.q > * { min-width: 0; }
-.qn { font-size: 14px; font-weight: 600; color: var(--grey-600); font-variant-numeric: tabular-nums; padding-top: 2px; }
-.l, legend { display: block; font-size: 16px; font-weight: 600; line-height: 1.4; margin: 0 0 10px; padding: 0; max-width: 40em; }
-.l.inline { display: inline; }
-:deep(.req) { color: var(--ink); font-weight: 700; margin-left: 2px; }
-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
-.help { font-size: 15px; margin: 0 0 12px; max-width: 40em; }
-.opt-note { font-weight: 500; color: var(--grey-600); }
-
-input[type=text], input[type=email], input[type=tel], input[type=date], textarea {
-    display: block; width: 100%; height: var(--field); padding: 0 14px; font: inherit; font-size: 17px; color: var(--ink);
-    background: var(--white); border: 1px solid var(--grey-600); border-radius: 2px; appearance: none; -webkit-appearance: none;
-}
-textarea { height: auto; min-height: 128px; padding: 12px 14px; line-height: 1.5; resize: vertical; }
-textarea.short { min-height: 104px; }
-input:focus-visible, textarea:focus-visible { outline: 3px solid var(--green-700); outline-offset: 1px; border-color: var(--green-700); }
-.w-s { max-width: 240px; }
-.w-m { max-width: 400px; }
-.w-l { max-width: 560px; }
-.gap { margin-top: 10px; }
-
-/* Options */
-:deep(.opts) { display: flex; flex-wrap: wrap; gap: 8px; }
-:deep(.opt) { position: relative; display: flex; align-items: center; gap: 12px; min-height: 52px; min-width: 132px; padding: 12px 18px 12px 14px; background: var(--white); border: 1px solid var(--grey-600); border-radius: 2px; cursor: pointer; font-size: 17px; line-height: 1.3; }
-:deep(.opt input) { width: 22px; height: 22px; margin: 0; accent-color: var(--green-700); flex: none; }
-:deep(.opt:has(input:checked)) { border-color: var(--green-700); box-shadow: inset 0 0 0 1px var(--green-700); background: var(--green-100); }
-:deep(.opt:has(input:focus-visible)) { outline: 3px solid var(--green-700); outline-offset: 2px; }
-.opts--list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.opts--list .opt { min-width: 0; font-size: 16px; }
-.opt small { display: block; font-size: 14px; color: var(--grey-600); font-weight: 500; }
-
-/* Follow-ups: numbered sub-clauses, not callout boxes */
-.follow { margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--grey-400); }
-.follow .qn { display: inline-block; margin-right: 8px; }
-.follow .follow { margin-top: 20px; }
-.file { display: block; font-size: 16px; padding: 12px; background: var(--white); border: 1px dashed var(--grey-600); max-width: 560px; width: 100%; }
-
-/* Field errors */
-:deep(.err-msg) { color: var(--error); font-weight: 700; font-size: 15px; margin: 0 0 8px; }
-.is-error > .qn { color: var(--error); }
-.is-error input[aria-invalid="true"], .is-error textarea[aria-invalid="true"] { border: 2px solid var(--error); }
-/* Only the options of the group that failed: aria-describedby is set on a
-   fieldset exactly when its own field has an error. */
-fieldset[aria-describedby] > :deep(.opts) > .opt { border: 2px solid var(--error); }
 
 /* Section 5 */
 .fees-note { font-size: 17px; max-width: 40em; margin: 0; }
@@ -863,53 +786,8 @@ fieldset[aria-describedby] > :deep(.opts) > .opt { border: 2px solid var(--error
 .clauses li { counter-increment: c; display: grid; grid-template-columns: 40px 1fr; padding: 14px 0; border-top: 1px solid var(--grey-200); font-size: 16px; line-height: 1.55; max-width: 42em; }
 .clauses li::before { content: "(" counter(c) ")"; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--green-900); }
 
-/* The signature block */
-.bar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 20px; background: var(--ink); color: var(--paper); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.sig { margin: 48px 0 0 var(--gutter); background: var(--white); border: 1px solid var(--ink); }
-.sig__body { padding: 32px 28px 28px; display: grid; grid-template-columns: 1.7fr 1fr; gap: 32px 40px; }
-.sig__body > * { min-width: 0; }
-.sig__f label { display: block; font-size: 15px; font-weight: 600; line-height: 1.4; margin: 0 0 4px; min-height: 42px; }
-.sig__line { display: flex; align-items: flex-end; gap: 10px; border-bottom: 2px solid var(--ink); }
-.sig__line .x { font-size: 28px; font-weight: 300; line-height: 1; padding-bottom: 10px; color: var(--grey-600); }
-.sig__line input { border: 0; border-radius: 0; height: 64px; padding: 0 2px; font-size: 28px; font-weight: 500; font-style: italic; letter-spacing: -.005em; background: transparent; }
-.sig__line input.date { font-size: 22px; font-style: normal; }
-.sig__line input:focus-visible { outline: none; }
-.sig__line:focus-within { border-bottom-color: var(--green-700); box-shadow: 0 3px 0 0 var(--green-700); }
-.sig__f.is-error .sig__line { border-bottom: 3px solid var(--error); }
-.sig__f.is-error .sig__line input { border: 0; }
-.sig__cap { margin: 8px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--grey-600); }
-.sig__echo { grid-column: 1 / -1; margin: 0; padding-top: 20px; border-top: 1px solid var(--grey-200); font-size: 16px; }
-
-/* Submit */
-.privacy { margin: 40px 0 0 var(--gutter); font-size: 15px; max-width: 42em; padding-top: 16px; border-top: 1px solid var(--grey-400); }
-.privacy b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
-.general-error { margin: 24px 0 0 var(--gutter); padding: 12px 16px; border-left: 4px solid var(--error); background: var(--white); font-size: 16px; }
-.submit { margin: 28px 0 0 var(--gutter); display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-.btn { font: inherit; font-size: 18px; font-weight: 700; color: var(--paper); background: var(--green-700); border: 0; border-radius: 2px; min-height: 60px; padding: 0 36px; cursor: pointer; display: inline-flex; align-items: center; gap: 14px; }
-.btn:hover { background: var(--green-900); }
-.btn:disabled { opacity: .6; cursor: not-allowed; }
-.btn span { font-weight: 400; }
-.colophon { margin: 72px 0 0; border-top: 6px solid var(--ink); padding-top: 10px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-
-/* Success receipt */
-.success { margin: 64px 0 0; }
-.receipt { border: 1px solid var(--ink); background: var(--white); }
-.receipt .bar { background: var(--green-700); }
-.receipt__body { padding: 40px 32px 36px; display: grid; grid-template-columns: var(--gutter) 1fr; }
-.receipt__n { font-size: 96px; font-weight: 300; line-height: .8; color: var(--green-700); }
-.receipt h2 { margin: 0; font-size: 32px; line-height: 1.2; font-weight: 800; letter-spacing: -.01em; max-width: 20em; }
-.receipt h2:focus { outline: none; }
-.receipt p { margin: 16px 0 0; font-size: 18px; }
-
 /* Phone */
 @media (max-width: 760px) {
-    .abc { --gutter: 0px; font-size: 16px; }
-    .doc { padding: 0 16px; }
-    .mast { padding-top: 32px; }
-    .mast h1 { margin-top: 32px; }
-    .mast__meta { grid-template-columns: auto 1fr; gap: 4px 16px; }
-    .mast__meta div { display: contents; }
-    .intro { font-size: 18px; margin-top: 28px; }
     .prog { margin-top: 56px; }
     .ladder { grid-template-columns: 1fr; padding: 44px 0 18px; align-items: stretch; gap: 6px; }
     .ladder::after { top: 44px; bottom: 18px; left: 0; right: auto; width: 2px; height: auto; }
@@ -925,27 +803,5 @@ fieldset[aria-describedby] > :deep(.opts) > .opt { border: 2px solid var(--error
     .runhead { margin-top: 64px; }
     .runhead li a { width: 30px; }
     .runhead__now .t { display: none; }
-    .sec { margin-top: 80px; }
-    .opener { grid-template-columns: auto 1fr; gap: 16px; }
-    .opener__n { font-size: 88px; margin-left: -4px; }
-    .opener h2 { font-size: 28px; }
-    .opener__p { font-size: 15px; }
-    .q { display: block; padding: 20px 0; }
-    .q > .qn { display: block; margin-bottom: 4px; font-size: 13px; }
-    :deep(.opts .opt) { flex: 1 1 120px; }
-    .opts--list { grid-template-columns: 1fr; }
-    .sig { margin-left: 0; }
-    .sig__body { grid-template-columns: 1fr; padding: 24px 18px; }
-    .sig__f label { min-height: 0; }
-    .sig__line input { font-size: 24px; }
-    .privacy, .submit, .general-error { margin-left: 0; }
-    .btn { width: 100%; justify-content: center; }
-    .receipt__body { grid-template-columns: 1fr; padding: 28px 20px; }
-    .receipt__n { font-size: 72px; margin-bottom: 16px; }
-    .receipt h2 { font-size: 26px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .sec, .q { scroll-behavior: auto; }
 }
 </style>

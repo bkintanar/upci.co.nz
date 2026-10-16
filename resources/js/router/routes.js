@@ -66,6 +66,13 @@ const routes = [
         component: () => import('../views/AbcNewStudentEnrolment.vue')
     },
     {
+        // Form ABC-2, reached only from the link emailed to an applicant's
+        // pastor. Before the CMS catch-all, which would claim it as a page.
+        path: '/apostolic-bible-college/pastor-reference/:token',
+        name: 'AbcPastorReference',
+        component: () => import('../views/AbcPastorReference.vue')
+    },
+    {
         path: '/apostolic-bible-college/connect',
         name: 'AbcConnect',
         component: () => import('../views/CmsPage.vue')

@@ -34,6 +34,9 @@ function abcEnrolmentPayload(array $overrides = []): array
         'received_holy_ghost' => 'yes',
         'church_name' => 'Grace Fellowship (Hamilton)',
         'pastor_name' => 'Pastor Example',
+        // No church in the test database has a pastor on file, so the
+        // pastor's reference needs an address (AbcPastorReferenceTest).
+        'pastor_email' => 'pastor@example.test',
         'attendance_duration' => '3 years',
         'ministry_involvement' => 'Youth and music.',
         'agreement_name' => 'Mere Tūhoe',
@@ -235,7 +238,10 @@ test('a filled honeypot looks like success but stores and sends nothing', functi
 test('no notification is sent while no recipient is configured', function () {
     $this->postJson('/api/abc-enrolments', abcEnrolmentPayload())->assertCreated();
 
-    Notification::assertNothingSent();
+    // The college's copy needs a recipient. The pastor's questionnaire is
+    // sent regardless (AbcPastorReferenceTest), so only the college's email
+    // is checked here.
+    Notification::assertSentOnDemandTimes(NewAbcEnrolment::class, 0);
 });
 
 test('the configured recipient is notified once', function () {

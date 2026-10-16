@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\AGSUpdateController;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\SiteSettingController;
 use App\Http\Controllers\Api\AbcEnrolmentController;
+use App\Http\Controllers\Api\AbcPastorReferenceController;
 
 // API routes (must come before catch-all route)
 // A baseline limit for the whole public API. None of these routes are
@@ -81,6 +82,16 @@ Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     // data, with an optional file upload, so it gets the contact form's limit.
     Route::post('/abc-enrolments', [AbcEnrolmentController::class, 'store'])
         ->middleware('throttle:5,1,abc-enrolment');
+    // The church dropdown's pastors: names only, never email addresses.
+    Route::get('/abc-enrolments/pastors', [AbcEnrolmentController::class, 'pastors']);
+
+    // The pastor's reference questionnaire, reached only through the link
+    // emailed to the pastor. Its own counters: reading is limited so the
+    // token cannot be guessed at speed, and sending like the forms above.
+    Route::get('/abc-pastor-references/{token}', [AbcPastorReferenceController::class, 'show'])
+        ->middleware('throttle:30,1,abc-pastor-reference');
+    Route::post('/abc-pastor-references/{token}', [AbcPastorReferenceController::class, 'store'])
+        ->middleware('throttle:10,1,abc-pastor-reference-submit');
 });
 
 // Frontend routes

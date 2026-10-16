@@ -7,9 +7,12 @@ use App\Models\AbcEnrolment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
+use App\Models\AbcPastorReference;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Notifications\NewAbcEnrolment;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\AbcPastorReferenceRequest;
 
 /**
  * First-time student enrolment for the Apostolic Bible College, replacing
@@ -20,6 +23,9 @@ use Illuminate\Support\Facades\Notification;
  * stored as booleans. Conditional answers use exclude_unless, so an answer
  * left behind after its parent question was switched back is dropped
  * rather than stored or validated.
+ *
+ * Each enrolment also asks the applicant's pastor for a reference (Form
+ * ABC-2, owner request 2026-10-17): see AbcPastorReferenceController.
  */
 class AbcEnrolmentController extends Controller
 {
@@ -46,11 +52,25 @@ class AbcEnrolmentController extends Controller
         'church_name.required' => 'Select the church you currently attend',
         'church_name_other.required' => 'Enter the name of your church',
         'pastor_name.required' => "Enter your church pastor's name",
+        'pastor_email.required' => "Enter your pastor's email address, so the college can ask them for a reference",
         'attendance_duration.required' => 'Enter how long you have attended',
         'ministry_involvement.required' => 'Describe any area of ministry you are involved in',
         'agreement_name.required' => 'Print your full name to agree',
         'agreement_date.required' => "Select today's date",
     ];
+
+    /**
+     * For the form's church dropdown: each listed church's pastor, so
+     * choosing the church fills in the pastor's name. Names and an "on file"
+     * flag only; pastors' email addresses are never published.
+     */
+    public function pastors(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data' => AbcEnrolment::pastorDirectory(),
+        ]);
+    }
 
     public function store(Request $request): JsonResponse
     {
@@ -94,6 +114,16 @@ class AbcEnrolmentController extends Controller
             'church_name' => ['required', 'string', Rule::in([...AbcEnrolment::CHURCHES, 'other'])],
             'church_name_other' => ['exclude_unless:church_name,other', 'required', 'string', 'max:255'],
             'pastor_name' => ['required', 'string', 'max:255'],
+            // Asked only when the college cannot reach the pastor named above
+            // from its own records: Other, a church with no pastor email on
+            // file, or a pastor other than the one on file.
+            'pastor_email' => [
+                Rule::requiredIf(fn () => AbcEnrolment::pastorEmailOnFile(
+                    $request->string('church_name')->toString(),
+                    $request->string('pastor_name')->toString(),
+                ) === null),
+                'nullable', 'string', 'email', 'max:255',
+            ],
             'attendance_duration' => ['required', 'string', 'max:255'],
             'ministry_involvement' => ['required', 'string', 'max:5000'],
 
@@ -111,6 +141,7 @@ class AbcEnrolmentController extends Controller
                 ->all(),
             'gender.in' => 'Select your gender',
             'email.email' => 'Enter an email address in the correct format, like name@example.com',
+            'pastor_email.email' => "Enter your pastor's email address in the correct format, like name@example.com",
             'date_of_birth.date_format' => 'Enter your date of birth as a real date',
             'date_of_birth.before' => 'Your date of birth must be in the past',
             'date_of_birth.after' => 'Your date of birth must be a real date',
@@ -132,12 +163,14 @@ class AbcEnrolmentController extends Controller
             'learning_difficulty_other' => 'learning difficulty description',
             'church_name_other' => 'church name',
             'pastor_name' => 'pastor',
+            'pastor_email' => "pastor's email address",
             'attendance_duration' => 'how long you have attended',
             'ministry_involvement' => 'ministry involvement',
             'agreement_name' => 'printed full name',
         ]);
 
-        $data = collect($validated)->except('transcript')->all();
+        // pastor_email belongs to the pastor's reference, not the enrolment.
+        $data = collect($validated)->except(['transcript', 'pastor_email'])->all();
 
         foreach (AbcEnrolment::YES_NO_FIELDS as $field) {
             $data[$field] = $validated[$field] === 'yes';
@@ -154,7 +187,34 @@ class AbcEnrolmentController extends Controller
             $data['transcript_original_name'] = Str::limit($file->getClientOriginalName(), 250, '');
         }
 
-        $record = AbcEnrolment::create($data);
+        // The college's own record of the pastor wins whenever the applicant
+        // named that pastor; otherwise the address the applicant gave, which
+        // the admin labels as theirs.
+        $onFile = AbcEnrolment::pastorEmailOnFile($validated['church_name'], $validated['pastor_name']);
+
+        [$record, $token] = DB::transaction(function () use ($data, $validated, $onFile): array {
+            $record = AbcEnrolment::create($data);
+
+            $reference = new AbcPastorReference([
+                'pastor_name' => $validated['pastor_name'],
+                'pastor_email' => $onFile ?? $validated['pastor_email'],
+                'pastor_email_source' => $onFile ? 'church_records' : 'applicant',
+                'emailed_at' => now(),
+            ]);
+            $token = $reference->issueToken();
+            $record->pastorReference()->save($reference);
+
+            return [$record, $token];
+        });
+
+        // The pastor's questionnaire. As with the college's email below, a
+        // mail or queue outage must never turn a saved enrolment into a
+        // failed one; the admin can send it again from the enrolment.
+        rescue(
+            fn () => Notification::route('mail', $record->pastorReference->pastor_email)
+                ->notify(new AbcPastorReferenceRequest($token, $record->full_name)),
+            report: true,
+        );
 
         if ($to = config('abc.enrolment_notify_to')) {
             // A mail or queue outage must never turn a saved enrolment into

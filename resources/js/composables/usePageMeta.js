@@ -29,7 +29,9 @@ const MAX_DESCRIPTION = 155
  * humanising the slug would be a second, worse source of truth for something
  * this composable already computes.
  *
- * `breadcrumbSuppressed` exists for exactly one case: a page that does not
+ * `breadcrumbSuppressed` exists for two cases. The first is AbcPastorReference,
+ * reached only from an emailed link, whose address would make a trail through
+ * a page that does not exist. The second: a page that does not
  * exist must not assert a trail to itself. Without it a 404 renders
  * "Home › This Does Not Exist", naming a page that was never there. That used
  * to be handled by accident, because the breadcrumb sat behind CmsPage's

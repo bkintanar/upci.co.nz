@@ -37,6 +37,15 @@ class AbcEnrolmentsTable
                     ->label('Church')
                     ->formatStateUsing(fn ($state, AbcEnrolment $record) => $record->church_display)
                     ->wrap(),
+                TextColumn::make('pastorReference.status_label')
+                    ->label("Pastor's reference")
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'Approved' => 'success',
+                        'Not approved' => 'danger',
+                        default => 'warning',
+                    })
+                    ->placeholder('Not requested'),
                 IconColumn::make('transcript_path')
                     ->label('Transcript')
                     ->state(fn (AbcEnrolment $record) => filled($record->transcript_path))
@@ -52,6 +61,7 @@ class AbcEnrolmentsTable
                     ->label('Church')
                     ->options(array_combine(AbcEnrolment::CHURCHES, AbcEnrolment::CHURCHES) + ['other' => 'Other']),
             ])
+            ->modifyQueryUsing(fn ($query) => $query->with('pastorReference'))
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 ViewAction::make(),

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\AbcEnrolments\Schemas;
 
 use App\Models\AbcEnrolment;
 use Filament\Schemas\Schema;
+use App\Models\AbcPastorReference;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use App\Filament\Resources\Shared\TextLines;
@@ -84,6 +85,58 @@ class AbcEnrolmentInfolist
                     ])
                     ->columnSpanFull(),
 
+                // Form ABC-2: who was asked for the pastor's reference, and
+                // their answers once sent (owner request, 2026-10-17). The
+                // address's source matters: one the applicant typed in could
+                // be anyone's.
+                Section::make("Pastor's reference")
+                    ->schema([
+                        Grid::make(3)->schema([
+                            TextEntry::make('pastorReference.status_label')
+                                ->label('Status')
+                                ->badge()
+                                ->color(fn ($state) => match ($state) {
+                                    'Approved' => 'success',
+                                    'Not approved' => 'danger',
+                                    default => 'warning',
+                                })
+                                ->placeholder('Not requested: enrolled before pastor references began'),
+                            TextEntry::make('pastorReference.pastor_email')
+                                ->label('Sent to')
+                                ->copyable()
+                                ->visible(fn (AbcEnrolment $record) => $record->pastorReference !== null),
+                            TextEntry::make('pastorReference.email_source_label')
+                                ->label('Address from')
+                                ->visible(fn (AbcEnrolment $record) => $record->pastorReference !== null),
+                            TextEntry::make('pastorReference.emailed_at')
+                                ->label('Asked')
+                                ->dateTime('j M Y, g:ia')
+                                ->visible(fn (AbcEnrolment $record) => $record->pastorReference !== null),
+                            TextEntry::make('pastorReference.submitted_at')
+                                ->label('Answered')
+                                ->dateTime('j M Y, g:ia')
+                                ->placeholder('Not yet')
+                                ->visible(fn (AbcEnrolment $record) => $record->pastorReference !== null),
+                            TextEntry::make('pastorReference.signed_name')
+                                ->label('Signed by')
+                                ->visible(fn (AbcEnrolment $record) => (bool) $record->pastorReference?->isSubmitted()),
+                        ]),
+                        Grid::make(2)
+                            ->schema([
+                                self::yesNo('pastorReference.faithful_attendance', 'Faithful in attendance to services'),
+                                self::yesNo('pastorReference.faithful_holiness', 'Faithful in holiness & modesty'),
+                                self::yesNo('pastorReference.faithful_tithes', 'Faithful in tithes and offerings'),
+                                self::yesNo('pastorReference.is_serving', 'Serving in some area of the church'),
+                                self::yesNo('pastorReference.approves', 'Approves of them becoming a student'),
+                                self::yesNo('pastorReference.approves_level', 'Happy for them to start at '.AbcPastorReference::LEVEL)
+                                    ->visible(fn (AbcEnrolment $record) => (bool) $record->pastorReference?->approves),
+                            ])
+                            ->visible(fn (AbcEnrolment $record) => (bool) $record->pastorReference?->isSubmitted()),
+                        self::referenceText('serving_details', 'How they are involved'),
+                        self::referenceText('comments', 'Anything else'),
+                    ])
+                    ->columnSpanFull(),
+
                 Section::make('Agreement')
                     ->schema([
                         Grid::make(2)->schema([
@@ -102,6 +155,17 @@ class AbcEnrolmentInfolist
             ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')
             ->badge()
             ->color(fn ($state) => $state ? 'success' : 'gray');
+    }
+
+    /** A long answer from the pastor's reference, shown once it has one. */
+    private static function referenceText(string $field, string $label): TextEntry
+    {
+        return TextEntry::make("pastorReference.{$field}")
+            ->label($label)
+            ->state(fn (AbcEnrolment $record) => TextLines::split($record->pastorReference?->{$field}))
+            ->listWithLineBreaks()
+            ->columnSpanFull()
+            ->visible(fn (AbcEnrolment $record) => filled($record->pastorReference?->{$field}));
     }
 
     private static function longText(string $field, string $label): TextEntry

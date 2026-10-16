@@ -20,6 +20,9 @@ function throttleIsolationEnrolment(): array
         'full_name' => 'A', 'date_of_birth' => '1990-01-01', 'gender' => 'male', 'citizenship' => 'NZ',
         'address' => 'Somewhere', 'home_phone' => '1', 'mobile_phone' => '2', 'email' => 'a@b.test',
         'reason_for_attending' => 'x', 'church_name' => AbcEnrolment::CHURCHES[0], 'pastor_name' => 'P',
+        // No church in the test database has a pastor on file, so the
+        // pastor's reference needs an address (AbcPastorReferenceTest).
+        'pastor_email' => 'pastor@b.test',
         'attendance_duration' => '1 year', 'ministry_involvement' => 'x', 'agreement_name' => 'A',
         'agreement_date' => now()->toDateString(),
     ];
