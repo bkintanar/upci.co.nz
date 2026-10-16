@@ -34,7 +34,10 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/private'),
             'serve' => true,
-            'throw' => false,
+            // Fail loudly. With false, a write the web server is not allowed
+            // to make returns false quietly: an upload "succeeds", the record
+            // keeps the path, and the file is never written (2026-10-15).
+            'throw' => true,
             'report' => false,
         ],
 
@@ -43,7 +46,10 @@ return [
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
-            'throw' => false,
+            // Fail loudly; see 'local'. Root-owned upload folders (left by
+            // artisan commands run as root) silently lost a gallery photo and
+            // a department hero image on staging before this was true.
+            'throw' => true,
             'report' => false,
         ],
 
