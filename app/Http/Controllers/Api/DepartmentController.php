@@ -70,8 +70,11 @@ class DepartmentController extends Controller
                 'published_at' => $a->published_at?->toIso8601String(),
             ]);
 
+        // The page's Calendar: what is still to come this year, soonest first
+        // (see Event::scopeUpcomingThisYear).
         $events = $department->events()
             ->published()
+            ->upcomingThisYear()
             ->orderBy('start_date')
             ->get()
             ->map(fn ($e) => [

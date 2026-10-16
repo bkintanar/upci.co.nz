@@ -58,6 +58,28 @@ class Event extends Model
             ->where('region_id', $regionId);
     }
 
+    /**
+     * What the calendar lists show (owner, 2026-10-17: "the latest first up
+     * until December"): events that are not over yet, up to 31 December of
+     * this year. An event that began earlier but is still running stays until
+     * its last day.
+     *
+     * "Today" is New Zealand's date: the app runs in UTC, which is still
+     * yesterday here until midday or 1pm. whereDate rather than where,
+     * because start_date and end_date are stored as 'Y-m-d H:i:s' and a plain
+     * string comparison against 'Y-m-d' drops an event on the last day.
+     */
+    public function scopeUpcomingThisYear($query)
+    {
+        $today = now(config('app.display_timezone'));
+        $from = $today->toDateString();
+
+        return $query
+            ->where(fn ($q) => $q->whereDate('end_date', '>=', $from)
+                ->orWhere(fn ($q) => $q->whereNull('end_date')->whereDate('start_date', '>=', $from)))
+            ->whereDate('start_date', '<=', $today->copy()->endOfYear()->toDateString());
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);

@@ -107,7 +107,9 @@ class RegionController extends Controller
 
     /**
      * Only this region's own events. Scoped on `scope` as well as region_id so
-     * a department event carrying a region does not surface here.
+     * a department event carrying a region does not surface here. Like every
+     * calendar list, only what is still to come this year, soonest first
+     * (see Event::scopeUpcomingThisYear).
      *
      * @return array<int, array<string, mixed>>
      */
@@ -116,6 +118,7 @@ class RegionController extends Controller
         return $region->events()
             ->published()
             ->where('scope', EventScope::REGIONAL->value)
+            ->upcomingThisYear()
             ->orderBy('start_date')
             ->get()
             ->map(fn ($event) => [

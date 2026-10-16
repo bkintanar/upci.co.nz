@@ -290,7 +290,10 @@ export default defineComponent({
 
         const fetchEvents = async () => {
             try {
-                const res = await fetch('/api/events', { headers: { Accept: 'application/json' } })
+                // From today to 31 December, soonest first (owner, 2026-10-17:
+                // "the latest first up until december"). Past events are not
+                // listed; the month grid at /calendar still reaches them.
+                const res = await fetch('/api/events?upcoming=1', { headers: { Accept: 'application/json' } })
                 const data = await res.json()
                 if (data.success && data.data) {
                     events.value = data.data

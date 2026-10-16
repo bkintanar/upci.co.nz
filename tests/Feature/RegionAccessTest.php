@@ -139,6 +139,10 @@ test('an unpublished region is not reachable through the public region endpoints
 });
 
 test('the region page shows only its own regional events', function () {
+    // Region pages list only events still to come this year
+    // (Event::scopeUpcomingThisYear), so the clock sits before the fixtures.
+    $this->travelTo(Carbon\Carbon::parse('2026-09-01 12:00', 'Pacific/Auckland'));
+
     $national = App\Models\Event::create([
         'name' => 'National one', 'slug' => 'nat-one', 'start_date' => '2026-10-01',
         'is_published' => true, 'scope' => App\Enums\EventScope::NATIONAL,

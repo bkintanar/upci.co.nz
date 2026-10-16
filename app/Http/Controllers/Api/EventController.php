@@ -54,7 +54,16 @@ class EventController extends Controller
             });
         }
         if ($request->has('to') && $request->to) {
-            $query->where('start_date', '<=', $request->to);
+            // whereDate: start_date is stored as 'Y-m-d H:i:s', and a string
+            // comparison against 'Y-m-d' left out an event on the `to` day.
+            $query->whereDate('start_date', '<=', $request->to);
+        }
+
+        // The Calendar of Events (/events) asks for what is still to come
+        // this year, soonest first. Other callers (the month grid, the
+        // homepage feed) set their own range with from/to.
+        if ($request->boolean('upcoming')) {
+            $query->upcomingThisYear();
         }
 
         if ($request->filled('department')) {
