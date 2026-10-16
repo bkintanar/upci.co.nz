@@ -19,6 +19,9 @@ class GalleryItemForm
         return $schema
             ->components([
                 Section::make('Gallery item')
+                    // Said here rather than as help on the field: MorphToSelect
+                    // has no helperText() in Filament 4.
+                    ->description('Leave "Belongs to" blank to put the photo in the general gallery (the "General" tab on the Gallery page).')
                     ->schema([
                         TextInput::make('title')->maxLength(255),
                         Textarea::make('description')->rows(3),
