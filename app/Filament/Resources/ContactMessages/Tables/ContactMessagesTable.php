@@ -25,6 +25,10 @@ class ContactMessagesTable
                 TextColumn::make('email')
                     ->searchable()
                     ->copyable(),
+                TextColumn::make('phone')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->copyable(),
                 // Plain TextColumn: this content is attacker-controlled via an
                 // unauthenticated endpoint. It must stay escaped — never ->html(),
                 // never a rich/markdown renderer.

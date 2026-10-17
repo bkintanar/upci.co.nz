@@ -10,6 +10,8 @@ class ContactMessage extends Model
         'first_name',
         'last_name',
         'email',
+        // Optional (owner, 2026-10-17).
+        'phone',
         'message',
         // The page the form was on (/connect-with-us, the ABC Connect
         // page, ...), so each inbox knows whose messages are whose.

@@ -141,3 +141,34 @@ test('undoing it brings the link section back and keeps later edits elsewhere', 
         ->and($after[1]['data']['content'])->toContain('[Contact form](/connect-with-us)')
         ->and(Page::where('slug', 'apostolic-bible-college/connect-before-contact-form')->exists())->toBeTrue();
 });
+
+test('a phone number is optional, and stored when given', function () {
+    $this->postJson('/api/contact', contactFormMessage(['phone' => '+64 21 123 4567']))->assertCreated();
+    $this->postJson('/api/contact', contactFormMessage(['phone' => '']))->assertCreated();
+    $this->postJson('/api/contact', contactFormMessage())->assertCreated();
+
+    expect(ContactMessage::orderBy('id')->pluck('phone')->all())->toBe(['+64 21 123 4567', null, null]);
+});
+
+test('a phone number must look like one', function (string $phone) {
+    $this->postJson('/api/contact', contactFormMessage(['phone' => $phone]))
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.phone.0', 'Enter a phone number using numbers, spaces and + ( ) -, like 021 123 4567');
+})->with(['call me', '12', '<b>021</b>']);
+
+test('the form asks for a phone number, optionally, and the inbox shows it', function () {
+    expect(file_get_contents(resource_path('js/components/blocks/ContactFormBlock.vue')))
+        ->toContain('id="phone"')
+        ->toContain('type="tel"')
+        ->toContain('autocomplete="tel"')
+        ->toContain('(optional)');
+
+    Filament::setCurrentPanel('admin');
+    $this->actingAs(User::create([
+        'name' => 'N', 'email' => 'contact-phone@x', 'password' => 'x',
+        'role' => UserRole::ADMINISTRATOR, 'access_level' => AccessLevel::NATIONAL,
+    ]));
+    ContactMessage::create(contactFormMessage(['phone' => '021 555 0101']));
+
+    Livewire::test(ListContactMessages::class)->assertSee('021 555 0101');
+});

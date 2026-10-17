@@ -22,6 +22,7 @@ class ContactMessageInfolist
                                 ->label('From')
                                 ->formatStateUsing(fn ($state, $record) => trim($record->first_name.' '.$record->last_name)),
                             TextEntry::make('email')->copyable(),
+                            TextEntry::make('phone')->placeholder('—')->copyable(),
                             TextEntry::make('created_at')->label('Received')->dateTime('j M Y, g:ia'),
                             TextEntry::make('source_page')->label('Sent from')->placeholder('—'),
                         ]),
