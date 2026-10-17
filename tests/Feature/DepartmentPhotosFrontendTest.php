@@ -11,13 +11,17 @@ function departmentPhotosSource(string $path): string
     return file_get_contents(resource_path("js/{$path}"));
 }
 
-/** The announcements section of Department.vue, without the hero above it. */
+/**
+ * The announcement list's markup. It was Department.vue's announcements
+ * section until 2026-10-17, when it moved to AnnouncementList.vue so the
+ * announcements block on CMS pages shares it; Department.vue now renders that
+ * component (checked below).
+ */
 function announcementsSection(): string
 {
-    $source = departmentPhotosSource('views/Department.vue');
-    $start = strpos($source, 'id="announcements-heading"');
+    $source = departmentPhotosSource('components/AnnouncementList.vue');
 
-    return substr($source, $start, strpos($source, '</section>', $start) - $start);
+    return substr($source, 0, strpos($source, '</template>'));
 }
 
 test('an announcement photo is shown whole, described, and opens the viewer', function () {
@@ -32,7 +36,7 @@ test('an announcement photo is shown whole, described, and opens the viewer', fu
 });
 
 test('the announcement layout follows the photo\'s shape', function () {
-    $source = departmentPhotosSource('views/Department.vue');
+    $source = departmentPhotosSource('components/AnnouncementList.vue');
 
     expect($source)->toContain('a.image_height > a.image_width ? \'portrait\' : \'landscape\'')
         ->toContain("portrait: 'mt-5 max-w-[26rem] lg:max-w-none lg:col-start-3 lg:col-span-4")
@@ -101,3 +105,10 @@ test('the photo components build no class names from fragments', function (strin
     'components/PhotoViewer.vue',
     'components/Modal.vue',
 ]);
+
+test('department pages and the announcements block share one announcement list', function () {
+    expect(departmentPhotosSource('views/Department.vue'))
+        ->toContain('<AnnouncementList v-if="department.announcements.length" :items="department.announcements" />')
+        ->and(departmentPhotosSource('components/blocks/AnnouncementsBlock.vue'))
+        ->toContain('<AnnouncementList v-if="items.length" :items="items" />');
+});

@@ -15,7 +15,7 @@ $addressFinderFiles = [
 ];
 
 test('every locator popup interpolation is escaped', function () {
-    $source = file_get_contents(base_path('resources/js/views/ChurchLocator.vue'));
+    $source = file_get_contents(base_path('resources/js/components/blocks/ChurchLocatorBlock.vue'));
 
     preg_match_all('/\.bindPopup\(`(.*?)`/s', $source, $popups);
 

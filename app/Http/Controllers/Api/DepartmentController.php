@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Models\Department;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Api\Concerns\MeasuresImages;
 
 class DepartmentController extends Controller
 {
+    // imageSize(): photo sizes for the announcements, shared with the
+    // announcements block on CMS pages.
+    use MeasuresImages;
+
     /**
      * Display a listing of published departments (public).
      */
@@ -104,26 +108,5 @@ class DepartmentController extends Controller
                 'events' => $events,
             ],
         ]);
-    }
-
-    /**
-     * Pixel size of an image on the public disk, read from the file's header.
-     * Unknown (no photo, or a missing file) is null rather than a guess, and
-     * the page then uses the layout that shows any photo whole.
-     *
-     * @return array{image_width: int|null, image_height: int|null}
-     */
-    private function imageSize(?string $path): array
-    {
-        $size = null;
-
-        if ($path && Storage::disk('public')->exists($path)) {
-            $size = @getimagesize(Storage::disk('public')->path($path)) ?: null;
-        }
-
-        return [
-            'image_width' => $size[0] ?? null,
-            'image_height' => $size[1] ?? null,
-        ];
     }
 }

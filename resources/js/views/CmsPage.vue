@@ -300,6 +300,11 @@
             <RegionListBlock v-else-if="block.type === 'region_list'" :data="block.data" />
             <GalleryBlock v-else-if="block.type === 'gallery'" :data="block.data" />
             <StatisticsBlock v-else-if="block.type === 'statistics'" :data="block.data" />
+            <!-- 2026-10-17: /find-church and /connect-with-us became CMS pages,
+                 and the ABC page gained announcements. -->
+            <ChurchLocatorBlock v-else-if="block.type === 'church_locator'" :data="block.data" />
+            <ContactFormBlock v-else-if="block.type === 'contact_form'" :data="block.data" />
+            <AnnouncementsBlock v-else-if="block.type === 'announcements'" :data="block.data" />
 
             <!-- Embed Code -->
             <section v-else-if="block.type === 'embed'" class="py-12 bg-white">
@@ -375,6 +380,9 @@ import DepartmentListBlock from '../components/blocks/DepartmentListBlock.vue';
 import RegionListBlock from '../components/blocks/RegionListBlock.vue';
 import GalleryBlock from '../components/blocks/GalleryBlock.vue';
 import StatisticsBlock from '../components/blocks/StatisticsBlock.vue';
+import ChurchLocatorBlock from '../components/blocks/ChurchLocatorBlock.vue';
+import ContactFormBlock from '../components/blocks/ContactFormBlock.vue';
+import AnnouncementsBlock from '../components/blocks/AnnouncementsBlock.vue';
 import { usePageMeta, currentPageTitle, breadcrumbSuppressed } from '../composables/usePageMeta';
 import { ctaButton } from '../utils/theme';
 
@@ -393,6 +401,9 @@ export default defineComponent({
         RegionListBlock,
         GalleryBlock,
         StatisticsBlock,
+        ChurchLocatorBlock,
+        ContactFormBlock,
+        AnnouncementsBlock,
     },
     setup() {
         const { setPageMeta } = usePageMeta()
@@ -417,7 +428,8 @@ export default defineComponent({
             { to: '/connect-with-us', label: 'Connect with us', hint: 'Get in touch' },
         ]
 
-        const hasHero = computed(() => (page.value?.content || []).some((b) => b.type === 'hero'))
+        // The church finder carries its own hero, with the page's <h1>.
+        const hasHero = computed(() => (page.value?.content || []).some((b) => b.type === 'hero' || b.type === 'church_locator'))
 
         // The CMS titles carry a site-name suffix for the browser tab; the
         // on-page heading should not repeat it.

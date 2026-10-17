@@ -105,7 +105,9 @@ const routes = [
     {
         path: '/find-church',
         name: 'ChurchLocator',
-        component: () => import('../views/ChurchLocator.vue')
+        // A CMS page since 2026-10-17 (pages.slug 'find-church'): the church
+        // finder is a block, so the page's words are edited in Admin › Pages.
+        component: () => import('../views/CmsPage.vue')
     },
     {
         path: '/events',
@@ -125,7 +127,9 @@ const routes = [
     {
         path: '/connect-with-us',
         name: 'ConnectWithUs',
-        component: () => import('../views/ConnectWithUs.vue')
+        // A CMS page since 2026-10-17 (pages.slug 'connect-with-us'), built
+        // from the contact form block.
+        component: () => import('../views/CmsPage.vue')
     },
     {
         path: '/cms/:slug(.*)',

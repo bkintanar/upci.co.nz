@@ -1,4 +1,9 @@
 <template>
+    <!-- The church finder block (moved from views/ChurchLocator.vue on
+         2026-10-17, when /find-church became a CMS page: "make this editable
+         in the CMS"). Its hero words are the block's fields; the finder below
+         is unchanged. The page's closing call to action is now its own cta
+         block, and the page title comes from the CMS page. -->
     <div>
         <!-- Hero Section -->
         <section class="relative bg-gradient-to-br from-brand-green-700 via-brand-green-900 to-brand-ink text-white overflow-hidden">
@@ -14,20 +19,20 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        Find Your Local Church
+                        {{ data.eyebrow || 'Find Your Local Church' }}
                     </div>
 
                     <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-                        Discover UPCI Churches<br>
-                        <span class="text-brand-green-100">Across New Zealand</span>
+                        {{ data.heading || 'Discover UPCI Churches' }}<template v-if="data.heading_highlight"><br>
+                        <span class="text-brand-green-100">{{ data.heading_highlight }}</span></template>
                     </h1>
 
-                    <p class="text-xl text-brand-green-100 max-w-3xl mx-auto leading-relaxed mb-8">
-                        Connect with your local UPCI community. Find churches, service times, and contact information across New Zealand.
+                    <p v-if="data.intro" class="text-xl text-brand-green-100 max-w-3xl mx-auto leading-relaxed mb-8">
+                        {{ data.intro }}
                     </p>
 
                     <!-- Quick Stats -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
+                    <div v-if="data.show_stats !== false" class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
                         <div class="text-center">
                             <div class="text-3xl font-bold text-white mb-1">{{ churches.length }}</div>
                             <div class="text-brand-green-100 text-sm">Churches</div>
@@ -38,9 +43,9 @@
                             <div class="text-3xl font-bold text-white mb-1">{{ regions.length ? regions.length - 1 : '—' }}</div>
                             <div class="text-brand-green-100 text-sm">Regions</div>
                         </div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-white mb-1">24/7</div>
-                            <div class="text-brand-green-100 text-sm">Directory</div>
+                        <div v-if="data.extra_stat_value && data.extra_stat_label" class="text-center">
+                            <div class="text-3xl font-bold text-white mb-1">{{ data.extra_stat_value }}</div>
+                            <div class="text-brand-green-100 text-sm">{{ data.extra_stat_label }}</div>
                         </div>
                     </div>
                 </div>
@@ -62,7 +67,8 @@
                             <input
                                 v-model="searchQuery"
                                 type="text"
-                                placeholder="Search by city, region, church name, or address..."
+                                :placeholder="data.search_placeholder || 'Search by city, region, church name, or address...'"
+                                :aria-label="data.search_placeholder || 'Search churches'"
                                 class="w-full pl-12 pr-4 py-4 text-lg border-0 rounded-2xl focus:ring-4 focus:ring-brand-green-700/20 focus:outline-none transition-all duration-300 shadow-lg bg-white"
                             >
                             <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
@@ -374,25 +380,11 @@
                 </div>
         </Modal>
 
-        <!-- Call to Action -->
-        <section class="py-16 bg-brand-green-700 text-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 class="text-3xl md:text-4xl font-bold mb-6">Can't Find a Church Near You?</h2>
-                <p class="text-xl text-brand-green-100 mb-8 max-w-3xl mx-auto">
-                    We're always looking to expand our ministry. Contact us to learn about starting a new UPCI church in your area.
-                </p>
-                <router-link to="/connect-with-us" class="inline-block bg-white text-brand-green-700 px-8 py-3 rounded-lg font-semibold hover:bg-brand-green-100 transition-colors">
-                    Contact Us About Starting a Church
-                </router-link>
-            </div>
-        </section>
     </div>
 </template>
 
 <script>
-// ChurchLocator.vue - Updated: 2025-10-12 00:45:00
-import Modal from '../components/Modal.vue'
-import { usePageMeta } from '../composables/usePageMeta'
+import Modal from '../Modal.vue'
 import { defineComponent, ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import L from 'leaflet'
@@ -414,8 +406,13 @@ L.Icon.Default.mergeOptions({
 })
 
         export default defineComponent({
-            name: 'ChurchLocator',
+            name: 'ChurchLocatorBlock',
     components: { Modal },
+    props: {
+        // The block's fields: eyebrow, heading, heading_highlight, intro,
+        // show_stats, extra_stat_value, extra_stat_label, search_placeholder.
+        data: { type: Object, default: () => ({}) },
+    },
             setup() {
                 const route = useRoute()
                 const router = useRouter()
@@ -440,8 +437,8 @@ L.Icon.Default.mergeOptions({
                 // Also reads the bracketed form, in case a link was built from
                 // the API's `service_day[]` convention rather than the mirror.
                 const selectedServiceDays = ref(queryList(route.query.service_day ?? route.query['service_day[]']))
-                const { setPageMeta } = usePageMeta()
-                setPageMeta('Find a Church', 'Find your nearest UPCI church in New Zealand, by region or by name.')
+                // No setPageMeta here: the CMS page this block sits on owns the
+                // title and description.
                 const selectedChurch = ref(null)
                 const modalOpen = ref(false)
                 const mapContainer = ref(null)
@@ -804,8 +801,9 @@ L.Icon.Default.mergeOptions({
                 //
                 // Deliberately NOT paired with a watcher on route.query writing
                 // back into these refs: with this writer in place that is a
-                // feedback loop. Nothing navigates from /find-church to
-                // /find-church, so setup() re-runs whenever these params change.
+                // feedback loop. Nothing navigates from this page to itself, so
+                // setup() re-runs whenever these params change. route.path
+                // rather than a fixed path: the block can sit on any CMS page.
                 watch([searchQuery, selectedRegion, selectedServiceDays], () => {
                     const query = {}
                     if (searchQuery.value) query.search = searchQuery.value
@@ -817,7 +815,7 @@ L.Icon.Default.mergeOptions({
                         && Object.keys(query).every((key) => String(query[key]) === String(current[key]))
 
                     if (! same) {
-                        router.replace({ path: '/find-church', query })
+                        router.replace({ path: route.path, query })
                     }
                 }, { deep: true })
 

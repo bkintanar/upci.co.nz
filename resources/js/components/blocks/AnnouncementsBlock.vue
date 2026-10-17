@@ -1,0 +1,42 @@
+<template>
+    <!-- Announcements on a CMS page (owner request, 2026-10-17, for the
+         Apostolic Bible College page). Set exactly like a department's
+         Announcements section: the same section, heading and list
+         (AnnouncementList). The items come from the block itself, made ready
+         by PageController: hidden ones left out, newest first, photo sizes
+         added. With nothing to show and no message to say so, the section
+         is not rendered at all. -->
+    <section v-if="items.length || data.empty_message" class="bg-brand-paper pt-16 pb-16 lg:pt-[88px] lg:pb-[88px]" :aria-labelledby="headingId">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="pb-3 border-b-[3px] border-brand-grey-200">
+                <h2 :id="headingId" class="text-[27px] md:text-[34px] leading-tight font-bold tracking-[-0.015em] text-brand-ink">{{ data.heading || 'Announcements' }}</h2>
+            </div>
+
+            <AnnouncementList v-if="items.length" :items="items" />
+            <p v-else class="pt-8 text-base text-brand-muted">{{ data.empty_message }}</p>
+        </div>
+    </section>
+</template>
+
+<script>
+import { computed, defineComponent } from 'vue'
+import AnnouncementList from '../AnnouncementList.vue'
+
+let count = 0
+
+export default defineComponent({
+    name: 'AnnouncementsBlock',
+    components: { AnnouncementList },
+    props: {
+        // heading, empty_message, items (see PageController::forPublic).
+        data: { type: Object, required: true },
+    },
+    setup(props) {
+        // Unique per block, in case a page carries two.
+        const headingId = `announcements-block-${++count}`
+        const items = computed(() => (Array.isArray(props.data.items) ? props.data.items : []))
+
+        return { headingId, items }
+    },
+})
+</script>

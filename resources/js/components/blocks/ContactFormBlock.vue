@@ -1,21 +1,26 @@
 <template>
-    <div class="py-16 bg-slate-50">
+    <!-- The contact form block (moved from views/ConnectWithUs.vue on
+         2026-10-17; owner choice "Both, via a form block"). It sits on
+         /connect-with-us and the Apostolic Bible College's Connect page, and
+         tells the inbox which page it was sent from. The page's own heading
+         now comes from the CMS page (its hero, or the page header). -->
+    <section class="py-16 bg-slate-50">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10">
-                <h1 class="text-4xl font-bold text-slate-900 mb-3">Connect with Us</h1>
-                <p class="text-lg text-slate-600">
-                    Have a question or would like to get in touch? Send us a message and we'll get back to you.
-                </p>
-            </div>
-
             <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8">
-                <h2 class="text-2xl font-bold text-slate-900 mb-6">Get in touch</h2>
+                <h2 class="text-2xl font-bold text-slate-900" :class="data.intro ? 'mb-3' : 'mb-6'">{{ data.heading || 'Get in touch' }}</h2>
+                <p v-if="data.intro" class="text-slate-600 mb-6">{{ data.intro }}</p>
 
-                <div
-                    v-if="submitted"
-                    class="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800"
-                >
-                    Thank you. Your message has been sent.
+                <!-- In the page from the start, so a screen reader is already
+                     listening when the thank-you arrives; focus moves to it too. -->
+                <div role="status" aria-atomic="true">
+                    <div
+                        v-if="submitted"
+                        ref="thanks"
+                        tabindex="-1"
+                        class="mb-6 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 focus:outline-none"
+                    >
+                        {{ data.success_message || 'Thank you. Your message has been sent.' }}
+                    </div>
                 </div>
 
                 <form v-if="!submitted" @submit.prevent="submit" class="space-y-5">
@@ -92,26 +97,32 @@
                             :disabled="sending"
                             class="inline-flex items-center justify-center px-6 py-3 bg-brand-green-700 text-white font-semibold rounded-lg hover:bg-brand-green-900 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {{ sending ? 'Sending...' : 'Send' }}
+                            {{ sending ? 'Sending...' : (data.button_text || 'Send') }}
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
+    </section>
 </template>
 
 <script>
-import { defineComponent, reactive, ref, onMounted } from 'vue'
-import ErrorSummary from '../components/layout/ErrorSummary.vue'
-import { usePageMeta } from '../composables/usePageMeta'
+import { defineComponent, nextTick, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import ErrorSummary from '../layout/ErrorSummary.vue'
 
 export default defineComponent({
-    name: 'ConnectWithUs',
+    name: 'ContactFormBlock',
     components: { ErrorSummary },
+    props: {
+        // The block's fields: heading, intro, button_text, success_message.
+        data: { type: Object, default: () => ({}) },
+    },
     setup() {
-        const { setPageMeta } = usePageMeta()
-        onMounted(() => setPageMeta('Connect with Us', 'Get in touch with UPCI New Zealand - questions, prayer requests, or finding a church home.'))
+        // No setPageMeta here: the CMS page this block sits on owns the
+        // title and description.
+        const route = useRoute()
+        const thanks = ref(null)
 
         const form = reactive({
             first_name: '',
@@ -136,11 +147,15 @@ export default defineComponent({
                         'Content-Type': 'application/json',
                         Accept: 'application/json',
                     },
-                    body: JSON.stringify(form),
+                    // The page it was sent from, shown as "Sent from" in the
+                    // admin's Contact Messages.
+                    body: JSON.stringify({ ...form, page: route.path }),
                 })
 
                 if (response.ok) {
                     submitted.value = true
+                    await nextTick()
+                    thanks.value?.focus()
                     return
                 }
 
@@ -158,7 +173,7 @@ export default defineComponent({
             }
         }
 
-        return { form, errors, generalError, sending, submitted, submit }
+        return { form, errors, generalError, sending, submitted, submit, thanks }
     },
 })
 </script>

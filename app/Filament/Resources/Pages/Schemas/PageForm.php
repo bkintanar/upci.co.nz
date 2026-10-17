@@ -14,8 +14,10 @@ use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\MarkdownEditor;
+use App\Filament\Resources\Shared\PhotoUpload;
 use Filament\Schemas\Components\Utilities\Get;
 
 class PageForm
@@ -678,6 +680,154 @@ class PageForm
                                             ->maxLength(255),
                                     ])
                                     ->icon('heroicon-o-photo'),
+
+                                // The church finder from /find-church: search, filters,
+                                // map, list and church details, with the hero above it
+                                // (owner request, 2026-10-17: "make this editable in the
+                                // CMS"). The hero belongs to the block because its live
+                                // church and region counts come from the finder's data.
+                                // The churches themselves are edited under Churches.
+                                Builder\Block::make('church_locator')
+                                    ->label('Church finder (map and list)')
+                                    ->schema([
+                                        TextInput::make('eyebrow')
+                                            ->label('Small label above the heading')
+                                            ->default('Find Your Local Church')
+                                            ->maxLength(100),
+                                        TextInput::make('heading')
+                                            ->label('Heading')
+                                            ->default('Discover UPCI Churches')
+                                            ->required()
+                                            ->maxLength(255),
+                                        TextInput::make('heading_highlight')
+                                            ->label('Second line of the heading (lighter)')
+                                            ->default('Across New Zealand')
+                                            ->maxLength(255),
+                                        Textarea::make('intro')
+                                            ->label('Introduction')
+                                            ->rows(2)
+                                            ->maxLength(500)
+                                            ->columnSpanFull(),
+                                        Toggle::make('show_stats')
+                                            ->label('Show the number of churches and regions')
+                                            ->default(true),
+                                        TextInput::make('extra_stat_value')
+                                            ->label('Third figure (optional)')
+                                            ->placeholder('24/7')
+                                            ->maxLength(20),
+                                        TextInput::make('extra_stat_label')
+                                            ->label('Third figure label')
+                                            ->placeholder('Directory')
+                                            ->maxLength(50),
+                                        TextInput::make('search_placeholder')
+                                            ->label('Search box hint')
+                                            ->default('Search by city, region, church name, or address...')
+                                            ->maxLength(255),
+                                    ])
+                                    // One map per page: the finder keeps its filters in
+                                    // the address, and two would fight over it.
+                                    ->maxItems(1)
+                                    ->icon('heroicon-o-map')
+                                    ->columns(2),
+
+                                // The contact form from /connect-with-us, so any page can
+                                // carry it (owner choice, 2026-10-17: "Both, via a form
+                                // block"). Each message records the page it was sent
+                                // from, shown as "Sent from" in Contact Messages.
+                                Builder\Block::make('contact_form')
+                                    ->label('Contact form')
+                                    ->schema([
+                                        TextInput::make('heading')
+                                            ->label('Heading')
+                                            ->default('Get in touch')
+                                            ->maxLength(255),
+                                        Textarea::make('intro')
+                                            ->label('Introduction (optional)')
+                                            ->rows(2)
+                                            ->maxLength(500),
+                                        TextInput::make('button_text')
+                                            ->label('Button text')
+                                            ->default('Send')
+                                            ->maxLength(50),
+                                        TextInput::make('success_message')
+                                            ->label('Thank-you message')
+                                            ->default('Thank you. Your message has been sent.')
+                                            ->maxLength(255),
+                                    ])
+                                    // One form per page: its fields have fixed ids, which
+                                    // the error summary links to.
+                                    ->maxItems(1)
+                                    ->icon('heroicon-o-envelope')
+                                    ->columns(1),
+
+                                // Announcements held on the page itself (owner request,
+                                // 2026-10-17, for the Apostolic Bible College page),
+                                // shown in the same design as a department's. The fields
+                                // match a department announcement's, so one component
+                                // renders both. Items nest like the Card Grid's cards.
+                                Builder\Block::make('announcements')
+                                    ->label('Announcements')
+                                    ->schema([
+                                        TextInput::make('heading')
+                                            ->label('Heading')
+                                            ->default('Announcements')
+                                            ->maxLength(255),
+                                        TextInput::make('empty_message')
+                                            ->label('If there is nothing to show')
+                                            ->helperText('Leave blank to hide the section until there is an announcement.')
+                                            ->maxLength(255),
+                                        Builder::make('items')
+                                            ->label('Announcements')
+                                            ->addActionLabel('Add an announcement')
+                                            ->blocks([
+                                                Builder\Block::make('announcement')
+                                                    ->label(fn (?array $state) => filled($state['title'] ?? null) ? $state['title'] : 'Announcement')
+                                                    ->schema([
+                                                        TextInput::make('title')
+                                                            ->label('Title')
+                                                            ->required()
+                                                            ->maxLength(255)
+                                                            ->columnSpanFull(),
+                                                        // A plain date, stored as Y-m-d: it is a label, not
+                                                        // a schedule. Newest shows first.
+                                                        DatePicker::make('published_at')
+                                                            ->label('Date')
+                                                            ->format('Y-m-d')
+                                                            ->default(fn () => now(config('app.display_timezone'))->toDateString())
+                                                            ->required(),
+                                                        Toggle::make('is_published')
+                                                            ->label('Show on the page')
+                                                            ->default(true)
+                                                            ->inline(false),
+                                                        MarkdownEditor::make('content')
+                                                            ->label('Text')
+                                                            ->toolbarButtons(['bold', 'italic', 'link', 'heading', 'bulletList', 'orderedList', 'blockquote'])
+                                                            ->columnSpanFull(),
+                                                        // The department announcement's photo rules: public
+                                                        // disk, jpeg/png/webp, resized in the browser, shown
+                                                        // whole (PhotoUpload says why each exists).
+                                                        PhotoUpload::make('image_path', 'announcements')
+                                                            ->label('Photo')
+                                                            ->imageEditor()
+                                                            ->helperText('Optional. A flyer or a photo from the event. It shows whole on the page, never cropped.')
+                                                            ->columnSpanFull(),
+                                                        TextInput::make('image_alt')
+                                                            ->label('Photo description')
+                                                            ->maxLength(255)
+                                                            ->requiredWith('image_path')
+                                                            ->validationMessages(['required_with' => 'Describe the photo for people who cannot see it.'])
+                                                            ->helperText('Say what the photo shows, for people who cannot see it. For a flyer, include its date and place.')
+                                                            ->columnSpanFull(),
+                                                    ])
+                                                    ->columns(2),
+                                            ])
+                                            // Shown newest first by date on the page, so
+                                            // the order here does not matter.
+                                            ->collapsible()
+                                            ->reorderable(false),
+                                    ])
+                                    ->icon('heroicon-o-megaphone')
+                                    ->columns(1),
                             ])
                             ->collapsible()
                             ->columnSpanFull()

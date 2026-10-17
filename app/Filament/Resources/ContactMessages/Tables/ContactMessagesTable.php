@@ -31,6 +31,12 @@ class ContactMessagesTable
                 TextColumn::make('message')
                     ->limit(60)
                     ->wrap(),
+                // Which page's form it came from: the college's own Connect
+                // page, or the general one.
+                TextColumn::make('source_page')
+                    ->label('Sent from')
+                    ->placeholder('—')
+                    ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
@@ -42,6 +48,6 @@ class ContactMessagesTable
                 ]),
             ])
             ->emptyStateHeading('No messages yet')
-            ->emptyStateDescription('Submissions from the contact form on /connect-with-us appear here.');
+            ->emptyStateDescription('Messages sent from the contact forms (Connect with Us, and the Apostolic Bible College\'s Connect page) appear here.');
     }
 }

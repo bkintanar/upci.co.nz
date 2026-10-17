@@ -23,7 +23,7 @@ Route::prefix('api')->middleware('throttle:60,1')->group(function () {
     // apiResource here exposed unauthenticated POST/PUT/PATCH/DELETE — and
     // `api/*` is CSRF-exempt in bootstrap/app.php, so anyone could have run
     // `curl -X DELETE /api/churches/{id}`. Nothing consumes the write routes:
-    // the SPA only ever GETs (ChurchLocator.vue:474,508,528).
+    // the SPA only ever GETs (components/blocks/ChurchLocatorBlock.vue).
     Route::apiResource('churches', ChurchController::class)->only(['index', 'show']);
 
     // Additional church-related endpoints

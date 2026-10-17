@@ -11,5 +11,8 @@ class ContactMessage extends Model
         'last_name',
         'email',
         'message',
+        // The page the form was on (/connect-with-us, the ABC Connect
+        // page, ...), so each inbox knows whose messages are whose.
+        'source_page',
     ];
 }
