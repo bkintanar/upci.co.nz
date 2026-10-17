@@ -151,11 +151,27 @@
 
 /* An iframe with an intrinsic width attribute keeps its height when the width
    is constrained, which distorts video embeds. Video plugins get their ratio
-   back; post embeds are height-driven and are left alone. */
+   back; post embeds are height-driven and are left alone.
+   YouTube and Vimeo players too (2026-10-17): their embed code is a fixed
+   560x315, which sat small on a desktop and squashed on a phone. The ABC
+   Principal's Corner video is to be embedded from one of them, as the file
+   is far too large to upload to the site. */
 .cms-text-content iframe[src*="/plugins/video"],
 .two-column-content iframe[src*="/plugins/video"],
 .prose iframe[src*="/plugins/video"],
-.embed-container iframe[src*="/plugins/video"] {
+.embed-container iframe[src*="/plugins/video"],
+.cms-text-content iframe[src*="youtube.com/embed/"],
+.two-column-content iframe[src*="youtube.com/embed/"],
+.prose iframe[src*="youtube.com/embed/"],
+.embed-container iframe[src*="youtube.com/embed/"],
+.cms-text-content iframe[src*="youtube-nocookie.com/embed/"],
+.two-column-content iframe[src*="youtube-nocookie.com/embed/"],
+.prose iframe[src*="youtube-nocookie.com/embed/"],
+.embed-container iframe[src*="youtube-nocookie.com/embed/"],
+.cms-text-content iframe[src*="player.vimeo.com/video/"],
+.two-column-content iframe[src*="player.vimeo.com/video/"],
+.prose iframe[src*="player.vimeo.com/video/"],
+.embed-container iframe[src*="player.vimeo.com/video/"] {
   width: 100%;
   aspect-ratio: 16 / 9;
   height: auto;
