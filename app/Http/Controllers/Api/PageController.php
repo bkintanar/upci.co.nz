@@ -72,7 +72,8 @@ class PageController extends Controller
      * Bible College page), whose items get what the department pages' own
      * announcements get from DepartmentController:
      * - hidden items stay out of the response, not merely out of sight;
-     * - newest first, by their date;
+     * - newest first, by their date, and only the newest few when the block
+     *   sets a limit (the homepage shows three);
      * - each photo's size, so the page lays a tall flyer beside its words and
      *   a wide photo across the line before it loads;
      * - the photo description only with a photo.
@@ -93,6 +94,7 @@ class PageController extends Controller
                 ->map(fn ($item) => $item['data'] ?? [])
                 ->filter(fn (array $item) => ($item['is_published'] ?? true) !== false && filled($item['title'] ?? null))
                 ->sortByDesc(fn (array $item) => $item['published_at'] ?? '')
+                ->when((int) ($block['data']['limit'] ?? 0) > 0, fn ($items) => $items->take((int) $block['data']['limit']))
                 ->values()
                 ->map(fn (array $item, int $i) => [
                     'id' => $i + 1,

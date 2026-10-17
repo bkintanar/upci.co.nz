@@ -304,7 +304,7 @@
                  and the ABC page gained announcements. -->
             <ChurchLocatorBlock v-else-if="block.type === 'church_locator'" :data="block.data" />
             <ContactFormBlock v-else-if="block.type === 'contact_form'" :data="block.data" />
-            <AnnouncementsBlock v-else-if="block.type === 'announcements'" :data="block.data" />
+            <AnnouncementsBlock v-else-if="block.type === 'announcements'" :data="block.data" :flush-top="flushTop(index)" />
 
             <!-- Embed Code -->
             <section v-else-if="block.type === 'embed'" class="py-12 bg-white">
@@ -537,6 +537,9 @@ export default defineComponent({
             || (block.type === 'church_finder' && block.data?.layout === 'panel')
             || (block.type === 'events_feed' && block.data?.layout === 'cards')
             || (block.type === 'department_list' && block.data?.layout === 'tiles')
+            // Only while it shows: an empty Announcements block renders
+            // nothing, and the block below must keep its own top padding.
+            || (block.type === 'announcements' && ((block.data?.items || []).length > 0 || Boolean(block.data?.empty_message)))
         )
 
         const flushTop = (index) => {

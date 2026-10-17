@@ -88,7 +88,7 @@ test('every announcement field is declared in the page form', function (string $
     $block = substr($form, strpos($form, "Builder\\Block::make('announcements')"), 6000);
 
     expect($block)->toContain("::make('{$key}'");
-})->with(['heading', 'empty_message', 'items', 'title', 'published_at', 'is_published', 'content', 'image_path', 'image_alt']);
+})->with(['heading', 'empty_message', 'limit', 'items', 'title', 'published_at', 'is_published', 'content', 'image_path', 'image_alt']);
 
 test('an admin adds an announcement with a photo, which is stored as a public path', function () {
     $restore = Builder::fake();
@@ -196,4 +196,91 @@ test('the block renders nothing until there is an announcement or a message', fu
 
     expect($source)->toContain('<section v-if="items.length || data.empty_message"')
         ->toContain('<AnnouncementList v-if="items.length" :items="items" />');
+});
+
+// ── The homepage (owner request, 2026-10-17) ───────────────────────────────
+
+function announcementsHomeMigration(): object
+{
+    return require database_path('migrations/2026_10_17_000007_add_announcements_to_the_homepage.php');
+}
+
+/** The homepage's block sequence as it was on the live site on 2026-10-17. */
+function announcementsHomePage(): Page
+{
+    return Page::updateOrCreate(['slug' => 'home'], [
+        'title' => 'Home - UPCI New Zealand', 'is_published' => true,
+        'content' => [
+            ['type' => 'hero', 'data' => ['layout' => 'banner', 'heading' => 'Pentecost Everyday']],
+            ['type' => 'cta', 'data' => ['style' => 'band', 'heading' => 'Annual General Conference']],
+            ['type' => 'feature', 'data' => ['heading' => 'About the UPCI NZ', 'background' => 'paper']],
+            ['type' => 'church_finder', 'data' => ['layout' => 'panel']],
+            ['type' => 'events_feed', 'data' => ['layout' => 'cards']],
+            ['type' => 'department_list', 'data' => ['layout' => 'tiles']],
+            ['type' => 'cta', 'data' => ['style' => 'panel', 'heading' => 'Connect with us']],
+        ],
+    ]);
+}
+
+test('the homepage gets an Announcements block showing the newest three, after the Next band', function () {
+    $page = announcementsHomePage();
+
+    announcementsHomeMigration()->up();
+    announcementsHomeMigration()->up();
+
+    $content = $page->fresh()->content;
+    expect(array_column($content, 'type'))->toBe(['hero', 'cta', 'announcements', 'feature', 'church_finder', 'events_feed', 'department_list', 'cta'])
+        ->and($content[2]['data'])->toBe(['heading' => 'Announcements', 'empty_message' => null, 'limit' => 3, 'items' => []])
+        ->and(Page::where('slug', 'home-before-announcements')->value('is_published'))->toBeFalse();
+});
+
+test('a homepage without the Next band is left alone', function () {
+    $page = announcementsHomePage();
+    $content = $page->content;
+    array_splice($content, 1, 1);
+    $page->update(['content' => $content]);
+
+    announcementsHomeMigration()->up();
+
+    expect(array_column($page->fresh()->content, 'type'))->not->toContain('announcements');
+});
+
+test('undoing takes the homepage block out only while it is still empty', function () {
+    $page = announcementsHomePage();
+    announcementsHomeMigration()->up();
+
+    $content = $page->fresh()->content;
+    $content[2]['data']['items'] = [['type' => 'announcement', 'data' => ['title' => 'Kept', 'published_at' => '2026-10-17']]];
+    $page->update(['content' => $content]);
+    announcementsHomeMigration()->down();
+    expect(array_column($page->fresh()->content, 'type'))->toContain('announcements');
+
+    $content[2]['data']['items'] = [];
+    $page->update(['content' => $content]);
+    announcementsHomeMigration()->down();
+    expect(array_column($page->fresh()->content, 'type'))->toBe(['hero', 'cta', 'feature', 'church_finder', 'events_feed', 'department_list', 'cta']);
+});
+
+test('a limit shows only the newest few', function () {
+    $page = announcementsBlockPage(array_map(
+        fn ($day) => ['title' => "Day {$day}", 'published_at' => sprintf('2026-10-%02d', $day)],
+        [3, 9, 1, 7, 5],
+    ));
+    $content = $page->content;
+    $content[1]['data']['limit'] = 3;
+    $page->update(['content' => $content]);
+
+    $items = $this->getJson("/api/pages/{$page->slug}")->json('data.content.1.data.items');
+
+    expect(array_column($items, 'title'))->toBe(['Day 9', 'Day 7', 'Day 5']);
+});
+
+test('an empty Announcements block takes no space, and the block below keeps its padding', function () {
+    $cmsPage = file_get_contents(resource_path('js/views/CmsPage.vue'));
+
+    expect($cmsPage)
+        ->toContain("(block.type === 'announcements' && ((block.data?.items || []).length > 0 || Boolean(block.data?.empty_message)))")
+        ->toContain('<AnnouncementsBlock v-else-if="block.type === \'announcements\'" :data="block.data" :flush-top="flushTop(index)" />')
+        ->and(file_get_contents(resource_path('js/components/blocks/AnnouncementsBlock.vue')))
+        ->toContain("props.flushTop ? 'pb-14 md:pb-20 xl:pb-24' : 'py-14 md:py-20 xl:py-24'");
 });

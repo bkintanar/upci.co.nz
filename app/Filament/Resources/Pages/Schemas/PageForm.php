@@ -776,6 +776,14 @@ class PageForm
                                             ->label('If there is nothing to show')
                                             ->helperText('Leave blank to hide the section until there is an announcement.')
                                             ->maxLength(255),
+                                        // The homepage shows only the newest few
+                                        // (owner request, 2026-10-17).
+                                        TextInput::make('limit')
+                                            ->label('How many to show')
+                                            ->numeric()
+                                            ->minValue(1)
+                                            ->maxValue(50)
+                                            ->helperText('The newest ones are shown. Leave blank to show them all.'),
                                         Builder::make('items')
                                             ->label('Announcements')
                                             ->addActionLabel('Add an announcement')
