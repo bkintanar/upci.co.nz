@@ -243,6 +243,7 @@
                             :class="[
                                 getMinistryCardClasses(card),
                                 isRegistrationBlock(block) ? 'cms-registration-card' : '',
+                                card.data.disabled ? 'is-disabled' : '',
                                 card.data.variant === 'person' ? 'text-left w-full cursor-pointer group focus:outline-none focus:ring-2 focus:ring-brand-green-700' : ''
                             ]"
                             @click="card.data.variant === 'person' ? openPerson(card.data) : null"
@@ -267,7 +268,20 @@
                                 <h3 :class="getMinistryCardTitleClasses(card)">{{ card.data.title }}</h3>
                                 <p :class="getMinistryCardDescClasses(card)">{{ card.data.description }}</p>
                             </div>
-                            <a v-if="card.data.link_url && card.data.variant !== 'person'" :href="card.data.link_url" :target="card.data.link_url.startsWith('http') ? '_blank' : '_self'" :rel="card.data.link_url.startsWith('http') ? 'noopener noreferrer' : null" :class="isRegistrationBlock(block) ? 'cms-registration-card-link' : ''" class="text-brand-green-700 hover:text-brand-green-900 font-semibold block text-center">
+                            <!-- A card whose link is turned off in the CMS (2026-10-17):
+                                 the button stays, greyed and not a link, so the path is
+                                 still visible but cannot be followed. -->
+                            <template v-if="card.data.disabled && card.data.variant !== 'person'">
+                                <span
+                                    :class="isRegistrationBlock(block) ? 'cms-registration-card-off' : ''"
+                                    class="font-semibold block text-center text-brand-muted cursor-not-allowed"
+                                    aria-disabled="true"
+                                >
+                                    {{ card.data.link_text || 'Learn More' }}<span class="sr-only"> (not available)</span>
+                                </span>
+                                <p v-if="card.data.disabled_note" class="mt-2 text-sm text-center text-brand-muted">{{ card.data.disabled_note }}</p>
+                            </template>
+                            <a v-else-if="card.data.link_url && card.data.variant !== 'person'" :href="card.data.link_url" :target="card.data.link_url.startsWith('http') ? '_blank' : '_self'" :rel="card.data.link_url.startsWith('http') ? 'noopener noreferrer' : null" :class="isRegistrationBlock(block) ? 'cms-registration-card-link' : ''" class="text-brand-green-700 hover:text-brand-green-900 font-semibold block text-center">
                                 {{ card.data.link_text || 'Learn More' }} →
                             </a>
                             <span v-if="card.data.variant === 'person'"
@@ -1018,5 +1032,24 @@ export default defineComponent({
     background: #1e293b;
     color: white;
     border-color: #1e293b;
+}
+
+/* A registration path whose link is turned off: greyed, with no lift on
+   hover. Its button is a plain span with its own class, so none of the link
+   hover colours above reach it: the same shape, a dashed edge, no fill. */
+.cms-registration-card.is-disabled {
+    opacity: 0.6;
+}
+
+.cms-registration-card.is-disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.cms-registration-card .cms-registration-card-off {
+    margin-top: auto;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    border: 2px dashed currentColor;
 }
 </style>

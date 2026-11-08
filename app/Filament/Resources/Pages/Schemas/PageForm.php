@@ -415,6 +415,22 @@ class PageForm
                                                             ->label('Link Text')
                                                             ->maxLength(50),
 
+                                                        // Turns a card's link off without removing the
+                                                        // card (owner request, 2026-10-17: the ABC
+                                                        // registration paths that are not open yet).
+                                                        Toggle::make('disabled')
+                                                            ->label('Turn this link off')
+                                                            ->helperText('The card stays on the page, greyed out, and its button cannot be clicked.')
+                                                            ->live(),
+                                                        TextInput::make('disabled_note')
+                                                            ->label('Note under the button (optional)')
+                                                            ->placeholder('e.g. Opens in January')
+                                                            ->maxLength(100)
+                                                            ->visible(fn ($get) => (bool) $get('disabled'))
+                                                            // Kept when the link is turned back on, so
+                                                            // turning it off again brings the note back.
+                                                            ->dehydrated(),
+
                                                         // 🔴 These three were rendered by CmsPage.vue but
                                                         // declared NOWHERE. Filament's Builder rebuilds block
                                                         // state from the declared schema on save, so editing an
