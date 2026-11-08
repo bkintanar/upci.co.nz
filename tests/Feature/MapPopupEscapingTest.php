@@ -50,3 +50,17 @@ test('the published address finder asset matches the package source', function (
     expect(file_get_contents(base_path($addressFinderFiles['published asset'])))
         ->toBe(file_get_contents(base_path($addressFinderFiles['package source'])));
 });
+
+test('every map uses OpenStreetMap tiles, credited, now that CARTO wants an API key', function (string $path) {
+    // 2026-10-18: CARTO's basemaps started drawing "API KEY REQUIRED" over
+    // every tile on upci.co.nz and the admin's address finder.
+    $source = file_get_contents(base_path($path));
+
+    expect($source)->not->toContain('basemaps.cartocdn.com')
+        ->toContain("L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png'")
+        ->toContain('&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors');
+})->with([
+    'church finder' => 'resources/js/components/blocks/ChurchLocatorBlock.vue',
+    'address finder source' => 'packages/filament-address-finder/resources/js/address-finder.js',
+    'address finder published' => 'public/js/upci/filament-address-finder/filament-address-finder-scripts.js',
+]);

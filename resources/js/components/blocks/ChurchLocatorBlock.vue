@@ -164,7 +164,7 @@
                                     <span>{{ filteredChurches.length }} UPCI Churches</span>
                                 </div>
                             </div>
-                            <div ref="mapContainer" class="w-full h-96 lg:h-[500px] rounded-xl map-container overflow-hidden" style="min-height: 300px;"></div>
+                            <div ref="mapContainer" class="w-full h-96 lg:h-[500px] rounded-xl map-container map-quiet overflow-hidden" style="min-height: 300px;"></div>
                         </div>
 
                         <!-- Modern Church List -->
@@ -369,7 +369,7 @@
                             <!-- Only mount the map for a church with usable
                                  coordinates. L.map() with a NaN centre throws
                                  "Invalid LatLng" and left a blank column. -->
-                            <div v-if="isMappable(selectedChurch)" ref="modalMapContainer" class="w-full h-full min-h-[500px]"></div>
+                            <div v-if="isMappable(selectedChurch)" ref="modalMapContainer" class="w-full h-full min-h-[500px] map-quiet"></div>
                             <div v-else class="w-full h-full min-h-[500px] flex flex-col items-center justify-center bg-slate-100 text-slate-500 px-6 text-center">
                                 <svg class="w-10 h-10 mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -744,14 +744,16 @@ L.Icon.Default.mergeOptions({
                             center: [church.lat, church.lng],
                             zoom: 15,
                             zoomControl: true,
-                            attributionControl: false
+                            // On: OpenStreetMap's terms ask for the credit on every map.
+                            attributionControl: true
                         })
 
-                        // Add CartoDB Positron tiles (clean, modern style)
-                        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                            subdomains: 'abcd',
-                            maxZoom: 20
+                        // OpenStreetMap's own tiles (2026-10-18). CARTO's basemaps began
+                        // asking for an API key and drew "API KEY REQUIRED" over every
+                        // tile. These need no key; the OpenStreetMap credit must show.
+                        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                            maxZoom: 19
                         }).addTo(modalMap)
 
                         // Add marker for the selected church
@@ -844,11 +846,12 @@ L.Icon.Default.mergeOptions({
                     attributionControl: true
                 })
 
-                // Add CartoDB Positron tiles (clean, modern style)
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                    subdomains: 'abcd',
-                    maxZoom: 20
+                // OpenStreetMap's own tiles (2026-10-18). CARTO's basemaps began
+                // asking for an API key and drew "API KEY REQUIRED" over every
+                // tile. These need no key; the OpenStreetMap credit must show.
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19
                 }).addTo(map)
 
                 // Add church markers
@@ -1127,5 +1130,12 @@ L.Icon.Default.mergeOptions({
 
 :deep(.leaflet-popup-content button:hover) {
     background-color: #1d4ed8;
+}
+
+/* OpenStreetMap's standard tiles are bright; muted toward the light grey of
+   the CARTO map they replaced (2026-10-18), so the church markers stay what
+   stands out. Only the tiles: markers and popups keep their colour. */
+.map-quiet :deep(.leaflet-tile-pane) {
+    filter: saturate(0.35) brightness(1.04) contrast(0.95);
 }
 </style>

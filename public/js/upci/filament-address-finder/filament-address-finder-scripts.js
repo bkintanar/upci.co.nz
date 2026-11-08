@@ -126,11 +126,12 @@ function initializeMap() {
                             // Initialize new map with existing address at street level zoom
                             mapInstance = L.map(mapContainerId).setView([address.latitude, address.longitude], 16);
 
-                            // Add CartoDB Positron tiles
-                            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                                subdomains: 'abcd',
-                                maxZoom: 20
+                            // OpenStreetMap's own tiles (2026-10-18). CARTO's basemaps began
+                            // asking for an API key and drew "API KEY REQUIRED" over every
+                            // tile. These need no key; the OpenStreetMap credit must show.
+                            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                maxZoom: 19
                             }).addTo(mapInstance);
 
                             // Add marker for existing address
@@ -165,11 +166,12 @@ function initializeMap() {
                             // Initialize map with default Wellington location
                             mapInstance = L.map(mapContainerId).setView([-41.2924, 174.7787], 10);
 
-                            // Add CartoDB Positron tiles
-                            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                                subdomains: 'abcd',
-                                maxZoom: 20
+                            // OpenStreetMap's own tiles (2026-10-18). CARTO's basemaps began
+                            // asking for an API key and drew "API KEY REQUIRED" over every
+                            // tile. These need no key; the OpenStreetMap credit must show.
+                            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                maxZoom: 19
                             }).addTo(mapInstance);
 
                             // Add a marker for Wellington
