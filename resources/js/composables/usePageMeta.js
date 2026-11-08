@@ -77,16 +77,19 @@ function truncate(value, limit = MAX_DESCRIPTION) {
 }
 
 /**
- * Writes a <meta name="..."> value, creating the tag if it is absent.
+ * Writes a <meta name="..."> value, creating the tag if it is absent. Open
+ * Graph tags use property="og:..." (as app.blade.php serves them), so those
+ * update the served tag rather than adding a second one beside it.
  */
 function setMeta(name, content) {
     if (typeof document === 'undefined') return
 
-    let tag = document.querySelector(`meta[name="${name}"]`)
+    const attribute = name.startsWith('og:') ? 'property' : 'name'
+    let tag = document.querySelector(`meta[${attribute}="${name}"]`)
 
     if (!tag) {
         tag = document.createElement('meta')
-        tag.setAttribute('name', name)
+        tag.setAttribute(attribute, name)
         document.head.appendChild(tag)
     }
 
