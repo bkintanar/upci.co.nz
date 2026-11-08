@@ -9,7 +9,7 @@ class AttendancePolicy
 {
     public function viewAny(User $user): bool
     {
-        return (bool) $user->access_level;
+        return $user->hasChurchScope();
     }
 
     public function view(User $user, Attendance $attendance): bool
@@ -19,7 +19,7 @@ class AttendancePolicy
 
     public function create(User $user): bool
     {
-        return (bool) $user->access_level;
+        return $user->hasChurchScope();
     }
 
     public function update(User $user, Attendance $attendance): bool
@@ -48,6 +48,6 @@ class AttendancePolicy
 
     public function deleteAny(User $user): bool
     {
-        return (bool) $user->access_level;
+        return $user->hasChurchScope();
     }
 }

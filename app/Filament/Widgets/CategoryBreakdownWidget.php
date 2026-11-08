@@ -12,6 +12,15 @@ class CategoryBreakdownWidget extends BaseWidget
     protected static ?int $sort = 3;
     protected int|string|array $columnSpan = 'full';
 
+    /**
+     * Attendance figures, so only for logins that may see attendance. A Bible
+     * School login lands on the dashboard too, and must not get these.
+     */
+    public static function canView(): bool
+    {
+        return AttendanceResource::canViewAny();
+    }
+
     protected function getColumns(): int
     {
         return 5;

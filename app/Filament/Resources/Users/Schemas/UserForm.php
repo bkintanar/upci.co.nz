@@ -57,7 +57,7 @@ class UserForm
                                     ->label('Access Level')
                                     ->options(AccessLevel::getOptions())
                                     ->placeholder('Select access level')
-                                    ->helperText('Local: one church. Regional: one region. National: full access.')
+                                    ->helperText('Local: one church. Regional: one region. National: full access. Bible School: ABC enrolments only.')
                                     ->live()
                                     // Privilege fields: only a national user may change these.
                                     // UserPolicy::update() returns true unconditionally for self-edit,

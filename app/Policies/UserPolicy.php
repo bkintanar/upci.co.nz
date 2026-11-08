@@ -8,7 +8,7 @@ class UserPolicy
 {
     public function viewAny(User $user): bool
     {
-        return (bool) $user->access_level;
+        return $user->hasChurchScope();
     }
 
     public function view(User $actor, User $target): bool
@@ -56,11 +56,14 @@ class UserPolicy
 
     /**
      * Whether a non-national actor ranks above the target. Regional outranks
-     * local and no-access users; nobody but national outranks a regional or
-     * national user. National actors are handled before this is reached.
+     * local and no-access users; nobody but national outranks a regional,
+     * national or Bible School user. A Bible School login reads applicants'
+     * personal details, so a presbyter who could edit it (and set its
+     * password) could read them too. National actors are handled before this
+     * is reached.
      */
     private function outranks(User $actor, User $target): bool
     {
-        return ! $target->isNational() && ! $target->isRegional();
+        return ! $target->isNational() && ! $target->isRegional() && ! $target->isBibleSchool();
     }
 }

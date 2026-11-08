@@ -110,6 +110,22 @@ class User extends Authenticatable implements FilamentUser
         return $this->access_level === AccessLevel::NATIONAL;
     }
 
+    public function isBibleSchool(): bool
+    {
+        return $this->access_level === AccessLevel::BIBLE_SCHOOL;
+    }
+
+    /**
+     * National, regional and local logins look after churches: their people,
+     * attendance and events. A Bible School login does not; it reads ABC
+     * enrolments and nothing else. Policies that used to grant on "has any
+     * access level" ask this instead, so a new level starts with nothing.
+     */
+    public function hasChurchScope(): bool
+    {
+        return $this->isNational() || $this->isRegional() || $this->isLocal();
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return (bool) $this->access_level;

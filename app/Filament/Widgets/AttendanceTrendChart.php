@@ -12,6 +12,15 @@ class AttendanceTrendChart extends ChartWidget
 
     protected static ?int $sort = 2;
 
+    /**
+     * Attendance figures, so only for logins that may see attendance. A Bible
+     * School login lands on the dashboard too, and must not get these.
+     */
+    public static function canView(): bool
+    {
+        return AttendanceResource::canViewAny();
+    }
+
     protected function getData(): array
     {
         // Scoped via the resource — see MainStatsWidget.

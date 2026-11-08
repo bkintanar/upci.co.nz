@@ -24,7 +24,7 @@ class ViewAbcEnrolment extends ViewRecord
         return [
             // The transcript lives on the private disk, so this action is the
             // only way to reach it, and reaching this page already requires
-            // the national-only view permission.
+            // the enrolment view permission (national or Bible School).
             Action::make('downloadTranscript')
                 ->label('Download transcript')
                 ->icon(Heroicon::OutlinedArrowDownTray)
@@ -51,9 +51,9 @@ class ViewAbcEnrolment extends ViewRecord
             ->label(fn (AbcEnrolment $record) => $record->pastorReference ? 'Email the pastor again' : 'Ask the pastor for a reference')
             ->icon(Heroicon::OutlinedEnvelope)
             ->visible(fn (AbcEnrolment $record) => ! $record->pastorReference?->isSubmitted())
-            // The resource is national-only already; said again here because
-            // this action sends email in the college's name.
-            ->authorize(fn (): bool => (bool) auth()->user()?->isNational())
+            // Sends email in the college's name, so it has its own ability:
+            // AbcEnrolmentPolicy::emailPastor (national or Bible School).
+            ->authorize('emailPastor')
             ->modalHeading("Email the pastor's questionnaire")
             ->modalDescription('The pastor is emailed a new link to the questionnaire. Any earlier link stops working.')
             ->modalSubmitActionLabel('Send')

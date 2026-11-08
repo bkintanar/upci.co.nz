@@ -9,7 +9,7 @@ class ChurchPolicy
 {
     public function viewAny(User $user): bool
     {
-        return (bool) $user->access_level;
+        return $user->hasChurchScope();
     }
 
     public function view(User $user, Church $church): bool

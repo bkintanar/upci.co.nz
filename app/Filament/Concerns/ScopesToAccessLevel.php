@@ -2,8 +2,8 @@
 
 namespace App\Filament\Concerns;
 
-use App\Enums\AccessLevel;
 use Closure;
+use App\Enums\AccessLevel;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -30,7 +30,10 @@ trait ScopesToAccessLevel
         return match ($user->access_level) {
             AccessLevel::NATIONAL => $query,
             AccessLevel::REGIONAL => (static::regionalScope())($query, $user->region_id ?? -1),
-            AccessLevel::LOCAL    => (static::localScope())($query, $user->church_id ?? -1),
+            AccessLevel::LOCAL => (static::localScope())($query, $user->church_id ?? -1),
+            // A Bible School login looks after no church. Its policies refuse
+            // these resources; this keeps any query that slips through empty.
+            AccessLevel::BIBLE_SCHOOL => $query->whereRaw('1=0'),
         };
     }
 
