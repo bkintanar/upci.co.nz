@@ -104,8 +104,12 @@
             </div>
         </div>
 
-        <!-- Mobile menu -->
-        <div v-show="mobileMenuOpen" id="mobile-menu" class="xl:hidden bg-brand-green-900 border-t border-white/15">
+        <!-- Mobile menu. It scrolls on its own, within the screen below the
+             bar, and the page behind is locked while it is open (2026-10-19:
+             a long menu could not be scrolled; the swipe moved the page
+             behind it instead). overscroll-contain stops the scroll passing
+             through at either end. -->
+        <div v-show="mobileMenuOpen" id="mobile-menu" class="mobile-menu-panel xl:hidden overflow-y-auto overscroll-contain bg-brand-green-900 border-t border-white/15">
             <div v-if="!loading" class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-6 space-y-1">
                 <template v-for="item in menuItems" :key="item.id">
                     <!-- Parent with children -->
@@ -176,7 +180,7 @@
 
 <script>
 import axios from 'axios';
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 // New UPCI NZ mark from the 2026 logo pack, white variant — both the
 // navbar and footer sit on dark surfaces, and the standard mark sets its
 // wordmark in black. PNG rather than SVG deliberately: the SVG export
@@ -225,6 +229,24 @@ export default defineComponent({
             mobileMenuOpen.value = !mobileMenuOpen.value
         }
 
+        // The page behind does not scroll while the menu is open, as with the
+        // photo viewer. Both html and body: iOS Safari scrolls the body.
+        const lockPage = (locked) => {
+            if (typeof document === 'undefined') return
+            for (const el of [document.documentElement, document.body]) {
+                el.style.overflow = locked ? 'hidden' : ''
+            }
+        }
+        watch(mobileMenuOpen, lockPage)
+
+        // Turning a phone or widening a window past the desktop bar (xl)
+        // hides the menu, so it also closes it: a hidden open menu would
+        // leave the page locked.
+        const desktop = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1280px)') : null
+        const closeOnDesktop = (event) => {
+            if (event.matches) mobileMenuOpen.value = false
+        }
+
         const fetchMenuItems = async () => {
             try {
                 const response = await axios.get('/api/menu/header')
@@ -244,6 +266,12 @@ export default defineComponent({
 
         onMounted(() => {
             fetchMenuItems()
+            desktop?.addEventListener('change', closeOnDesktop)
+        })
+
+        onBeforeUnmount(() => {
+            desktop?.removeEventListener('change', closeOnDesktop)
+            lockPage(false)
         })
 
         return {
@@ -261,6 +289,14 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* The menu's own scroll area: the screen less the 80px bar above it. dvh
+   follows a phone's browser bars as they show and hide; vh first for the
+   browsers without it. */
+.mobile-menu-panel {
+    max-height: calc(100vh - 5rem);
+    max-height: calc(100dvh - 5rem);
+}
+
 /* Logo container styling */
 .logo-container {
     background: white;
